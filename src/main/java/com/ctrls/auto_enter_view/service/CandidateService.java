@@ -18,7 +18,7 @@ public class CandidateService {
 
   private final PasswordEncoder passwordEncoder;
 
-  public void signUp(SignUpDto.Request signUpDto) {
+  public SignUpDto.Response signUp(SignUpDto.Request signUpDto) {
 
     if (candidateRepository.existsByEmail(signUpDto.getEmail())) {
       throw new RuntimeException("이미 존재하는 이메일 입니다.");
@@ -30,6 +30,11 @@ public class CandidateService {
 
     candidateRepository.save(candidate);
 
+    return SignUpDto.Response.builder()
+        .email(signUpDto.getEmail())
+        .name(signUpDto.getName())
+        .message(signUpDto.getName() + "님 회원가입을 환영합니다")
+        .build();
   }
 
   public SignUpDto.Response getSignUpDto(SignUpDto.Request signUpDto) {

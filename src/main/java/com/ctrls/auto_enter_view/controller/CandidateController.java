@@ -21,9 +21,8 @@ public class CandidateController {
   private final CandidateService candidateService;
 
   @PostMapping("/candidates/signup")
-  public ResponseEntity<?> signUp(@RequestBody @Validated Request signUpDto) {
-    candidateService.signUp(signUpDto);
-    SignUpDto.Response response = candidateService.getSignUpDto(signUpDto);
+  public ResponseEntity<?> signUp(@RequestBody @Validated SignUpDto.Request signUpDto) {
+    SignUpDto.Response response = candidateService.signUp(signUpDto);
     return ResponseEntity.ok().body(response);
   }
 

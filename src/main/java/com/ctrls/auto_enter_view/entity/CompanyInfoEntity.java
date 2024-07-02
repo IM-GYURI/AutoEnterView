@@ -2,6 +2,8 @@ package com.ctrls.auto_enter_view.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -20,8 +22,8 @@ import java.time.LocalDateTime;
 public class CompanyInfoEntity extends BaseEntity {
 
   @Id
-  @Column(nullable = false)
-  private Long companyInfoId;
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
   @Column(nullable = false, unique = true)
   private String companyInfoKey;
