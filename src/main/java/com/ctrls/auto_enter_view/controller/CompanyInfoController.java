@@ -1,4 +1,4 @@
-package com.ctrls.auto_enter_view.config;
+package com.ctrls.auto_enter_view.controller;
 
 import com.ctrls.auto_enter_view.service.CompanyInfoService;
 import lombok.RequiredArgsConstructor;
