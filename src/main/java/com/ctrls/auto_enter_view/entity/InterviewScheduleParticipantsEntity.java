@@ -22,7 +22,7 @@ public class InterviewScheduleParticipantsEntity extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long interviewScheduleParticipantsId;
+  private Long id;
 
   @Column(nullable = false, unique = true)
   private String interviewScheduleKey;

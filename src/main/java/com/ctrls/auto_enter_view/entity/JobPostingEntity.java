@@ -22,7 +22,7 @@ public class JobPostingEntity extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long jobPostingId;
+  private Long id;
 
   @Column(nullable = false)
   private String jobPostingKey;

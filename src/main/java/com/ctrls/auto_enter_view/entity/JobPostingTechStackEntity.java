@@ -21,7 +21,7 @@ public class JobPostingTechStackEntity extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long jobPostingTechStackId;
+  private Long id;
 
   @Column(nullable = false)
   private String jobPostingKey;
