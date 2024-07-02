@@ -8,7 +8,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @SpringBootApplication
 public class AutoEnterViewApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(AutoEnterViewApplication.class, args);
-	}
+  public static void main(String[] args) {
+
+    SpringApplication.run(AutoEnterViewApplication.class, args);
+  }
 }

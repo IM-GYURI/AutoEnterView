@@ -1,6 +1,5 @@
 package com.ctrls.auto_enter_view.entity;
 
-import com.ctrls.auto_enter_view.dto.company.ChangePasswordDto;
 import com.ctrls.auto_enter_view.enums.UserRole;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
