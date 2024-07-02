@@ -21,7 +21,7 @@ public class JobPostingImage extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long jobPostingImageId;
+  private Long id;
 
   @Column(nullable = false, unique = true)
   private String jobPostingKey;
