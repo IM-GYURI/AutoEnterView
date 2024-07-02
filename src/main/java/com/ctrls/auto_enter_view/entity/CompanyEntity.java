@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.entity;
 
+import com.ctrls.auto_enter_view.dto.company.ChangePasswordDto;
 import com.ctrls.auto_enter_view.enums.UserRole;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @AllArgsConstructor
 @Builder
@@ -33,6 +35,7 @@ public class CompanyEntity extends BaseEntity {
   private String email;
 
   @Column(nullable = false)
+  @Setter
   private String password;
 
   @Column(nullable = false)
