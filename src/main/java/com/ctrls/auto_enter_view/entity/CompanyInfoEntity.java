@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Builder
 @Entity
 @Table(name = "company_info")
-public class CompanyInfo extends BaseEntity {
+public class CompanyInfoEntity extends BaseEntity {
 
   @Id
   @Column(nullable = false)

@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Entity
 @Table(name = "job_posting")
-public class JobPosting extends BaseEntity {
+public class JobPostingEntity extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,6 +56,6 @@ public class JobPosting extends BaseEntity {
 
   @Column(nullable = false)
   private LocalDateTime endDateTime;
-  
+
   private String jobPostingContent;
 }
