@@ -48,5 +48,5 @@ public class CandidateEntity extends BaseEntity {
   private UserRole role;
 
   @Column(nullable = false)
-  private boolean isOpen = true;
+  private boolean isOpen;
 }
