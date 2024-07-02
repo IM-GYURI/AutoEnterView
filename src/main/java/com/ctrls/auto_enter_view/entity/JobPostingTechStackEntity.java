@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Entity
 @Table(name = "job_posting_tech_stack")
-public class JobPostingTechStack extends BaseEntity {
+public class JobPostingTechStackEntity extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
