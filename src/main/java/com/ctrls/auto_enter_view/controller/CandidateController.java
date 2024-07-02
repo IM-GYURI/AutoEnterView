@@ -21,7 +21,7 @@ public class CandidateController {
   private final CandidateService candidateService;
 
   @PostMapping("/candidates/signup")
-  public ResponseEntity<?> signUp(@RequestBody Request signUpDto) {
+  public ResponseEntity<?> signUp(@RequestBody @Validated Request signUpDto) {
     candidateService.signUp(signUpDto);
     SignUpDto.Response response = candidateService.getSignUpDto(signUpDto);
     return ResponseEntity.ok().body(response);
@@ -29,7 +29,7 @@ public class CandidateController {
 
   @DeleteMapping("/candidates/withdraw/{candidateKey}")
   public ResponseEntity<?> withdraw(@PathVariable String candidateKey,
-      @RequestBody WithdrawDto.Request request) {
+      @RequestBody @Validated WithdrawDto.Request request) {
     candidateService.withdraw(request, candidateKey);
     return ResponseEntity.ok("회원 탈퇴 완료");
   }
