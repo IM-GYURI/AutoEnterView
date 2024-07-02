@@ -11,4 +11,5 @@ import org.springframework.stereotype.Service;
 public class JobPostingImageService {
 
   private final JobPostingImageRepository jobPostingImageRepository;
+
 }
