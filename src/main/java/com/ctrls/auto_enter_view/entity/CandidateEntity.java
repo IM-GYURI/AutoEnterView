@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @AllArgsConstructor
 @Builder
@@ -35,6 +36,7 @@ public class CandidateEntity extends BaseEntity {
   @Column(nullable = false)
   private String email;
 
+  @Setter
   @Column(nullable = false)
   private String password;
 
@@ -46,5 +48,5 @@ public class CandidateEntity extends BaseEntity {
   private UserRole role;
 
   @Column(nullable = false)
-  private boolean isOpen = true;
+  private boolean isOpen;
 }
