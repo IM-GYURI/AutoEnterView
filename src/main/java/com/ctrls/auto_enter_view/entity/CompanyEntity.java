@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @AllArgsConstructor
 @Builder
@@ -32,6 +33,7 @@ public class CompanyEntity extends BaseEntity {
   @Column(nullable = false)
   private String email;
 
+  @Setter
   @Column(nullable = false)
   private String password;
 
@@ -44,4 +46,5 @@ public class CompanyEntity extends BaseEntity {
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   private UserRole role;
+
 }
