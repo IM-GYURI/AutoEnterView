@@ -25,11 +25,6 @@ public class CompanyService {
   // 회원 가입
   public SignUpDto.Response signUp(SignUpDto.Request form) {
 
-//    // 인증번호 확인
-//    if (!form.getVerificationCode().equals(Redis.getVerificationCode(form.getEmail()))) {
-//      throw new RuntimeException();
-//    }
-
     // 키 생성
     String companyKey = KeyGenerator.generateKey();
 
