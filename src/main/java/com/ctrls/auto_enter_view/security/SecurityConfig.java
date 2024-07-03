@@ -46,8 +46,7 @@ public class SecurityConfig {
         )
         .authorizeHttpRequests(authHttpRequest -> authHttpRequest
             // 인증 없이 허용
-            .requestMatchers("/companies/signup", "/candidates/signup",
-                "companies/{companyKey}/password")
+            .requestMatchers("/companies/signup", "/candidates/signup", "/candidates/find-email")
             .permitAll()
             .requestMatchers("/common/**")
             .permitAll()

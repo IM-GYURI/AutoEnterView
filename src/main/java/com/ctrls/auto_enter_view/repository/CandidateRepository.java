@@ -15,4 +15,6 @@ public interface CandidateRepository extends JpaRepository<CandidateEntity, Long
   Optional<CandidateEntity> findByEmail(String email);
 
   Optional<CandidateEntity> findByCandidateKey(String candidateKey);
+
+  Optional<CandidateEntity> findByNameAndPhoneNumber(String name, String phoneNumber);
 }
