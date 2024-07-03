@@ -5,6 +5,7 @@ import com.ctrls.auto_enter_view.dto.common.EmailVerificationDto;
 import com.ctrls.auto_enter_view.dto.common.SignInDto.Request;
 import com.ctrls.auto_enter_view.dto.common.SignInDto.Response;
 import com.ctrls.auto_enter_view.dto.common.TemporaryPasswordDto;
+import com.ctrls.auto_enter_view.enums.ResponseMessage;
 import com.ctrls.auto_enter_view.service.CommonUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -50,7 +51,7 @@ public class CommonUserController {
 
     commonUserService.sendVerificationCode(emailDto.getEmail());
 
-    return ResponseEntity.ok("인증 코드 전송 성공");
+    return ResponseEntity.ok(ResponseMessage.SUCCESS_SEND_CODE.getMessage());
   }
 
   /**
@@ -66,7 +67,7 @@ public class CommonUserController {
     commonUserService.verifyEmailVerificationCode(emailVerificationDto.getEmail(),
         emailVerificationDto.getVerificationCode());
 
-    return ResponseEntity.ok("이메일 인증 성공");
+    return ResponseEntity.ok(ResponseMessage.SUCCESS_EMAIL_VERIFY.getMessage());
   }
 
   /**
@@ -83,7 +84,6 @@ public class CommonUserController {
         temporaryPasswordDto.getName());
 
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("임시 비밀번호 전송 실패");
-
   }
 
   // 로그인
