@@ -7,7 +7,8 @@ import lombok.Getter;
 @Getter
 public enum ResponseMessage {
   SIGNUP("회원가입을 축하드립니다."),
-  CHANGE_PASSWORD("비밀번호 변경 완료.");
+  CHANGE_PASSWORD("비밀번호 변경 완료."),
+  WITHDRAW("회원탈퇴 완료");
 
   private final String message;
 }
