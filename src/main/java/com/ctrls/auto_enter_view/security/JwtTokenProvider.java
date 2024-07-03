@@ -102,7 +102,6 @@ public class JwtTokenProvider {
           .build();
     }
 
-    return new UsernamePasswordAuthenticationToken(userDetails, token,
-        userDetails.getAuthorities());
+    return new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
   }
 }
