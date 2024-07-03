@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.service;
 
+import com.ctrls.auto_enter_view.dto.candidate.WithdrawDto;
 import com.ctrls.auto_enter_view.dto.company.ChangePasswordDto;
 import com.ctrls.auto_enter_view.dto.company.SignUpDto;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
@@ -60,5 +61,18 @@ public class CompanyService {
     companyEntity.setPassword(passwordEncoder.encode(form.getNewPassword()));
 
     companyRepository.save(companyEntity);
+  }
+
+  public void withdraw(WithdrawDto.Request request, String companyKey) {
+
+    CompanyEntity company = companyRepository.findByCompanyKey(companyKey)
+        .orElseThrow(() -> new RuntimeException("키값이 다릅니다."));
+
+    if (!passwordEncoder.matches(request.getPassword(), company.getPassword())) {
+      throw new RuntimeException("비밀번호가 다릅니다.");
+    }
+
+    companyRepository.delete(company);
+
   }
 }

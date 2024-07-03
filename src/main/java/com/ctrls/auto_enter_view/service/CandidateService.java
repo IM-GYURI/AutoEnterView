@@ -37,17 +37,6 @@ public class CandidateService {
         .build();
   }
 
-  public SignUpDto.Response getSignUpDto(SignUpDto.Request signUpDto) {
-
-    SignUpDto.Response signUpDtoResponse = SignUpDto.Response.builder()
-        .email(signUpDto.getEmail())
-        .name(signUpDto.getName())
-        .message(signUpDto.getName() + "님 회원가입을 환영합니다")
-        .build();
-
-    return signUpDtoResponse;
-  }
-
   public void withdraw(WithdrawDto.Request request, String candidateKey) {
 
     CandidateEntity candidate = candidateRepository.findByCandidateKey(candidateKey)
@@ -60,5 +49,6 @@ public class CandidateService {
     candidateRepository.delete(candidate);
 
   }
+
 
 }
