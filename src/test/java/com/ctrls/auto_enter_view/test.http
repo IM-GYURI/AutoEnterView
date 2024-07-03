@@ -1,21 +1,3 @@
-####
-#POST http://localhost:8080/candidates/signup
-#Content-Type: application/json
-#
-#{
-#  "name": "지영광",
-#  "email": "aaa@naver.com",
-#  "password": "!A34567118",
-#  "phoneNumber": "010-111-1111"
-#}
-
-####
-#DELETE http://localhost:8080/candidates/withdraw/7350d7bf734c4a3988b491b2c860b8f0
-#Content-Type: application/json
-#
-#{
-#  "password": "!A34567118"
-#}
 
 ###
 POST http://localhost:8080/candidates/signup

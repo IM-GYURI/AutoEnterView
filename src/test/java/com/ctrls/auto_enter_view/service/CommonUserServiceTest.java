@@ -111,7 +111,7 @@ class CommonUserServiceTest {
       commonUserService.verifyEmailVerificationCode("test@example.com", "654321");
     });
 
-    assertEquals("인증 코드가 일치하지 않습니다.", exception.getMessage());
+    assertEquals("유효하지 않은 인증 코드입니다.", exception.getMessage());
   }
 
   @Test
