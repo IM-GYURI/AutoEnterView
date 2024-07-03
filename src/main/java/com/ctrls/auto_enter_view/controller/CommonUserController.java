@@ -17,7 +17,7 @@ public class CommonUserController {
   private final CommonUserService commonUserService;
 
   // 로그인
-  @PostMapping("/signin")
+  @PostMapping("/common/signin")
   public ResponseEntity<?> login(
       @Validated @RequestBody Request request) {
 
