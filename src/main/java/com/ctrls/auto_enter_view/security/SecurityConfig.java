@@ -45,7 +45,7 @@ public class SecurityConfig {
         )
         .authorizeHttpRequests(authHttpRequest -> authHttpRequest
             // 인증 없이 허용
-            .requestMatchers("/company/signup", "/candidate/signup").permitAll()
+            .requestMatchers("/companies/signup", "/candidates/signup").permitAll()
             .requestMatchers("/common/**").permitAll()
             .requestMatchers("/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**").permitAll()
 
