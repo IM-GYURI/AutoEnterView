@@ -1,0 +1,23 @@
+###
+GET http://localhost:8080/duplicate-email
+Content-Type: application/json
+
+{
+  "email": "kgulr0517@gmail.com"
+}
+
+###
+GET http://localhost:8080/duplicate-email
+Content-Type: application/json
+
+{
+  "email": "aaa@naver.com"
+}
+
+###
+POST http://localhost:8080/send-verification-code
+Content-Type: application/json
+
+{
+  "email": "kgulr0517@naver.com"
+}
