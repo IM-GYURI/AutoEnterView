@@ -1,11 +1,14 @@
 package com.ctrls.auto_enter_view.service;
 
+import com.ctrls.auto_enter_view.dto.candidate.ChangePasswordDto.Request;
 import com.ctrls.auto_enter_view.dto.candidate.SignUpDto;
 import com.ctrls.auto_enter_view.dto.candidate.WithdrawDto;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +21,7 @@ public class CandidateService {
 
   private final PasswordEncoder passwordEncoder;
 
+  // 회원 가입
   public SignUpDto.Response signUp(SignUpDto.Request signUpDto) {
 
     if (candidateRepository.existsByEmail(signUpDto.getEmail())) {
@@ -37,18 +41,45 @@ public class CandidateService {
         .build();
   }
 
+  // 회원 탈퇴
   public void withdraw(WithdrawDto.Request request, String candidateKey) {
 
-    CandidateEntity candidate = candidateRepository.findByCandidateKey(candidateKey)
-        .orElseThrow(() -> new RuntimeException("키값이 다릅니다."));
+    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-    if (!passwordEncoder.matches(request.getPassword(), candidate.getPassword())) {
+    CandidateEntity candidateEntity = candidateRepository.findByEmail(principal.getUsername())
+        .orElseThrow(RuntimeException::new);
+
+    // 응시자 정보의 응시자키와 URL 응시자키 일치 확인
+    if (!candidateEntity.getCandidateKey().equals(candidateKey)) {
+      throw new RuntimeException();
+    }
+
+    if (!passwordEncoder.matches(request.getPassword(), candidateEntity.getPassword())) {
       throw new RuntimeException("비밀번호가 다릅니다.");
     }
 
-    candidateRepository.delete(candidate);
-
+    candidateRepository.delete(candidateEntity);
   }
 
+  // 비밀번호 수정
+  public void changePassword(String candidateKey, Request request) {
 
+    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+    CandidateEntity candidateEntity = candidateRepository.findByEmail(principal.getUsername())
+        .orElseThrow(RuntimeException::new);
+
+    // 응시자 정보의 응시자키와 URL 응시자키 일치 확인
+    if (!candidateEntity.getCandidateKey().equals(candidateKey)) {
+      throw new RuntimeException();
+    }
+
+    if (!passwordEncoder.matches(request.getOldPassword(), candidateEntity.getPassword())) {
+      throw new RuntimeException("비밀번호가 다릅니다.");
+    }
+
+    candidateEntity.setPassword(passwordEncoder.encode(request.getNewPassword()));
+
+    candidateRepository.save(candidateEntity);
+  }
 }
