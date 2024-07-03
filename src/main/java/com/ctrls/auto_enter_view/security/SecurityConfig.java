@@ -49,7 +49,8 @@ public class SecurityConfig {
             .requestMatchers("/companies/signup", "/candidates/signup",
                 "companies/{companyKey}/password")
             .permitAll()
-            .requestMatchers("/common/**").permitAll()
+            .requestMatchers("/common/**")
+            .permitAll()
             .requestMatchers("/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**")
             .permitAll()
 
