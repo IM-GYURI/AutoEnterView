@@ -29,7 +29,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-
 class CommonUserServiceTest {
 
   @Mock
@@ -55,12 +54,14 @@ class CommonUserServiceTest {
 
   @BeforeEach
   public void setUp() {
+
     MockitoAnnotations.openMocks(this);
     when(redisTemplate.opsForValue()).thenReturn(valueOperationsMock);
   }
 
   @Test
   public void testCheckDuplicateEmail_available() {
+
     when(companyRepository.existsByEmail(anyString())).thenReturn(false);
     when(candidateRepository.existsByEmail(anyString())).thenReturn(false);
 
@@ -71,6 +72,7 @@ class CommonUserServiceTest {
 
   @Test
   public void testCheckDuplicateEmail_unavailable() {
+
     when(companyRepository.existsByEmail(anyString())).thenReturn(true);
 
     NonUsableEmailException exception = assertThrows(NonUsableEmailException.class, () -> {
@@ -82,6 +84,7 @@ class CommonUserServiceTest {
 
   @Test
   public void testSendVerificationCode() {
+
     assertDoesNotThrow(() -> {
       commonUserService.sendVerificationCode("test@example.com");
     });
@@ -94,6 +97,7 @@ class CommonUserServiceTest {
 
   @Test
   public void testVerifyEmailVerificationCode_valid() {
+
     ValueOperations<String, String> valueOpsMock = mock(ValueOperations.class);
     when(redisTemplate.opsForValue()).thenReturn(valueOpsMock);
 
@@ -105,6 +109,7 @@ class CommonUserServiceTest {
 
   @Test
   public void testVerifyEmailVerificationCode_invalid() {
+
     ValueOperations<String, String> valueOpsMock = mock(ValueOperations.class);
     when(redisTemplate.opsForValue()).thenReturn(valueOpsMock);
 
@@ -119,6 +124,7 @@ class CommonUserServiceTest {
 
   @Test
   public void testVerifyEmailVerificationCode_notFound() {
+
     ValueOperations<String, String> valueOpsMock = mock(ValueOperations.class);
     when(redisTemplate.opsForValue()).thenReturn(valueOpsMock);
 
@@ -133,6 +139,7 @@ class CommonUserServiceTest {
 
   @Test
   public void testSendTemporaryPassword_company() {
+
     CompanyEntity company = CompanyEntity.builder()
         .email("test@company.com")
         .companyName("TestCompany")
@@ -151,6 +158,7 @@ class CommonUserServiceTest {
 
   @Test
   public void testSendTemporaryPassword_candidate() {
+
     CandidateEntity candidate = CandidateEntity.builder()
         .email("test@candidate.com")
         .name("TestCandidate")
