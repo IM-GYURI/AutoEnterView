@@ -15,6 +15,7 @@ public class RandomGenerator {
 
   // 이메일 인증번호 생성
   public static String generateRandomCode() {
+
     StringBuilder sb = new StringBuilder();
 
     for (int i = 0; i < CODE_LENGTH; i++) {
@@ -26,6 +27,7 @@ public class RandomGenerator {
 
   // 임시 비밀번호 생성
   public static String generateTemporaryPassword() {
+
     StringBuilder sb = new StringBuilder();
 
     // 비밀번호에 반드시 포함되어야 할 문자 유형
@@ -43,6 +45,7 @@ public class RandomGenerator {
   }
 
   private static char getRandomChar(String chars) {
+
     return chars.charAt(new Random().nextInt(chars.length()));
   }
 }

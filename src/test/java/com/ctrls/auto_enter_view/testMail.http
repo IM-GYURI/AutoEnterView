@@ -1,5 +1,5 @@
 ###
-GET http://localhost:8080/duplicate-email
+GET http://localhost:8080/common/duplicate-email
 Content-Type: application/json
 
 {
@@ -7,7 +7,7 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:8080/duplicate-email
+GET http://localhost:8080/common/duplicate-email
 Content-Type: application/json
 
 {
@@ -15,9 +15,27 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:8080/send-verification-code
+POST http://localhost:8080/common/send-verification-code
 Content-Type: application/json
 
 {
-  "email": "kgulr0517@naver.com"
+  "email": "kgulr0517@gmail.com"
+}
+
+###
+GET http://localhost:8080/common/verify-email
+Content-Type: application/json
+
+{
+  "email": "kgulr0517@gmail.com",
+  "verificationCode": "4B1@s8"
+}
+
+###
+POST http://localhost:8080/common/email/password
+Content-Type: application/json
+
+{
+  "email": "kgulr0517@naver.com",
+  "name": "임규리"
 }

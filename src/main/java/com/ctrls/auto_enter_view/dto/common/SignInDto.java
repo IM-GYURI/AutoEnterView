@@ -42,6 +42,7 @@ public class SignInDto {
   }
 
   public static Response fromCompany(CompanyEntity company, String token) {
+
     return Response.builder()
         .key(company.getCompanyKey())
         .name(company.getCompanyName())
@@ -52,6 +53,7 @@ public class SignInDto {
   }
 
   public static Response fromCandidate(CandidateEntity candidate, String token) {
+
     return Response.builder()
         .key(candidate.getCandidateKey())
         .name(candidate.getName())

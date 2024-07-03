@@ -5,9 +5,9 @@ import com.ctrls.auto_enter_view.dto.common.EmailVerificationDto;
 import com.ctrls.auto_enter_view.dto.common.SignInDto.Request;
 import com.ctrls.auto_enter_view.dto.common.SignInDto.Response;
 import com.ctrls.auto_enter_view.dto.common.TemporaryPasswordDto;
+import com.ctrls.auto_enter_view.enums.ResponseMessage;
 import com.ctrls.auto_enter_view.service.CommonUserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
  */
 
 @RequestMapping("/common")
-@RestController
 @RequiredArgsConstructor
+@RestController
 public class CommonUserController {
 
   private final CommonUserService commonUserService;
@@ -35,6 +35,7 @@ public class CommonUserController {
    */
   @GetMapping("/duplicate-email")
   public ResponseEntity<?> checkDuplicateEmail(@RequestBody @Validated EmailDto emailDto) {
+
     return ResponseEntity.ok(commonUserService.checkDuplicateEmail(emailDto.getEmail()));
   }
 
@@ -46,9 +47,10 @@ public class CommonUserController {
    */
   @PostMapping("/send-verification-code")
   public ResponseEntity<?> sendVerificationCode(@RequestBody @Validated EmailDto emailDto) {
+
     commonUserService.sendVerificationCode(emailDto.getEmail());
 
-    return ResponseEntity.ok("인증 코드 전송 성공");
+    return ResponseEntity.ok(ResponseMessage.SUCCESS_SEND_CODE.getMessage());
   }
 
   /**
@@ -60,11 +62,11 @@ public class CommonUserController {
   @GetMapping("/verify-email")
   public ResponseEntity<?> verifyEmail(
       @RequestBody @Validated EmailVerificationDto emailVerificationDto) {
+
     commonUserService.verifyEmailVerificationCode(emailVerificationDto.getEmail(),
         emailVerificationDto.getVerificationCode());
 
-    return ResponseEntity.ok("이메일 인증 성공");
-
+    return ResponseEntity.ok(ResponseMessage.SUCCESS_EMAIL_VERIFY.getMessage());
   }
 
   /**
@@ -76,11 +78,11 @@ public class CommonUserController {
   @PostMapping("/email/password")
   public ResponseEntity<?> sendTemporaryPassword(
       @RequestBody @Validated TemporaryPasswordDto temporaryPasswordDto) {
+
     commonUserService.sendTemporaryPassword(temporaryPasswordDto.getEmail(),
         temporaryPasswordDto.getName());
 
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("임시 비밀번호 전송 실패");
-
+    return ResponseEntity.ok("임시 비밀번호 전송 성공");
   }
 
   // 로그인
