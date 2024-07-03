@@ -26,13 +26,8 @@ public class CompanyService {
 
     // 이메일 인증번호 확인
 
-    // 비밀번호와 확인용 비밀번호 일치 확인
-    if (!form.getPassword().equals(form.getPasswordCheck())) {
-      throw new RuntimeException();
-    }
-
     // 키 생성
-    String companyKey = keyGenerator.generateKey();
+    String companyKey = KeyGenerator.generateKey();
 
     CompanyEntity companyEntity = form.toEntity(companyKey,
         passwordEncoder.encode(form.getPassword()));
