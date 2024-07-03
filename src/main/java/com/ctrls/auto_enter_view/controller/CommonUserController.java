@@ -13,14 +13,16 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 인증 없이 접근 가능 - 공통 회원 기능 : 회사, 지원자
  */
 
-@RestController
+@RequestMapping("/common")
 @RequiredArgsConstructor
+@RestController
 public class CommonUserController {
 
   private final CommonUserService commonUserService;
@@ -33,6 +35,7 @@ public class CommonUserController {
    */
   @GetMapping("/duplicate-email")
   public ResponseEntity<?> checkDuplicateEmail(@RequestBody @Validated EmailDto emailDto) {
+
     return ResponseEntity.ok(commonUserService.checkDuplicateEmail(emailDto.getEmail()));
   }
 
@@ -44,6 +47,7 @@ public class CommonUserController {
    */
   @PostMapping("/send-verification-code")
   public ResponseEntity<?> sendVerificationCode(@RequestBody @Validated EmailDto emailDto) {
+
     commonUserService.sendVerificationCode(emailDto.getEmail());
 
     return ResponseEntity.ok("인증 코드 전송 성공");
@@ -58,11 +62,11 @@ public class CommonUserController {
   @GetMapping("/verify-email")
   public ResponseEntity<?> verifyEmail(
       @RequestBody @Validated EmailVerificationDto emailVerificationDto) {
+
     commonUserService.verifyEmailVerificationCode(emailVerificationDto.getEmail(),
         emailVerificationDto.getVerificationCode());
 
     return ResponseEntity.ok("이메일 인증 성공");
-
   }
 
   /**
@@ -74,6 +78,7 @@ public class CommonUserController {
   @PostMapping("/email/password")
   public ResponseEntity<?> sendTemporaryPassword(
       @RequestBody @Validated TemporaryPasswordDto temporaryPasswordDto) {
+
     commonUserService.sendTemporaryPassword(temporaryPasswordDto.getEmail(),
         temporaryPasswordDto.getName());
 
@@ -82,7 +87,7 @@ public class CommonUserController {
   }
 
   // 로그인
-  @PostMapping("/common/signin")
+  @PostMapping("/signin")
   public ResponseEntity<?> login(
       @Validated @RequestBody Request request) {
 

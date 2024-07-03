@@ -2,12 +2,15 @@ package com.ctrls.auto_enter_view.service;
 
 import com.ctrls.auto_enter_view.dto.company.ChangePasswordDto;
 import com.ctrls.auto_enter_view.dto.company.SignUpDto;
+import com.ctrls.auto_enter_view.dto.company.WithdrawDto.Request;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.enums.ResponseMessage;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.util.KeyGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,22 +20,18 @@ import org.springframework.stereotype.Service;
 public class CompanyService {
 
   private final CompanyRepository companyRepository;
-  private final KeyGenerator keyGenerator;
   private final PasswordEncoder passwordEncoder;
 
+  // 회원 가입
   public SignUpDto.Response signUp(SignUpDto.Request form) {
 
-    // 이메일 중복 확인
-
-    // 이메일 인증번호 확인
-
-    // 비밀번호와 확인용 비밀번호 일치 확인
-    if (!form.getPassword().equals(form.getPasswordCheck())) {
-      throw new RuntimeException();
-    }
+//    // 인증번호 확인
+//    if (!form.getVerificationCode().equals(Redis.getVerificationCode(form.getEmail()))) {
+//      throw new RuntimeException();
+//    }
 
     // 키 생성
-    String companyKey = keyGenerator.generateKey();
+    String companyKey = KeyGenerator.generateKey();
 
     CompanyEntity companyEntity = form.toEntity(companyKey,
         passwordEncoder.encode(form.getPassword()));
@@ -47,10 +46,18 @@ public class CompanyService {
         .build();
   }
 
+  // 비밀번호 변경
   public void changePassword(String companyKey, ChangePasswordDto.Request form) {
 
-    CompanyEntity companyEntity = companyRepository.findByCompanyKey(companyKey)
+    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+    CompanyEntity companyEntity = companyRepository.findByEmail(principal.getUsername())
         .orElseThrow(RuntimeException::new);
+
+    // 회사 정보의 회사키와 URL 회사키 일치 확인
+    if (!companyEntity.getCompanyKey().equals(companyKey)) {
+      throw new RuntimeException();
+    }
 
     // 입력한 비밀번호가 맞는 지 확인
     if (!passwordEncoder.matches(form.getOldPassword(), companyEntity.getPassword())) {
@@ -60,5 +67,26 @@ public class CompanyService {
     companyEntity.setPassword(passwordEncoder.encode(form.getNewPassword()));
 
     companyRepository.save(companyEntity);
+  }
+
+  // 회원 탈퇴
+  public void withdraw(String companyKey, Request form) {
+
+    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+    CompanyEntity companyEntity = companyRepository.findByEmail(principal.getUsername())
+        .orElseThrow(RuntimeException::new);
+
+    // 회사 정보의 회사키와 URL 회사키 일치 확인
+    if (!companyEntity.getCompanyKey().equals(companyKey)) {
+      throw new RuntimeException();
+    }
+
+    // 입력한 비밀번호가 맞는 지 확인
+    if (!passwordEncoder.matches(form.getPassword(), companyEntity.getPassword())) {
+      throw new RuntimeException();
+    }
+
+    companyRepository.delete(companyEntity);
   }
 }
