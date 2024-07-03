@@ -32,11 +32,13 @@ public class CommonUserService {
 
   // 이메일을 통해 이메일의 사용 여부를 확인 - 회사
   private boolean validateCompanyExistsByEmail(String email) {
+
     return companyRepository.existsByEmail(email);
   }
 
   // 이메일을 통해 이메일의 사용 여부를 확인 - 지원자
   private boolean validateCandidateExistsByEmail(String email) {
+
     return candidateRepository.existsByEmail(email);
   }
 
@@ -47,6 +49,7 @@ public class CommonUserService {
    * @return
    */
   public String checkDuplicateEmail(String email) {
+
     if (!validateCompanyExistsByEmail(email) && !validateCandidateExistsByEmail(email)) {
       return "사용 가능한 이메일입니다.";
     } else {
@@ -56,6 +59,7 @@ public class CommonUserService {
 
   // 인증 코드 생성
   private String generateVerificationCode() {
+
     return RandomGenerator.generateRandomCode();
   }
 
@@ -66,6 +70,7 @@ public class CommonUserService {
    * @return
    */
   public void sendVerificationCode(String email) {
+
     try {
       /**
        * Redis DB에 인증 코드 저장 추가해야 함
@@ -98,6 +103,7 @@ public class CommonUserService {
 
   // 임시 비밀번호 생성
   private String generateTemporaryPassword() {
+
     return RandomGenerator.generateTemporaryPassword();
   }
 
@@ -154,13 +160,15 @@ public class CommonUserService {
 
   // 로그인 : 이메일 조회 + 비밀번호 일치 확인
   public SignInDto.Response loginUser(String email, String password) {
+
     log.info("로그인 요청 - 이메일 : {}", email);
 
     // 이메일로 회사 엔티티 조회
     Optional<CompanyEntity> companyOptional = companyRepository.findByEmail(email);
 
     // 회사 엔티티가 존재하고 비밀번호가 일치하는 경우
-    if (companyOptional.isPresent() && passwordEncoder.matches(password, companyOptional.get().getPassword())) {
+    if (companyOptional.isPresent() && passwordEncoder.matches(password,
+        companyOptional.get().getPassword())) {
       CompanyEntity company = companyOptional.get();
       String token = jwtTokenProvider.generateToken(company.getEmail(), company.getRole());
       return SignInDto.fromCompany(company, token);
@@ -170,7 +178,8 @@ public class CommonUserService {
     Optional<CandidateEntity> candidateOptional = candidateRepository.findByEmail(email);
 
     // 후보자 엔티티가 존재하고 비밀번호가 일치하는 경우
-    if (candidateOptional.isPresent() && passwordEncoder.matches(password, candidateOptional.get().getPassword())) {
+    if (candidateOptional.isPresent() && passwordEncoder.matches(password,
+        candidateOptional.get().getPassword())) {
       CandidateEntity candidate = candidateOptional.get();
       String token = jwtTokenProvider.generateToken(candidate.getEmail(), candidate.getRole());
       return SignInDto.fromCandidate(candidate, token);

@@ -44,11 +44,13 @@ public class JwtTokenProvider {
 
   @PostConstruct
   public void init() {
+
     byte[] keyBytes = Base64.getDecoder().decode(secretKeyString);
     secretKey = new SecretKeySpec(keyBytes, "HmacSHA256");
   }
 
   public String generateToken(String email, UserRole role) {
+
     Claims claims = Jwts.claims().setSubject(email);
     claims.put(KEY_ROLE, role.name());
 
@@ -64,6 +66,7 @@ public class JwtTokenProvider {
   }
 
   public boolean validateToken(String token) {
+
     try {
       Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
       return true;
@@ -74,6 +77,7 @@ public class JwtTokenProvider {
   }
 
   public Authentication getAuthentication(String token) {
+
     Claims claims = Jwts.parserBuilder()
         .setSigningKey(secretKey)
         .build()
@@ -102,6 +106,7 @@ public class JwtTokenProvider {
           .build();
     }
 
-    return new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
+    return new UsernamePasswordAuthenticationToken(userDetails, token,
+        userDetails.getAuthorities());
   }
 }

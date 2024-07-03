@@ -23,12 +23,13 @@ public class SecurityConfig {
 
   @Bean
   public PasswordEncoder passwordEncoder() {
+
     return new BCryptPasswordEncoder();
   }
 
-
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
     http
         // JWT 인증을 사용하는 경우 - csrf 보호 비활성화
         .csrf(AbstractHttpConfigurer::disable)
@@ -45,9 +46,12 @@ public class SecurityConfig {
         )
         .authorizeHttpRequests(authHttpRequest -> authHttpRequest
             // 인증 없이 허용
-            .requestMatchers("/company/signup", "/candidate/signup").permitAll()
+            .requestMatchers("/companies/signup", "/candidates/signup",
+                "companies/{companyKey}/password")
+            .permitAll()
             .requestMatchers("/common/**").permitAll()
-            .requestMatchers("/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**").permitAll()
+            .requestMatchers("/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**")
+            .permitAll()
 
             // 나머지는 인증 필요
             .anyRequest().authenticated())
