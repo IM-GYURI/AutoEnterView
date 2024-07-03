@@ -7,10 +7,12 @@ import lombok.Getter;
 @Getter
 public enum ResponseMessage {
   SIGNUP("회원가입을 축하드립니다."),
+  USABLE_EMAIL("사용 가능한 이메일입니다."),
   CHANGE_PASSWORD("비밀번호 변경 완료."),
   SUCCESS_SEND_CODE("인증 코드 전송 성공."),
+  SUCCESS_TEMPORARY_PASSWORD_SEND("임시 비밀번호 전송 성공."),
   SUCCESS_EMAIL_VERIFY("이메일 인증 성공."),
-  WITHDRAW("회원탈퇴 완료");
+  WITHDRAW("회원탈퇴 완료.");
 
   private final String message;
 }
