@@ -7,7 +7,6 @@ import com.ctrls.auto_enter_view.dto.common.SignInDto.Response;
 import com.ctrls.auto_enter_view.dto.common.TemporaryPasswordDto;
 import com.ctrls.auto_enter_view.service.CommonUserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -79,12 +78,11 @@ public class CommonUserController {
     commonUserService.sendTemporaryPassword(temporaryPasswordDto.getEmail(),
         temporaryPasswordDto.getName());
 
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("임시 비밀번호 전송 실패");
-
+    return ResponseEntity.ok("임시 비밀번호 전송 성공");
   }
 
   // 로그인
-  @PostMapping("/common/signin")
+  @PostMapping("/signin")
   public ResponseEntity<?> login(
       @Validated @RequestBody Request request) {
 

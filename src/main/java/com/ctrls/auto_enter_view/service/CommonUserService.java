@@ -10,8 +10,10 @@ import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.security.JwtTokenProvider;
 import com.ctrls.auto_enter_view.util.RandomGenerator;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,6 +31,7 @@ public class CommonUserService {
   private final PasswordEncoder passwordEncoder;
 
   private final JwtTokenProvider jwtTokenProvider;
+  private final RedisTemplate<String, String> redisTemplate;
 
   // 이메일을 통해 이메일의 사용 여부를 확인 - 회사
   private boolean validateCompanyExistsByEmail(String email) {
@@ -67,10 +70,9 @@ public class CommonUserService {
    */
   public void sendVerificationCode(String email) {
     try {
-      /**
-       * Redis DB에 인증 코드 저장 추가해야 함
-       */
       String verificationCode = generateVerificationCode();
+      // Redis 유효 시간 5분으로 설정
+      redisTemplate.opsForValue().set(email, verificationCode, 5, TimeUnit.MINUTES);
       mailComponent.sendVerificationCode(email, verificationCode);
     } catch (Exception e) {
       throw new RuntimeException(e.getMessage());
@@ -85,11 +87,11 @@ public class CommonUserService {
    * @return
    */
   public void verifyEmailVerificationCode(String email, String verificationCode) {
-    /**
-     * Redis DB에서 해당 email에 보내진 verificationCode를 받아와야 함
-     * 만약 sentVerificationCode를 찾을 수 없다면(null이라면) Exception 처리할 것
-     */
-    String sentVerificationCode = "";
+    String sentVerificationCode = redisTemplate.opsForValue().get(email);
+
+    if (sentVerificationCode == null) {
+      throw new RuntimeException("인증 코드를 작성해주세요.");
+    }
 
     if (!verificationCode.equals(sentVerificationCode)) {
       throw new RuntimeException("인증 코드가 일치하지 않습니다.");
@@ -160,7 +162,8 @@ public class CommonUserService {
     Optional<CompanyEntity> companyOptional = companyRepository.findByEmail(email);
 
     // 회사 엔티티가 존재하고 비밀번호가 일치하는 경우
-    if (companyOptional.isPresent() && passwordEncoder.matches(password, companyOptional.get().getPassword())) {
+    if (companyOptional.isPresent() && passwordEncoder.matches(password,
+        companyOptional.get().getPassword())) {
       CompanyEntity company = companyOptional.get();
       String token = jwtTokenProvider.generateToken(company.getEmail(), company.getRole());
       return SignInDto.fromCompany(company, token);
@@ -170,7 +173,8 @@ public class CommonUserService {
     Optional<CandidateEntity> candidateOptional = candidateRepository.findByEmail(email);
 
     // 후보자 엔티티가 존재하고 비밀번호가 일치하는 경우
-    if (candidateOptional.isPresent() && passwordEncoder.matches(password, candidateOptional.get().getPassword())) {
+    if (candidateOptional.isPresent() && passwordEncoder.matches(password,
+        candidateOptional.get().getPassword())) {
       CandidateEntity candidate = candidateOptional.get();
       String token = jwtTokenProvider.generateToken(candidate.getEmail(), candidate.getRole());
       return SignInDto.fromCandidate(candidate, token);
