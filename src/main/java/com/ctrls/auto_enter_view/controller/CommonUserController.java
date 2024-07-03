@@ -13,12 +13,14 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 인증 없이 접근 가능 - 공통 회원 기능 : 회사, 지원자
  */
 
+@RequestMapping("/common")
 @RestController
 @RequiredArgsConstructor
 public class CommonUserController {
@@ -82,7 +84,7 @@ public class CommonUserController {
   }
 
   // 로그인
-  @PostMapping("/common/signin")
+  @PostMapping("/signin")
   public ResponseEntity<?> login(
       @Validated @RequestBody Request request) {
 
