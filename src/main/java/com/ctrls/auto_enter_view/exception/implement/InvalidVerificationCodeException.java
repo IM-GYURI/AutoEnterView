@@ -1,16 +1,19 @@
 package com.ctrls.auto_enter_view.exception.implement;
 
-import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.AbstractException;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 public class InvalidVerificationCodeException extends AbstractException {
 
-  private final ErrorCode errorCode;
+  @Override
+  public int getStatusCode() {
+    return HttpStatus.BAD_REQUEST.value();
+  }
 
-  public InvalidVerificationCodeException (ErrorCode errorCode) {
-    super(errorCode.getMessage());
-    this.errorCode = errorCode;
+  @Override
+  public String getMessage() {
+    return "유효하지 않은 인증 코드입니다.";
   }
 }
