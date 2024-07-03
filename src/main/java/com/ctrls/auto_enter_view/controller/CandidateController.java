@@ -1,8 +1,6 @@
 package com.ctrls.auto_enter_view.controller;
 
 import com.ctrls.auto_enter_view.dto.candidate.SignUpDto;
-import com.ctrls.auto_enter_view.dto.candidate.SignUpDto.Request;
-import com.ctrls.auto_enter_view.dto.candidate.SignUpDto.Response;
 import com.ctrls.auto_enter_view.dto.candidate.WithdrawDto;
 import com.ctrls.auto_enter_view.service.CandidateService;
 import lombok.RequiredArgsConstructor;
