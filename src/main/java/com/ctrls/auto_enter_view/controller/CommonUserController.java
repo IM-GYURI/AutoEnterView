@@ -2,6 +2,8 @@ package com.ctrls.auto_enter_view.controller;
 
 import com.ctrls.auto_enter_view.dto.common.EmailDto;
 import com.ctrls.auto_enter_view.dto.common.EmailVerificationDto;
+import com.ctrls.auto_enter_view.dto.common.SignInDto.Request;
+import com.ctrls.auto_enter_view.dto.common.SignInDto.Response;
 import com.ctrls.auto_enter_view.dto.common.TemporaryPasswordDto;
 import com.ctrls.auto_enter_view.service.CommonUserService;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * 인증 없이 접근 가능 - 공통 회원 기능 : 회사, 지원자
  */
-@RequiredArgsConstructor
+
 @RestController
+@RequiredArgsConstructor
 public class CommonUserController {
 
   private final CommonUserService commonUserService;
@@ -87,5 +90,14 @@ public class CommonUserController {
     } else {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("임시 비밀번호 전송 실패");
     }
+  }
+
+  // 로그인
+  @PostMapping("/common/signin")
+  public ResponseEntity<?> login(
+      @Validated @RequestBody Request request) {
+
+    Response response = commonUserService.loginUser(request.getEmail(), request.getPassword());
+    return ResponseEntity.ok(response);
   }
 }
