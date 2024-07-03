@@ -15,7 +15,7 @@ public class MailComponent {
     SimpleMailMessage message = new SimpleMailMessage();
     message.setTo(to);
     message.setSubject(subject);
-    message.setSubject(text);
+    message.setText(text);
     mailSender.send(message);
   }
 

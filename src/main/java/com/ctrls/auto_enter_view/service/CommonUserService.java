@@ -47,7 +47,7 @@ public class CommonUserService {
    * @return
    */
   public String checkDuplicateEmail(String email) {
-    if (validateCompanyExistsByEmail(email) && validateCandidateExistsByEmail(email)) {
+    if (!validateCompanyExistsByEmail(email) && !validateCandidateExistsByEmail(email)) {
       return "사용 가능한 이메일입니다.";
     } else {
       return "이미 사용 중인 이메일입니다.";
@@ -65,13 +65,13 @@ public class CommonUserService {
    * @param email
    * @return
    */
-  public boolean sendVerificationCode(String email) {
+  public void sendVerificationCode(String email) {
     try {
       /**
        * Redis DB에 인증 코드 저장 추가해야 함
        */
-      mailComponent.sendVerificationCode(email, generateVerificationCode());
-      return true;
+      String verificationCode = generateVerificationCode();
+      mailComponent.sendVerificationCode(email, verificationCode);
     } catch (Exception e) {
       throw new RuntimeException(e.getMessage());
     }
@@ -84,16 +84,14 @@ public class CommonUserService {
    * @param verificationCode
    * @return
    */
-  public boolean verifyEmailVerificationCode(String email, String verificationCode) {
+  public void verifyEmailVerificationCode(String email, String verificationCode) {
     /**
      * Redis DB에서 해당 email에 보내진 verificationCode를 받아와야 함
      * 만약 sentVerificationCode를 찾을 수 없다면(null이라면) Exception 처리할 것
      */
     String sentVerificationCode = "";
 
-    if (verificationCode.equals(sentVerificationCode)) {
-      return true;
-    } else {
+    if (!verificationCode.equals(sentVerificationCode)) {
       throw new RuntimeException("인증 코드가 일치하지 않습니다.");
     }
   }
@@ -110,7 +108,7 @@ public class CommonUserService {
    * @param name
    * @return
    */
-  public boolean sendTemporaryPassword(String email, String name) {
+  public void sendTemporaryPassword(String email, String name) {
     // 회사 계정일 경우
     if (validateCompanyExistsByEmail(email)) {
       CompanyEntity company = companyRepository.findByEmail(email)
@@ -130,8 +128,6 @@ public class CommonUserService {
       } catch (Exception e) {
         throw new RuntimeException(e.getMessage());
       }
-
-      return true;
     }
 
     // 지원자 계정일 경우
@@ -153,11 +149,7 @@ public class CommonUserService {
       } catch (Exception e) {
         throw new RuntimeException(e.getMessage());
       }
-
-      return true;
     }
-
-    return false;
   }
 
   // 로그인 : 이메일 조회 + 비밀번호 일치 확인
