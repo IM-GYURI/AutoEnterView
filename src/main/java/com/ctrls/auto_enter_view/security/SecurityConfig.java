@@ -41,13 +41,12 @@ public class SecurityConfig {
 
         // session 설정
         .sessionManagement(sessionManagement ->
-            sessionManagement.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+            sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
         .authorizeHttpRequests(authHttpRequest -> authHttpRequest
             // 인증 없이 허용
-            .requestMatchers("/company/signup", "/candidate/signup",
-                "duplicate-email", "/user/verify-email", "send-verification-code", "/verify-email").permitAll()
-            .requestMatchers("/candidate/login").permitAll()
+            .requestMatchers("/company/signup", "/candidate/signup").permitAll()
+            .requestMatchers("/common/**").permitAll()
             .requestMatchers("/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**").permitAll()
 
             // 나머지는 인증 필요
