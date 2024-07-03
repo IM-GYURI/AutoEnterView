@@ -10,6 +10,7 @@ import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.security.JwtTokenProvider;
 import com.ctrls.auto_enter_view.util.RandomGenerator;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -71,7 +72,7 @@ public class CommonUserService {
     try {
       String verificationCode = generateVerificationCode();
 
-      redisTemplate.opsForValue().set(email, verificationCode);
+      redisTemplate.opsForValue().set(email, verificationCode, 5, TimeUnit.MINUTES);
 
       mailComponent.sendVerificationCode(email, verificationCode);
     } catch (Exception e) {
