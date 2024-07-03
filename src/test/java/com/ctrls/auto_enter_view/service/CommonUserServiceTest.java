@@ -79,9 +79,7 @@ class CommonUserServiceTest {
 
   @Test
   public void testSendVerificationCode() {
-    assertDoesNotThrow(() -> {
-      commonUserService.sendVerificationCode("test@example.com");
-    });
+    assertDoesNotThrow(() -> commonUserService.sendVerificationCode("test@example.com"));
 
     verify(redisTemplate, times(1)).opsForValue();
     verify(valueOperationsMock, times(1)).set(eq("test@example.com"), anyString(), eq(5L),
@@ -107,11 +105,9 @@ class CommonUserServiceTest {
 
     when(valueOpsMock.get(anyString())).thenReturn("123456");
 
-    RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-      commonUserService.verifyEmailVerificationCode("test@example.com", "654321");
-    });
+    RuntimeException exception = assertThrows(RuntimeException.class, () -> commonUserService.verifyEmailVerificationCode("test@example.com", "654321"));
 
-    assertEquals("인증 코드가 일치하지 않습니다.", exception.getMessage());
+    assertEquals("유효하지 않은 인증 코드입니다.", exception.getMessage());
   }
 
   @Test
@@ -121,9 +117,7 @@ class CommonUserServiceTest {
 
     when(valueOpsMock.get(anyString())).thenReturn(null);
 
-    RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-      commonUserService.verifyEmailVerificationCode("test@example.com", "123456");
-    });
+    RuntimeException exception = assertThrows(RuntimeException.class, () -> commonUserService.verifyEmailVerificationCode("test@example.com", "123456"));
 
     assertEquals("인증 코드를 작성해주세요.", exception.getMessage());
   }
