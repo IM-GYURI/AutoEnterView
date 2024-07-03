@@ -95,6 +95,7 @@ public class CommonUserService {
    * @return
    */
   public void verifyEmailVerificationCode(String email, String verificationCode) {
+
     String sentVerificationCode = redisTemplate.opsForValue().get(email);
 
     if (sentVerificationCode == null) {

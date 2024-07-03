@@ -6,9 +6,9 @@ public abstract class AbstractException extends RuntimeException {
 
   public abstract ErrorCode getErrorCode();
 
-  public AbstractException (String message) {
+  public AbstractException(String message) {
+
     super(message);
   }
-
 
 }

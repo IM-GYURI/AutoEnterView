@@ -9,7 +9,8 @@ public class InvalidVerificationCodeException extends AbstractException {
 
   private final ErrorCode errorCode;
 
-  public InvalidVerificationCodeException (ErrorCode errorCode) {
+  public InvalidVerificationCodeException(ErrorCode errorCode) {
+
     super(errorCode.getMessage());
     this.errorCode = errorCode;
   }

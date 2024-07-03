@@ -9,7 +9,8 @@ public class VerificationCodeSendFailedException extends AbstractException {
 
   private final ErrorCode errorCode;
 
-  public VerificationCodeSendFailedException (ErrorCode errorCode) {
+  public VerificationCodeSendFailedException(ErrorCode errorCode) {
+
     super(errorCode.getMessage());
     this.errorCode = errorCode;
   }
