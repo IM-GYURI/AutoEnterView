@@ -71,9 +71,8 @@ public class CommonUserService {
   public void sendVerificationCode(String email) {
     try {
       String verificationCode = generateVerificationCode();
-
+      // Redis 유효 시간 5분으로 설정
       redisTemplate.opsForValue().set(email, verificationCode, 5, TimeUnit.MINUTES);
-
       mailComponent.sendVerificationCode(email, verificationCode);
     } catch (Exception e) {
       throw new RuntimeException(e.getMessage());
