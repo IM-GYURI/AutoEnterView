@@ -5,6 +5,9 @@ import com.ctrls.auto_enter_view.dto.common.SignInDto;
 import com.ctrls.auto_enter_view.dto.common.SignInDto.Response;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
+import com.ctrls.auto_enter_view.enums.ErrorCode;
+import com.ctrls.auto_enter_view.exception.implement.InvalidVerificationCodeException;
+import com.ctrls.auto_enter_view.exception.implement.VerificationCodeSendFailedException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.security.JwtTokenProvider;
@@ -73,7 +76,7 @@ public class CommonUserService {
       String verificationCode = generateVerificationCode();
       mailComponent.sendVerificationCode(email, verificationCode);
     } catch (Exception e) {
-      throw new RuntimeException(e.getMessage());
+      throw new VerificationCodeSendFailedException(ErrorCode.EMAIL_SEND_FAILURE);
     }
   }
 
@@ -92,7 +95,7 @@ public class CommonUserService {
     String sentVerificationCode = "";
 
     if (!verificationCode.equals(sentVerificationCode)) {
-      throw new RuntimeException("인증 코드가 일치하지 않습니다.");
+      throw new InvalidVerificationCodeException(ErrorCode.INVALID_VERIFICATION_CODE);
     }
   }
 
