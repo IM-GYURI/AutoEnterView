@@ -2,7 +2,7 @@ package com.ctrls.auto_enter_view.service;
 
 import com.ctrls.auto_enter_view.dto.company.ChangePasswordDto;
 import com.ctrls.auto_enter_view.dto.company.SignUpDto;
-import com.ctrls.auto_enter_view.dto.company.WithdrawDto.Request;
+import com.ctrls.auto_enter_view.dto.company.WithdrawDto;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.enums.ResponseMessage;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
@@ -70,7 +70,7 @@ public class CompanyService {
   }
 
   // 회원 탈퇴
-  public void withdraw(String companyKey, Request form) {
+  public void withdraw(String companyKey, WithdrawDto.Request form) {
 
     User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
