@@ -41,13 +41,9 @@ public class CommonUserController {
    */
   @PostMapping("/send-verification-code")
   public ResponseEntity<?> sendVerificationCode(@RequestBody @Validated EmailDto emailDto) {
-    boolean isSent = commonUserService.sendVerificationCode(emailDto.getEmail());
+    commonUserService.sendVerificationCode(emailDto.getEmail());
 
-    if (isSent) {
-      return ResponseEntity.ok("인증 코드 전송 성공");
-    } else {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("인증 코드 전송 실패");
-    }
+    return ResponseEntity.ok("인증 코드 전송 성공");
   }
 
   /**
@@ -59,15 +55,11 @@ public class CommonUserController {
   @GetMapping("/verify-email")
   public ResponseEntity<?> verifyEmail(
       @RequestBody @Validated EmailVerificationDto emailVerificationDto) {
-    boolean isVerified = commonUserService.verifyEmailVerificationCode(
-        emailVerificationDto.getEmail(),
+    commonUserService.verifyEmailVerificationCode(emailVerificationDto.getEmail(),
         emailVerificationDto.getVerificationCode());
 
-    if (isVerified) {
-      return ResponseEntity.ok("이메일 인증 성공");
-    } else {
-      return ResponseEntity.badRequest().body("이메일 인증 실패");
-    }
+    return ResponseEntity.ok("이메일 인증 성공");
+
   }
 
   /**
@@ -79,13 +71,10 @@ public class CommonUserController {
   @PostMapping("/email/password")
   public ResponseEntity<?> sendTemporaryPassword(
       @RequestBody @Validated TemporaryPasswordDto temporaryPasswordDto) {
-    boolean isSent = commonUserService.sendTemporaryPassword(temporaryPasswordDto.getEmail(),
+    commonUserService.sendTemporaryPassword(temporaryPasswordDto.getEmail(),
         temporaryPasswordDto.getName());
 
-    if (isSent) {
-      return ResponseEntity.ok("임시 비밀번호 전송 성공");
-    } else {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("임시 비밀번호 전송 실패");
-    }
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("임시 비밀번호 전송 실패");
+
   }
 }
