@@ -23,11 +23,7 @@ public class CandidateService {
 
   // 회원 가입
   public SignUpDto.Response signUp(SignUpDto.Request signUpDto) {
-
-    if (candidateRepository.existsByEmail(signUpDto.getEmail())) {
-      throw new RuntimeException("이미 존재하는 이메일 입니다.");
-    }
-
+    
     String encoded = passwordEncoder.encode(signUpDto.getPassword());
 
     CandidateEntity candidate = signUpDto.toEntity(signUpDto, encoded);
