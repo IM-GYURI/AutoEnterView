@@ -41,6 +41,13 @@ public class CandidateServiceTest {
   @InjectMocks
   private CandidateService candidateService;
 
+  @BeforeEach
+  void setup() {
+    User user = new User("email@example.com", "password", new ArrayList<>());
+    SecurityContextHolder.getContext().setAuthentication(
+        new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities()));
+  }
+
   @Test
   @DisplayName("회원가입 성공 테스트")
   void createCandidateTest() {
@@ -63,7 +70,6 @@ public class CandidateServiceTest {
         .build();
 
     // 목 설정
-    given(candidateRepository.existsByEmail(request.getEmail())).willReturn(false);
     given(passwordEncoder.encode(request.getPassword())).willReturn(encodedPassword);
 
     CandidateEntity savedCandidate = CandidateEntity.builder()
@@ -97,12 +103,6 @@ public class CandidateServiceTest {
     assertEquals(expectedResponse.getMessage(), response.getMessage());
   }
 
-  @BeforeEach
-  void setup() {
-    User user = new User("email@example.com", "password", new ArrayList<>());
-    SecurityContextHolder.getContext().setAuthentication(
-        new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities()));
-  }
 
   @Test
   @DisplayName("회원 탈퇴 성공 테스트")
@@ -221,5 +221,5 @@ public class CandidateServiceTest {
     assertThrows(RuntimeException.class,
         () -> candidateService.changePassword("candidateKey", request));
   }
-  
+
 }
