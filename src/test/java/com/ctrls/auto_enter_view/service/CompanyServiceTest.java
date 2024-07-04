@@ -11,11 +11,18 @@ import static org.mockito.Mockito.when;
 
 import com.ctrls.auto_enter_view.dto.company.ChangePasswordDto;
 import com.ctrls.auto_enter_view.dto.company.SignUpDto;
+import com.ctrls.auto_enter_view.dto.company.SignUpDto.Request;
 import com.ctrls.auto_enter_view.dto.company.SignUpDto.Response;
 import com.ctrls.auto_enter_view.dto.company.WithdrawDto;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -46,7 +53,6 @@ class CompanyServiceTest {
 
   @Test
   void signUp_Success() {
-
     // given
     SignUpDto.Request request = SignUpDto.Request.builder()
         .email("company@naver.com")
@@ -75,6 +81,34 @@ class CompanyServiceTest {
     verify(companyRepository, times(1)).save(captor.capture());
     assertEquals(request.getEmail(), captor.getValue().getEmail());
     assertEquals(saved.getEmail(), response.getEmail());
+  }
+
+  @Test
+  void signUp_WrongFormat() {
+    // given
+    ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+    Validator validator = factory.getValidator();
+
+    SignUpDto.Request request = SignUpDto.Request.builder()
+        .email("wrongform")
+        .verificationCode("1234")
+        .password("wrongform")
+        .companyName("testName")
+        .companyNumber("wrongform")
+        .build();
+
+    // when
+    Set<ConstraintViolation<Request>> validated = validator.validate(request);
+
+    // then
+    assertThrows(ConstraintViolationException.class, () -> {
+      if (!validated.isEmpty()) {
+        throw new ConstraintViolationException(validated);
+      }
+
+      companyService.signUp(request);
+    });
+    verify(companyRepository, times(0)).save(any());
   }
 
   @Test
