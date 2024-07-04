@@ -135,7 +135,8 @@ class CompanyServiceTest {
     when(securityContext.getAuthentication()).thenReturn(
         new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(),
             userDetails.getAuthorities()));
-    when(companyRepository.findByEmail(anyString())).thenReturn(Optional.of(companyEntity));
+    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
+        Optional.of(companyEntity));
     when(passwordEncoder.matches(request.getOldPassword(), companyEntity.getPassword())).thenReturn(
         true);
     when(passwordEncoder.encode(request.getNewPassword())).thenReturn("encodedNewPassword");
@@ -172,7 +173,8 @@ class CompanyServiceTest {
     when(securityContext.getAuthentication()).thenReturn(
         new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(),
             userDetails.getAuthorities()));
-    when(companyRepository.findByEmail(anyString())).thenReturn(Optional.of(companyEntity));
+    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
+        Optional.of(companyEntity));
     when(passwordEncoder.matches(request.getOldPassword(), companyEntity.getPassword())).thenReturn(
         false);
 
@@ -204,7 +206,8 @@ class CompanyServiceTest {
     when(securityContext.getAuthentication()).thenReturn(
         new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(),
             userDetails.getAuthorities()));
-    when(companyRepository.findByEmail(anyString())).thenReturn(Optional.of(companyEntity));
+    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
+        Optional.of(companyEntity));
     when(passwordEncoder.matches(request.getPassword(), companyEntity.getPassword())).thenReturn(
         true);
 
@@ -238,7 +241,8 @@ class CompanyServiceTest {
     when(securityContext.getAuthentication()).thenReturn(
         new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(),
             userDetails.getAuthorities()));
-    when(companyRepository.findByEmail(anyString())).thenReturn(Optional.of(companyEntity));
+    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
+        Optional.of(companyEntity));
     when(passwordEncoder.matches(request.getPassword(), companyEntity.getPassword())).thenReturn(
         false);
 
