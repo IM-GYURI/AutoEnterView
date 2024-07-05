@@ -16,6 +16,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(CustomException.class)
   public ResponseEntity<ErrorResponse> handleCustomException(CustomException e) {
+
     ErrorResponse errorResponse = ErrorResponse.builder()
         .code(e.getErrorCode().getStatus())
         .message(e.getMessage())
@@ -28,7 +29,9 @@ public class GlobalExceptionHandler {
 
   // validation 예외처리
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+  public ResponseEntity<Map<String, String>> handleValidationExceptions(
+      MethodArgumentNotValidException ex) {
+
     Map<String, String> errors = new HashMap<>();
     ex.getBindingResult().getAllErrors().forEach((error) -> {
       String fieldName = ((FieldError) error).getField();
