@@ -1,12 +1,16 @@
 package com.ctrls.auto_enter_view.service;
 
+import static com.ctrls.auto_enter_view.enums.ErrorCode.EMAIL_DUPLICATION;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.EMAIL_SEND_FAILURE;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.INVALID_VERIFICATION_CODE;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
+import static com.ctrls.auto_enter_view.enums.ResponseMessage.USABLE_EMAIL;
+
 import com.ctrls.auto_enter_view.component.MailComponent;
 import com.ctrls.auto_enter_view.dto.common.SignInDto;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
-import com.ctrls.auto_enter_view.enums.ErrorCode;
-import com.ctrls.auto_enter_view.exception.implement.InvalidVerificationCodeException;
-import com.ctrls.auto_enter_view.exception.implement.VerificationCodeSendFailedException;
+import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.security.JwtTokenProvider;
@@ -54,9 +58,9 @@ public class CommonUserService {
   public String checkDuplicateEmail(String email) {
 
     if (!validateCompanyExistsByEmail(email) && !validateCandidateExistsByEmail(email)) {
-      return "사용 가능한 이메일입니다.";
+      return USABLE_EMAIL.getMessage();
     } else {
-      return "이미 사용 중인 이메일입니다.";
+      throw new CustomException(EMAIL_DUPLICATION);
     }
   }
 
@@ -80,7 +84,7 @@ public class CommonUserService {
       redisTemplate.opsForValue().set(email, verificationCode, 5, TimeUnit.MINUTES);
       mailComponent.sendVerificationCode(email, verificationCode);
     } catch (Exception e) {
-      throw new VerificationCodeSendFailedException(ErrorCode.EMAIL_SEND_FAILURE);
+      throw new CustomException(EMAIL_SEND_FAILURE);
     }
   }
 
@@ -92,14 +96,15 @@ public class CommonUserService {
    * @return
    */
   public void verifyEmailVerificationCode(String email, String verificationCode) {
+
     String sentVerificationCode = redisTemplate.opsForValue().get(email);
 
     if (sentVerificationCode == null) {
-      throw new RuntimeException("인증 코드를 작성해주세요.");
+      throw new CustomException(INVALID_VERIFICATION_CODE);
     }
 
     if (!verificationCode.equals(sentVerificationCode)) {
-      throw new InvalidVerificationCodeException(ErrorCode.INVALID_VERIFICATION_CODE);
+      throw new CustomException(INVALID_VERIFICATION_CODE);
     }
   }
 
@@ -120,10 +125,10 @@ public class CommonUserService {
     // 회사 계정일 경우
     if (validateCompanyExistsByEmail(email)) {
       CompanyEntity company = companyRepository.findByEmail(email)
-          .orElseThrow(RuntimeException::new);
+          .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
       if (!name.equals(company.getCompanyName())) {
-        throw new RuntimeException("작성해주신 계정 정보가 올바르지 않습니다.");
+        throw new CustomException(USER_NOT_FOUND);
       }
 
       try {
@@ -134,17 +139,17 @@ public class CommonUserService {
 
         mailComponent.sendTemporaryPassword(email, temporaryPassword);
       } catch (Exception e) {
-        throw new RuntimeException(e.getMessage());
+        throw new CustomException(EMAIL_SEND_FAILURE);
       }
     }
 
     // 지원자 계정일 경우
     if (validateCandidateExistsByEmail(email)) {
       CandidateEntity candidate = candidateRepository.findByEmail(email)
-          .orElseThrow(RuntimeException::new);
+          .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
       if (!name.equals(candidate.getName())) {
-        throw new RuntimeException("작성해주신 계정 정보가 올바르지 않습니다.");
+        throw new CustomException(USER_NOT_FOUND);
       }
 
       try {
@@ -155,7 +160,7 @@ public class CommonUserService {
 
         mailComponent.sendTemporaryPassword(email, temporaryPassword);
       } catch (Exception e) {
-        throw new RuntimeException(e.getMessage());
+        throw new CustomException(EMAIL_SEND_FAILURE);
       }
     }
   }

@@ -14,16 +14,24 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-  @ExceptionHandler(AbstractException.class)
-  public ResponseEntity<ErrorResponse> handleCustomException(AbstractException ex) {
-    log.error("handleCustomException", ex);
-    ErrorResponse response = new ErrorResponse(ex.getErrorCode());
-    return new ResponseEntity<>(response, HttpStatus.valueOf(ex.getErrorCode().getStatus()));
+  @ExceptionHandler(CustomException.class)
+  public ResponseEntity<ErrorResponse> handleCustomException(CustomException e) {
+
+    ErrorResponse errorResponse = ErrorResponse.builder()
+        .code(e.getErrorCode().getStatus())
+        .message(e.getMessage())
+        .build();
+
+    log.error("handleCustomException", e);
+    return new ResponseEntity<>(errorResponse,
+        HttpStatus.valueOf(e.getErrorCode().getStatus()));
   }
 
   // validation 예외처리
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+  public ResponseEntity<Map<String, String>> handleValidationExceptions(
+      MethodArgumentNotValidException ex) {
+
     Map<String, String> errors = new HashMap<>();
     ex.getBindingResult().getAllErrors().forEach((error) -> {
       String fieldName = ((FieldError) error).getField();
@@ -32,4 +40,5 @@ public class GlobalExceptionHandler {
     });
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
   }
+
 }

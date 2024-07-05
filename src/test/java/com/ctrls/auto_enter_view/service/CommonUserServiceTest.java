@@ -32,7 +32,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-
 class CommonUserServiceTest {
 
   @Mock
@@ -61,12 +60,14 @@ class CommonUserServiceTest {
 
   @BeforeEach
   public void setUp() {
+
     MockitoAnnotations.openMocks(this);
     when(redisTemplate.opsForValue()).thenReturn(valueOperationsMock);
   }
 
   @Test
   public void testCheckDuplicateEmail_available() {
+
     when(companyRepository.existsByEmail(anyString())).thenReturn(false);
     when(candidateRepository.existsByEmail(anyString())).thenReturn(false);
 
@@ -77,16 +78,22 @@ class CommonUserServiceTest {
 
   @Test
   public void testCheckDuplicateEmail_unavailable() {
+
     when(companyRepository.existsByEmail(anyString())).thenReturn(true);
 
-    String result = commonUserService.checkDuplicateEmail("test@example.com");
+    NonUsableEmailException exception = assertThrows(NonUsableEmailException.class, () -> {
+      commonUserService.checkDuplicateEmail("test@example.com");
+    });
 
-    assertEquals("이미 사용 중인 이메일입니다.", result);
+    assertEquals("사용할 수 없는 이메일입니다.", exception.getMessage());
   }
 
   @Test
   public void testSendVerificationCode() {
-    assertDoesNotThrow(() -> commonUserService.sendVerificationCode("test@example.com"));
+
+    assertDoesNotThrow(() -> {
+      commonUserService.sendVerificationCode("test@example.com");
+    });
 
     verify(redisTemplate, times(1)).opsForValue();
     verify(valueOperationsMock, times(1)).set(eq("test@example.com"), anyString(), eq(5L),
@@ -96,6 +103,7 @@ class CommonUserServiceTest {
 
   @Test
   public void testVerifyEmailVerificationCode_valid() {
+
     ValueOperations<String, String> valueOpsMock = mock(ValueOperations.class);
     when(redisTemplate.opsForValue()).thenReturn(valueOpsMock);
 
@@ -107,6 +115,7 @@ class CommonUserServiceTest {
 
   @Test
   public void testVerifyEmailVerificationCode_invalid() {
+
     ValueOperations<String, String> valueOpsMock = mock(ValueOperations.class);
     when(redisTemplate.opsForValue()).thenReturn(valueOpsMock);
 
@@ -119,6 +128,7 @@ class CommonUserServiceTest {
 
   @Test
   public void testVerifyEmailVerificationCode_notFound() {
+
     ValueOperations<String, String> valueOpsMock = mock(ValueOperations.class);
     when(redisTemplate.opsForValue()).thenReturn(valueOpsMock);
 
@@ -126,11 +136,12 @@ class CommonUserServiceTest {
 
     RuntimeException exception = assertThrows(RuntimeException.class, () -> commonUserService.verifyEmailVerificationCode("test@example.com", "123456"));
 
-    assertEquals("인증 코드를 작성해주세요.", exception.getMessage());
+    assertEquals("유효하지 않은 인증 코드입니다.", exception.getMessage());
   }
 
   @Test
   public void testSendTemporaryPassword_company() {
+
     CompanyEntity company = CompanyEntity.builder()
         .email("test@company.com")
         .companyName("TestCompany")
@@ -149,6 +160,7 @@ class CommonUserServiceTest {
 
   @Test
   public void testSendTemporaryPassword_candidate() {
+
     CandidateEntity candidate = CandidateEntity.builder()
         .email("test@candidate.com")
         .name("TestCandidate")

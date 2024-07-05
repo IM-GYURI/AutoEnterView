@@ -166,5 +166,6 @@ public class JwtTokenProvider {
         .password(password)
         .authorities(Collections.singletonList(new SimpleGrantedAuthority(role.name())))
         .build();
+
   }
 }
