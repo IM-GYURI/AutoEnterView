@@ -37,7 +37,7 @@ public class CommonUserController {
    * @return
    */
   @GetMapping("/duplicate-email")
-  public ResponseEntity<?> checkDuplicateEmail(@RequestBody @Validated EmailDto emailDto) {
+  public ResponseEntity<String> checkDuplicateEmail(@RequestBody @Validated EmailDto emailDto) {
 
     return ResponseEntity.ok(commonUserService.checkDuplicateEmail(emailDto.getEmail()));
   }
@@ -49,7 +49,7 @@ public class CommonUserController {
    * @return
    */
   @PostMapping("/send-verification-code")
-  public ResponseEntity<?> sendVerificationCode(@RequestBody @Validated EmailDto emailDto) {
+  public ResponseEntity<String> sendVerificationCode(@RequestBody @Validated EmailDto emailDto) {
 
     commonUserService.sendVerificationCode(emailDto.getEmail());
 
@@ -63,7 +63,7 @@ public class CommonUserController {
    * @return
    */
   @GetMapping("/verify-email")
-  public ResponseEntity<?> verifyEmail(
+  public ResponseEntity<String> verifyEmail(
       @RequestBody @Validated EmailVerificationDto emailVerificationDto) {
 
     commonUserService.verifyEmailVerificationCode(emailVerificationDto.getEmail(),
@@ -79,7 +79,7 @@ public class CommonUserController {
    * @return
    */
   @PostMapping("/email/password")
-  public ResponseEntity<?> sendTemporaryPassword(
+  public ResponseEntity<String> sendTemporaryPassword(
       @RequestBody @Validated TemporaryPasswordDto temporaryPasswordDto) {
 
     commonUserService.sendTemporaryPassword(temporaryPasswordDto.getEmail(),
@@ -90,7 +90,7 @@ public class CommonUserController {
 
   // 로그인
   @PostMapping("/signin")
-  public ResponseEntity<?> login(
+  public ResponseEntity<Response> login(
       @Validated @RequestBody Request request) {
 
     Response response = commonUserService.loginUser(request.getEmail(), request.getPassword());
