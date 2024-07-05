@@ -28,7 +28,8 @@ public class CandidateController {
 
   // 회원 가입
   @PostMapping("/candidates/signup")
-  public ResponseEntity<?> signUp(@RequestBody @Validated SignUpDto.Request signUpDto) {
+  public ResponseEntity<SignUpDto.Response> signUp(
+      @RequestBody @Validated SignUpDto.Request signUpDto) {
 
     SignUpDto.Response response = candidateService.signUp(signUpDto);
 
