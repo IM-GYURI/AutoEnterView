@@ -46,12 +46,16 @@ public class SecurityConfig {
         )
         .authorizeHttpRequests(authHttpRequest -> authHttpRequest
             // 인증 없이 허용
-            .requestMatchers("/companies/signup", "/candidates/signup",
-                "companies/{companyKey}/password")
+            .requestMatchers("/companies/signup", "/candidates/signup")
             .permitAll()
+
             .requestMatchers("/common/**")
             .permitAll()
+
             .requestMatchers("/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**")
+            .permitAll()
+
+            .requestMatchers("/error")
             .permitAll()
 
             // 나머지는 인증 필요
