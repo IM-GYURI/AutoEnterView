@@ -32,19 +32,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       FilterChain filterChain)
       throws ServletException, IOException {
 
-    log.info("JwtAuthenticationFilter - doFilterInternal 호출");
-
     String token = resolveToken(request);
 
     if (StringUtils.hasText(token)) {
-      // 토큰 유효성 검사 및 블랙리스트 확인
-      if (jwtTokenProvider.validateToken(token)) {
-        Authentication authentication = jwtTokenProvider.getAuthentication(token);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-      } else {
-        log.warn("유효하지 않은 토큰입니다: {}", token);
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않은 토큰입니다.");
-        return;
+      try {
+        if (jwtTokenProvider.validateToken(token)) {
+          Authentication authentication = jwtTokenProvider.getAuthentication(token);
+          SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
+      } catch (Exception e) {
+        log.error("사용자 인증을 설정할 수 없습니다.", e);
       }
     }
 
@@ -53,13 +50,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   // HTTP 요청에서 JWT 토큰을 추출하는 역할
   private String resolveToken(HttpServletRequest request) {
-
     String bearerToken = request.getHeader(TOKEN_HEADER);
 
     if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(TOKEN_PREFIX)) {
-      return bearerToken.substring(TOKEN_PREFIX.length()).trim();
+      return bearerToken.substring(TOKEN_PREFIX.length());
     }
     return null;
   }
+
+
 
 }
