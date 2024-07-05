@@ -85,7 +85,7 @@ public class CommonUserController {
     commonUserService.sendTemporaryPassword(temporaryPasswordDto.getEmail(),
         temporaryPasswordDto.getName());
 
-    return ResponseEntity.ok(SUCCESS_TEMPORARY_PASSWORD_SEND);
+    return ResponseEntity.ok(SUCCESS_TEMPORARY_PASSWORD_SEND.getMessage());
   }
 
   // 로그인
