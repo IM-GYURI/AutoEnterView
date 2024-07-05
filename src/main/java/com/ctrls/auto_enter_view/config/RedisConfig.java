@@ -26,6 +26,7 @@ public class RedisConfig {
 
   @Bean
   public CacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
+
     RedisCacheConfiguration conf = RedisCacheConfiguration.defaultCacheConfig()
         .serializeKeysWith(
             RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
@@ -40,6 +41,7 @@ public class RedisConfig {
 
   @Bean
   public RedisConnectionFactory redisConnectionFactory() {
+
     RedisStandaloneConfiguration conf = new RedisStandaloneConfiguration();
     conf.setHostName(this.host);
     conf.setPort(this.port);
@@ -50,6 +52,7 @@ public class RedisConfig {
   @Bean
   public RedisTemplate<String, String> redisTemplate(
       RedisConnectionFactory redisConnectionFactory) {
+
     RedisTemplate<String, String> template = new RedisTemplate<>();
     template.setConnectionFactory(redisConnectionFactory);
     template.setKeySerializer(new StringRedisSerializer());
