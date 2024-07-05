@@ -1,6 +1,8 @@
 package com.ctrls.auto_enter_view.controller;
 
 import com.ctrls.auto_enter_view.dto.candidate.ChangePasswordDto;
+import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto;
+import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto.Response;
 import com.ctrls.auto_enter_view.dto.candidate.SignUpDto;
 import com.ctrls.auto_enter_view.dto.candidate.WithdrawDto;
 import com.ctrls.auto_enter_view.enums.ResponseMessage;
@@ -10,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -56,5 +59,15 @@ public class CandidateController {
     candidateService.withdraw(request, candidateKey);
 
     return ResponseEntity.ok(ResponseMessage.WITHDRAW.getMessage());
+  }
+
+  // 이메일 찾기
+  @GetMapping("/candidates/find-email")
+  public ResponseEntity<?> findEmail(
+      @RequestBody @Validated FindEmailDto.Request request) {
+
+    Response response = candidateService.findEmail(request);
+
+    return ResponseEntity.ok(response);
   }
 }

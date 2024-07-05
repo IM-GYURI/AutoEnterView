@@ -5,6 +5,8 @@ import static com.ctrls.auto_enter_view.enums.ErrorCode.PASSWORD_NOT_MATCH;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 
 import com.ctrls.auto_enter_view.dto.candidate.ChangePasswordDto.Request;
+import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto;
+import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto.Response;
 import com.ctrls.auto_enter_view.dto.candidate.SignUpDto;
 import com.ctrls.auto_enter_view.dto.candidate.WithdrawDto;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
@@ -86,5 +88,15 @@ public class CandidateService {
     candidateEntity.setPassword(passwordEncoder.encode(request.getNewPassword()));
 
     candidateRepository.save(candidateEntity);
+  }
+
+  public Response findEmail(FindEmailDto.Request request) {
+
+    CandidateEntity candidateEntity = candidateRepository.findByNameAndPhoneNumber(
+        request.getName(), request.getPhoneNumber()).orElseThrow(RuntimeException::new);
+
+    return Response.builder()
+        .email(candidateEntity.getEmail())
+        .build();
   }
 }

@@ -20,6 +20,7 @@ public class SignUpDto {
 
   public static class Request {
 
+    @NotBlank(message = "이름은 필수 입력값 입니다.")
     private String name;
 
     @NotBlank(message = "이메일은 필수 입력 값 입니다.")
