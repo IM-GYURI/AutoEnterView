@@ -1,9 +1,14 @@
 package com.ctrls.auto_enter_view.service;
 
+import static com.ctrls.auto_enter_view.enums.ErrorCode.EMAIL_DUPLICATION;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.PASSWORD_NOT_MATCH;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
+
 import com.ctrls.auto_enter_view.dto.candidate.ChangePasswordDto.Request;
 import com.ctrls.auto_enter_view.dto.candidate.SignUpDto;
 import com.ctrls.auto_enter_view.dto.candidate.WithdrawDto;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
+import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +28,11 @@ public class CandidateService {
 
   // 회원 가입
   public SignUpDto.Response signUp(SignUpDto.Request signUpDto) {
-    
+
+    if (candidateRepository.existsByEmail(signUpDto.getEmail())) {
+      throw new CustomException(EMAIL_DUPLICATION);
+    }
+
     String encoded = passwordEncoder.encode(signUpDto.getPassword());
 
     CandidateEntity candidate = signUpDto.toEntity(signUpDto, encoded);
@@ -43,15 +52,15 @@ public class CandidateService {
     User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
     CandidateEntity candidateEntity = candidateRepository.findByEmail(principal.getUsername())
-        .orElseThrow(RuntimeException::new);
+        .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
     // 응시자 정보의 응시자키와 URL 응시자키 일치 확인
     if (!candidateEntity.getCandidateKey().equals(candidateKey)) {
-      throw new RuntimeException();
+      throw new CustomException(USER_NOT_FOUND);
     }
 
     if (!passwordEncoder.matches(request.getPassword(), candidateEntity.getPassword())) {
-      throw new RuntimeException("비밀번호가 다릅니다.");
+      throw new CustomException(PASSWORD_NOT_MATCH);
     }
 
     candidateRepository.delete(candidateEntity);
@@ -63,15 +72,15 @@ public class CandidateService {
     User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
     CandidateEntity candidateEntity = candidateRepository.findByEmail(principal.getUsername())
-        .orElseThrow(RuntimeException::new);
+        .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
     // 응시자 정보의 응시자키와 URL 응시자키 일치 확인
     if (!candidateEntity.getCandidateKey().equals(candidateKey)) {
-      throw new RuntimeException();
+      throw new CustomException(USER_NOT_FOUND);
     }
 
     if (!passwordEncoder.matches(request.getOldPassword(), candidateEntity.getPassword())) {
-      throw new RuntimeException("비밀번호가 다릅니다.");
+      throw new CustomException(PASSWORD_NOT_MATCH);
     }
 
     candidateEntity.setPassword(passwordEncoder.encode(request.getNewPassword()));

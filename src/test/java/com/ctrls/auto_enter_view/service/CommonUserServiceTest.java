@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 import com.ctrls.auto_enter_view.component.MailComponent;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
+import com.ctrls.auto_enter_view.exception.implement.NonUsableEmailException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import java.util.Optional;
@@ -72,9 +73,11 @@ class CommonUserServiceTest {
   public void testCheckDuplicateEmail_unavailable() {
     when(companyRepository.existsByEmail(anyString())).thenReturn(true);
 
-    String result = commonUserService.checkDuplicateEmail("test@example.com");
+    NonUsableEmailException exception = assertThrows(NonUsableEmailException.class, () -> {
+      commonUserService.checkDuplicateEmail("test@example.com");
+    });
 
-    assertEquals("이미 사용 중인 이메일입니다.", result);
+    assertEquals("사용할 수 없는 이메일입니다.", exception.getMessage());
   }
 
   @Test
@@ -125,7 +128,7 @@ class CommonUserServiceTest {
       commonUserService.verifyEmailVerificationCode("test@example.com", "123456");
     });
 
-    assertEquals("인증 코드를 작성해주세요.", exception.getMessage());
+    assertEquals("유효하지 않은 인증 코드입니다.", exception.getMessage());
   }
 
   @Test

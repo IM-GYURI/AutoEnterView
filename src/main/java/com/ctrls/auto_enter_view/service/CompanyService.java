@@ -1,10 +1,14 @@
 package com.ctrls.auto_enter_view.service;
 
+import static com.ctrls.auto_enter_view.enums.ErrorCode.PASSWORD_NOT_MATCH;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
+
 import com.ctrls.auto_enter_view.dto.company.ChangePasswordDto;
 import com.ctrls.auto_enter_view.dto.company.SignUpDto;
 import com.ctrls.auto_enter_view.dto.company.WithdrawDto;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.enums.ResponseMessage;
+import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.util.KeyGenerator;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +28,6 @@ public class CompanyService {
 
   // 회원 가입
   public SignUpDto.Response signUp(SignUpDto.Request form) {
-
-//    // 인증번호 확인
-//    if (!form.getVerificationCode().equals(Redis.getVerificationCode(form.getEmail()))) {
-//      throw new RuntimeException();
-//    }
 
     // 키 생성
     String companyKey = KeyGenerator.generateKey();
@@ -52,16 +51,16 @@ public class CompanyService {
     User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
     CompanyEntity companyEntity = companyRepository.findByEmail(principal.getUsername())
-        .orElseThrow(RuntimeException::new);
+        .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
     // 회사 정보의 회사키와 URL 회사키 일치 확인
     if (!companyEntity.getCompanyKey().equals(companyKey)) {
-      throw new RuntimeException();
+      throw new CustomException(USER_NOT_FOUND);
     }
 
     // 입력한 비밀번호가 맞는 지 확인
     if (!passwordEncoder.matches(form.getOldPassword(), companyEntity.getPassword())) {
-      throw new RuntimeException();
+      throw new CustomException(PASSWORD_NOT_MATCH);
     }
 
     companyEntity.setPassword(passwordEncoder.encode(form.getNewPassword()));
@@ -75,16 +74,16 @@ public class CompanyService {
     User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
     CompanyEntity companyEntity = companyRepository.findByEmail(principal.getUsername())
-        .orElseThrow(RuntimeException::new);
+        .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
     // 회사 정보의 회사키와 URL 회사키 일치 확인
     if (!companyEntity.getCompanyKey().equals(companyKey)) {
-      throw new RuntimeException();
+      throw new CustomException(USER_NOT_FOUND);
     }
 
     // 입력한 비밀번호가 맞는 지 확인
     if (!passwordEncoder.matches(form.getPassword(), companyEntity.getPassword())) {
-      throw new RuntimeException();
+      throw new CustomException(PASSWORD_NOT_MATCH);
     }
 
     companyRepository.delete(companyEntity);

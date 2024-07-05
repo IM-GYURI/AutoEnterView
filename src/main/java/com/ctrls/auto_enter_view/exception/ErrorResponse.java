@@ -1,19 +1,12 @@
 package com.ctrls.auto_enter_view.exception;
 
-import com.ctrls.auto_enter_view.enums.ErrorCode;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
+@Builder
 public class ErrorResponse {
-  private int status;
-  private String message;
-  private String code;
 
-  public ErrorResponse(ErrorCode errorCode){
-    this.status = errorCode.getStatus();
-    this.message = errorCode.getMessage();
-    this.code = errorCode.getErrorCode();
-  }
+  private int code;
+  private String message;
 }
