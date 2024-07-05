@@ -1,7 +1,6 @@
 package com.ctrls.auto_enter_view.exception;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,7 +18,7 @@ public class GlobalExceptionHandler {
         .build();
 
     log.error("handleCustomException", e);
-    return new ResponseEntity<>(errorResponse, new HttpHeaders(),
+    return new ResponseEntity<>(errorResponse,
         HttpStatus.valueOf(e.getErrorCode().getStatus()));
   }
 }
