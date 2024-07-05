@@ -1,9 +1,9 @@
 package com.ctrls.auto_enter_view.exception;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 @Builder
 public class ErrorResponse {
 
