@@ -167,6 +167,7 @@ public class CommonUserService {
 
   // 로그인 : 이메일 조회 + 비밀번호 일치 확인
   public SignInDto.Response loginUser(String email, String password) {
+
     log.info("로그인 요청 - 이메일 : {}", email);
 
     // 이메일로 회사 엔티티 조회
@@ -200,5 +201,4 @@ public class CommonUserService {
     // 이메일이 존재하지 않는 경우
     throw new RuntimeException("가입된 정보가 없습니다.");
   }
-
 }

@@ -27,5 +27,4 @@ public class JobPostingStepEntity extends BaseEntity {
   private String jobPostingKey;
 
   private String step;
-
 }

@@ -39,5 +39,4 @@ public class InterviewScheduleParticipantsEntity extends BaseEntity {
   private LocalDateTime interviewStartDatetime;
 
   private LocalDateTime interviewEndDatetime;
-
 }

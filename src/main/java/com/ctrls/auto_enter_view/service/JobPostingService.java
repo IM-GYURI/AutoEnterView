@@ -11,5 +11,4 @@ import org.springframework.stereotype.Service;
 public class JobPostingService {
 
   private final JobPostingRepository jobPostingRepository;
-
 }
