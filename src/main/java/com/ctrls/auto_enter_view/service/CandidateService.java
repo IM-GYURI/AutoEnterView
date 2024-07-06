@@ -1,6 +1,7 @@
 package com.ctrls.auto_enter_view.service;
 
 import static com.ctrls.auto_enter_view.enums.ErrorCode.EMAIL_DUPLICATION;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.EMAIL_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.PASSWORD_NOT_MATCH;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 
@@ -93,7 +94,8 @@ public class CandidateService {
   public Response findEmail(FindEmailDto.Request request) {
 
     CandidateEntity candidateEntity = candidateRepository.findByNameAndPhoneNumber(
-        request.getName(), request.getPhoneNumber()).orElseThrow(RuntimeException::new);
+            request.getName(), request.getPhoneNumber())
+        .orElseThrow(() -> new CustomException(EMAIL_NOT_FOUND));
 
     return Response.builder()
         .email(candidateEntity.getEmail())
