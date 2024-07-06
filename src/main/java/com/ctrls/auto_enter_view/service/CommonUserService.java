@@ -10,6 +10,7 @@ import com.ctrls.auto_enter_view.component.MailComponent;
 import com.ctrls.auto_enter_view.dto.common.SignInDto;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
+import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
@@ -35,6 +36,7 @@ public class CommonUserService {
   private final PasswordEncoder passwordEncoder;
 
   private final JwtTokenProvider jwtTokenProvider;
+  private final BlacklistTokenService blacklistTokenService;
   private final RedisTemplate<String, String> redisTemplate;
 
   // 이메일을 통해 이메일의 사용 여부를 확인 - 회사
@@ -201,4 +203,15 @@ public class CommonUserService {
     // 이메일이 존재하지 않는 경우
     throw new RuntimeException("가입된 정보가 없습니다.");
   }
+
+  // 로그 아웃
+  public void logoutUser(String token) {
+
+    if(token != null) {
+      blacklistTokenService.addToBlacklist(token);
+    } else {
+      throw new CustomException(ErrorCode.NOT_LOGIN);
+    }
+  }
+
 }
