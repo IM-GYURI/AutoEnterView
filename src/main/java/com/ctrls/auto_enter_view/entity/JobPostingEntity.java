@@ -46,7 +46,7 @@ public class JobPostingEntity extends BaseEntity {
   private String employmentType;
 
   @Column(nullable = false)
-  private Long salary;
+  private String salary;
 
   @Column(nullable = false)
   private String workTime;
