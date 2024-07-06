@@ -2,9 +2,9 @@ package com.ctrls.auto_enter_view.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.never;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -15,12 +15,16 @@ import com.ctrls.auto_enter_view.dto.company.SignUpDto.Request;
 import com.ctrls.auto_enter_view.dto.company.SignUpDto.Response;
 import com.ctrls.auto_enter_view.dto.company.WithdrawDto;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
+import com.ctrls.auto_enter_view.enums.ErrorCode;
+import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -54,33 +58,51 @@ class CompanyServiceTest {
   @Test
   void signUp_Success() {
     // given
+    String email = "company@naver.com";
+    String password = "test1234!";
+    String encodedPassword = "encodedPassword";
+    String companyName = "testName";
+    String companyNumber = "010-0000-0000";
+
     SignUpDto.Request request = SignUpDto.Request.builder()
-        .email("company@naver.com")
+        .email(email)
         .verificationCode("1234")
-        .password("test1234!")
-        .companyName("testName")
-        .companyNumber("010-0000-0000")
+        .password(password)
+        .companyName(companyName)
+        .companyNumber(companyNumber)
         .build();
 
     CompanyEntity saved = CompanyEntity.builder()
-        .email("company@naver.com")
-        .password("encodedPassword")
-        .companyName("testName")
-        .companyNumber("010-0000-0000")
+        .email(email)
+        .password(encodedPassword)
+        .companyName(companyName)
+        .companyNumber(companyNumber)
         .build();
 
     ArgumentCaptor<CompanyEntity> captor = ArgumentCaptor.forClass(CompanyEntity.class);
 
     // when
-    when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
-    when(companyRepository.save(any())).thenReturn(saved);
+    when(passwordEncoder.encode(password)).thenReturn(encodedPassword);
+    when(
+        companyRepository.save(argThat(e -> e.getPassword().equals(encodedPassword)))).thenReturn(
+        saved);
 
+    // execute
     Response response = companyService.signUp(request);
 
     // then
     verify(companyRepository, times(1)).save(captor.capture());
-    assertEquals(request.getEmail(), captor.getValue().getEmail());
+    CompanyEntity captured = captor.getValue();
+
+    // assert captured
+    assertEquals(request.getEmail(), captured.getEmail());
+    assertEquals(encodedPassword, captured.getPassword());
+    assertEquals(request.getCompanyName(), captured.getCompanyName());
+    assertEquals(request.getCompanyNumber(), captured.getCompanyNumber());
+
+    // assert response
     assertEquals(saved.getEmail(), response.getEmail());
+    assertEquals(saved.getCompanyName(), response.getName());
   }
 
   @Test
@@ -89,25 +111,35 @@ class CompanyServiceTest {
     ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
     Validator validator = factory.getValidator();
 
+    String wrongForm = "wrongForm";
+
     SignUpDto.Request request = SignUpDto.Request.builder()
-        .email("wrongform")
+        .email(wrongForm)
         .verificationCode("1234")
-        .password("wrongform")
+        .password(wrongForm)
         .companyName("testName")
-        .companyNumber("wrongform")
+        .companyNumber(wrongForm)
         .build();
+
+    List<String> expectedWrongFormats = new ArrayList<>(
+        Arrays.asList("email", "password", "companyNumber"));
+
+    List<String> actualWrongFormats = new ArrayList<>();
 
     // when
     Set<ConstraintViolation<Request>> validated = validator.validate(request);
 
-    // then
-    assertThrows(ConstraintViolationException.class, () -> {
-      if (!validated.isEmpty()) {
-        throw new ConstraintViolationException(validated);
+    if (!validated.isEmpty()) {
+      for (ConstraintViolation<Request> violation : validated) {
+        String propertyPath = violation.getPropertyPath().toString();
+        actualWrongFormats.add(propertyPath);
       }
+    }
 
-      companyService.signUp(request);
-    });
+    // then
+    assertTrue(
+        expectedWrongFormats.size() == actualWrongFormats.size()
+            && actualWrongFormats.containsAll(expectedWrongFormats));
     verify(companyRepository, times(0)).save(any());
   }
 
@@ -115,23 +147,27 @@ class CompanyServiceTest {
   void changePassword_Success() {
     // given
     String companyKey = "companyKey";
+    String email = "company@naver.com";
+    String oldPassword = "oldPassword";
+    String newPassword = "newPassword";
+    String newEncodedPassword = "newEncodedPassword";
 
     ChangePasswordDto.Request request = ChangePasswordDto.Request.builder()
-        .oldPassword("oldPassword")
-        .newPassword("newPassword")
+        .oldPassword(oldPassword)
+        .newPassword(newPassword)
         .build();
 
     CompanyEntity companyEntity = CompanyEntity.builder()
         .companyKey(companyKey)
-        .email("company@naver.com")
-        .password("oldPassword")
+        .email(email)
+        .password(oldPassword)
         .build();
 
-    UserDetails userDetails = User.withUsername("company@naver.com").password("oldPassword")
+    UserDetails userDetails = User.withUsername(email).password(oldPassword)
         .roles("COMPANY").build();
-
     SecurityContextHolder.setContext(securityContext);
 
+    // when
     when(securityContext.getAuthentication()).thenReturn(
         new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(),
             userDetails.getAuthorities()));
@@ -139,20 +175,22 @@ class CompanyServiceTest {
         Optional.of(companyEntity));
     when(passwordEncoder.matches(request.getOldPassword(), companyEntity.getPassword())).thenReturn(
         true);
-    when(passwordEncoder.encode(request.getNewPassword())).thenReturn("encodedNewPassword");
+    when(passwordEncoder.encode(newPassword)).thenReturn(newEncodedPassword);
 
-    // when
+    // execute
     companyService.changePassword(companyKey, request);
 
     // then
     verify(companyRepository, times(1)).save(companyEntity);
-    assertEquals("encodedNewPassword", companyEntity.getPassword());
+    assertEquals(newEncodedPassword, companyEntity.getPassword());
   }
 
   @Test
   void changePassword_Failure_WrongOldPassword() {
     // given
     String companyKey = "companyKey";
+    String email = "company@naver.com";
+    String oldPassword = "oldPassword";
 
     ChangePasswordDto.Request request = ChangePasswordDto.Request.builder()
         .oldPassword("wrongOldPassword")
@@ -161,48 +199,53 @@ class CompanyServiceTest {
 
     CompanyEntity companyEntity = CompanyEntity.builder()
         .companyKey(companyKey)
-        .email("company@naver.com")
-        .password("oldPassword")
+        .email(email)
+        .password(oldPassword)
         .build();
 
-    UserDetails userDetails = User.withUsername("company@naver.com").password("oldPassword")
+    UserDetails userDetails = User.withUsername(email).password(oldPassword)
         .roles("COMPANY").build();
 
     SecurityContextHolder.setContext(securityContext);
 
+    // when
     when(securityContext.getAuthentication()).thenReturn(
         new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(),
             userDetails.getAuthorities()));
     when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
         Optional.of(companyEntity));
-    when(passwordEncoder.matches(request.getOldPassword(), companyEntity.getPassword())).thenReturn(
-        false);
 
-    // when & then
-    assertThrows(RuntimeException.class, () -> companyService.changePassword(companyKey, request));
-    verify(companyRepository, never()).save(any());
+    // execute
+    CustomException exception = assertThrows(CustomException.class,
+        () -> companyService.changePassword(companyKey, request));
+
+    // then
+    assertEquals(ErrorCode.PASSWORD_NOT_MATCH, exception.getErrorCode());
+    verify(companyRepository, times(0)).save(any());
   }
 
   @Test
   void withdraw_Success() {
     // given
     String companyKey = "companyKey";
+    String email = "company@naver.com";
+    String password = "password";
 
     WithdrawDto.Request request = WithdrawDto.Request.builder()
-        .password("password")
+        .password(password)
         .build();
 
     CompanyEntity companyEntity = CompanyEntity.builder()
         .companyKey(companyKey)
-        .email("company@naver.com")
-        .password("password")
+        .email(email)
+        .password(password)
         .build();
 
-    UserDetails userDetails = User.withUsername("company@naver.com").password("password")
+    UserDetails userDetails = User.withUsername(email).password(password)
         .roles("COMPANY").build();
-
     SecurityContextHolder.setContext(securityContext);
 
+    // when
     when(securityContext.getAuthentication()).thenReturn(
         new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(),
             userDetails.getAuthorities()));
@@ -211,7 +254,7 @@ class CompanyServiceTest {
     when(passwordEncoder.matches(request.getPassword(), companyEntity.getPassword())).thenReturn(
         true);
 
-    // when
+    // execute
     companyService.withdraw(companyKey, request);
 
     // then
@@ -222,6 +265,8 @@ class CompanyServiceTest {
   void withdraw_Failure_WrongPassword() {
     // given
     String companyKey = "companyKey";
+    String email = "company@naver.com";
+    String password = "password";
 
     WithdrawDto.Request request = WithdrawDto.Request.builder()
         .password("wrongPassword")
@@ -229,13 +274,12 @@ class CompanyServiceTest {
 
     CompanyEntity companyEntity = CompanyEntity.builder()
         .companyKey(companyKey)
-        .email("company@naver.com")
-        .password("password")
+        .email(email)
+        .password(password)
         .build();
 
-    UserDetails userDetails = User.withUsername("company@naver.com").password("password")
+    UserDetails userDetails = User.withUsername(email).password(password)
         .roles("COMPANY").build();
-
     SecurityContextHolder.setContext(securityContext);
 
     when(securityContext.getAuthentication()).thenReturn(
@@ -243,11 +287,13 @@ class CompanyServiceTest {
             userDetails.getAuthorities()));
     when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
         Optional.of(companyEntity));
-    when(passwordEncoder.matches(request.getPassword(), companyEntity.getPassword())).thenReturn(
-        false);
 
-    // when & then
-    assertThrows(RuntimeException.class, () -> companyService.withdraw(companyKey, request));
-    verify(companyRepository, never()).delete(any());
+    // execute
+    CustomException exception = assertThrows(CustomException.class,
+        () -> companyService.withdraw(companyKey, request));
+
+    // then
+    assertEquals(ErrorCode.PASSWORD_NOT_MATCH, exception.getErrorCode());
+    verify(companyRepository, times(0)).delete(any());
   }
 }

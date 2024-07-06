@@ -23,8 +23,7 @@ public class GlobalExceptionHandler {
         .build();
 
     log.error("handleCustomException", e);
-    return new ResponseEntity<>(errorResponse,
-        HttpStatus.valueOf(e.getErrorCode().getStatus()));
+    return new ResponseEntity<>(errorResponse, HttpStatus.valueOf(e.getErrorCode().getStatus()));
   }
 
   // validation 예외처리
@@ -40,5 +39,4 @@ public class GlobalExceptionHandler {
     });
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
   }
-
 }
