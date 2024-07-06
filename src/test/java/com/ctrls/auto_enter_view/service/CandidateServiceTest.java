@@ -2,19 +2,20 @@ package com.ctrls.auto_enter_view.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.ctrls.auto_enter_view.dto.candidate.ChangePasswordDto;
+import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto.Request;
+import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto.Response;
 import com.ctrls.auto_enter_view.dto.candidate.SignUpDto;
 import com.ctrls.auto_enter_view.dto.candidate.WithdrawDto;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
+import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.enums.UserRole;
+import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
-import com.ctrls.auto_enter_view.util.KeyGenerator;
 import java.util.ArrayList;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +45,7 @@ public class CandidateServiceTest {
 
   @BeforeEach
   void setup() {
+
     User user = new User("email@example.com", "password", new ArrayList<>());
     SecurityContextHolder.getContext().setAuthentication(
         new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities()));
@@ -92,7 +94,6 @@ public class CandidateServiceTest {
     assertEquals(expectedResponse.getName(), response.getName());
     assertEquals(expectedResponse.getMessage(), response.getMessage());
   }
-
 
   @Test
   @DisplayName("회원 탈퇴 성공 테스트")
@@ -149,7 +150,6 @@ public class CandidateServiceTest {
     // 테스트 실행 및 검증
     assertThrows(RuntimeException.class, () -> candidateService.withdraw(request, "candidateKey"));
   }
-
 
   @Test
   @DisplayName("비밀번호 변경 성공 테스트")
@@ -212,4 +212,49 @@ public class CandidateServiceTest {
         () -> candidateService.changePassword("candidateKey", request));
   }
 
+  @Test
+  void findEmail_Success() {
+
+    // given
+    Request request = Request.builder()
+        .name("testName")
+        .phoneNumber("010-0000-0000")
+        .build();
+
+    CandidateEntity candidateEntity = CandidateEntity.builder()
+        .email("test@naver.com")
+        .build();
+
+    // when
+    given(candidateRepository.findByNameAndPhoneNumber(request.getName(),
+        request.getPhoneNumber())).willReturn(Optional.of(candidateEntity));
+
+    // execute
+    Response response = candidateService.findEmail(request);
+
+    // then
+    assertEquals(candidateEntity.getEmail(), response.getEmail());
+  }
+
+  @Test
+  void findEmail_Failure_EmailNotFound() {
+
+    // given
+    Request request = Request.builder()
+        .name("testName")
+        .phoneNumber("010-0000-0000")
+        .build();
+
+    // when
+    given(candidateRepository.findByNameAndPhoneNumber(request.getName(),
+        request.getPhoneNumber())).willReturn(Optional.empty());
+
+    // then
+    CustomException exception = assertThrows(CustomException.class, () -> {
+      // execute
+      candidateService.findEmail(request);
+    });
+
+    assertEquals(ErrorCode.EMAIL_NOT_FOUND, exception.getErrorCode());
+  }
 }

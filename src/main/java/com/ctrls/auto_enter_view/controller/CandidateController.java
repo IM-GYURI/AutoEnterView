@@ -1,6 +1,6 @@
 package com.ctrls.auto_enter_view.controller;
 
-import com.ctrls.auto_enter_view.dto.candidate.ChangePasswordDto.Request;
+import com.ctrls.auto_enter_view.dto.candidate.ChangePasswordDto;
 import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto;
 import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto.Response;
 import com.ctrls.auto_enter_view.dto.candidate.SignUpDto;
