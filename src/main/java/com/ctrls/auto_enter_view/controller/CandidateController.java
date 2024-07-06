@@ -1,6 +1,6 @@
 package com.ctrls.auto_enter_view.controller;
 
-import com.ctrls.auto_enter_view.dto.candidate.ChangePasswordDto;
+import com.ctrls.auto_enter_view.dto.candidate.ChangePasswordDto.Request;
 import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto;
 import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto.Response;
 import com.ctrls.auto_enter_view.dto.candidate.SignUpDto;
@@ -28,7 +28,8 @@ public class CandidateController {
 
   // 회원 가입
   @PostMapping("/candidates/signup")
-  public ResponseEntity<?> signUp(@RequestBody @Validated SignUpDto.Request signUpDto) {
+  public ResponseEntity<SignUpDto.Response> signUp(
+      @RequestBody @Validated SignUpDto.Request signUpDto) {
 
     SignUpDto.Response response = candidateService.signUp(signUpDto);
 
@@ -38,10 +39,10 @@ public class CandidateController {
   // 비밀번호 변경
   @PreAuthorize("hasRole('CANDIDATE')")
   @PutMapping("/candidates/{candidateKey}/password")
-  public ResponseEntity<?> changePassword(
+  public ResponseEntity<String> changePassword(
       @PathVariable String candidateKey,
       @RequestHeader("Authorization") String header,
-      @RequestBody @Validated ChangePasswordDto.Request request) {
+      @RequestBody @Validated Request request) {
 
     candidateService.changePassword(candidateKey, request);
 
@@ -51,7 +52,7 @@ public class CandidateController {
   // 회원 탈퇴
   @PreAuthorize("hasRole('CANDIDATE')")
   @DeleteMapping("/candidates/withdraw/{candidateKey}")
-  public ResponseEntity<?> withdraw(
+  public ResponseEntity<String> withdraw(
       @PathVariable String candidateKey,
       @RequestHeader("Authorization") String header,
       @RequestBody @Validated WithdrawDto.Request request) {
@@ -63,7 +64,7 @@ public class CandidateController {
 
   // 이메일 찾기
   @GetMapping("/candidates/find-email")
-  public ResponseEntity<?> findEmail(
+  public ResponseEntity<FindEmailDto.Response> findEmail(
       @RequestBody @Validated FindEmailDto.Request request) {
 
     Response response = candidateService.findEmail(request);

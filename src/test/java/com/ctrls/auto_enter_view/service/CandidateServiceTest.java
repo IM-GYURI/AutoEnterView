@@ -3,6 +3,7 @@ package com.ctrls.auto_enter_view.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -71,17 +72,6 @@ public class CandidateServiceTest {
 
     // 목 설정
     given(passwordEncoder.encode(request.getPassword())).willReturn(encodedPassword);
-
-    CandidateEntity savedCandidate = CandidateEntity.builder()
-        .name(request.getName())
-        .email(request.getEmail())
-        .password(encodedPassword)
-        .role(UserRole.ROLE_CANDIDATE)
-        .candidateKey(KeyGenerator.generateKey())
-        .phoneNumber(request.getPhoneNumber())
-        .build();
-
-    given(candidateRepository.save(any(CandidateEntity.class))).willReturn(savedCandidate);
 
     ArgumentCaptor<CandidateEntity> captor = ArgumentCaptor.forClass(CandidateEntity.class);
 

@@ -25,7 +25,7 @@ public class CompanyController {
 
   // 회원 가입
   @PostMapping("/companies/signup")
-  public ResponseEntity<?> signUp(
+  public ResponseEntity<SignUpDto.Response> signUp(
       @Validated @RequestBody SignUpDto.Request form) {
 
     SignUpDto.Response response = companyService.signUp(form);
@@ -36,7 +36,7 @@ public class CompanyController {
   // 비밀번호 수정
   @PreAuthorize("hasRole('COMPANY')")
   @PutMapping("/companies/{companyKey}/password")
-  public ResponseEntity<?> changePassword(
+  public ResponseEntity<String> changePassword(
       @PathVariable String companyKey,
       @RequestHeader("Authorization") String header,
       @Validated @RequestBody ChangePasswordDto.Request form) {
@@ -49,7 +49,7 @@ public class CompanyController {
   // 회원 탈퇴
   @PreAuthorize("hasRole('COMPANY')")
   @DeleteMapping("/companies/withdraw/{companyKey}")
-  public ResponseEntity<?> withdraw(
+  public ResponseEntity<String> withdraw(
       @PathVariable String companyKey,
       @RequestHeader("Authorization") String header,
       @Validated @RequestBody WithdrawDto.Request form) {

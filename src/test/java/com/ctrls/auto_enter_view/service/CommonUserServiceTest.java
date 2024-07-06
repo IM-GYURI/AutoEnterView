@@ -16,7 +16,9 @@ import com.ctrls.auto_enter_view.component.MailComponent;
 import com.ctrls.auto_enter_view.dto.common.SignInDto;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
+import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.enums.UserRole;
+import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.security.JwtTokenProvider;
@@ -81,11 +83,11 @@ class CommonUserServiceTest {
 
     when(companyRepository.existsByEmail(anyString())).thenReturn(true);
 
-    NonUsableEmailException exception = assertThrows(NonUsableEmailException.class, () -> {
+    CustomException exception = assertThrows(CustomException.class, () -> {
       commonUserService.checkDuplicateEmail("test@example.com");
     });
 
-    assertEquals("사용할 수 없는 이메일입니다.", exception.getMessage());
+    assertEquals(ErrorCode.EMAIL_DUPLICATION.getMessage(), exception.getMessage());
   }
 
   @Test
@@ -121,7 +123,8 @@ class CommonUserServiceTest {
 
     when(valueOpsMock.get(anyString())).thenReturn("123456");
 
-    RuntimeException exception = assertThrows(RuntimeException.class, () -> commonUserService.verifyEmailVerificationCode("test@example.com", "654321"));
+    RuntimeException exception = assertThrows(RuntimeException.class,
+        () -> commonUserService.verifyEmailVerificationCode("test@example.com", "654321"));
 
     assertEquals("유효하지 않은 인증 코드입니다.", exception.getMessage());
   }
@@ -134,7 +137,8 @@ class CommonUserServiceTest {
 
     when(valueOpsMock.get(anyString())).thenReturn(null);
 
-    RuntimeException exception = assertThrows(RuntimeException.class, () -> commonUserService.verifyEmailVerificationCode("test@example.com", "123456"));
+    RuntimeException exception = assertThrows(RuntimeException.class,
+        () -> commonUserService.verifyEmailVerificationCode("test@example.com", "123456"));
 
     assertEquals("유효하지 않은 인증 코드입니다.", exception.getMessage());
   }
@@ -190,7 +194,8 @@ class CommonUserServiceTest {
 
     when(companyRepository.findByEmail(anyString())).thenReturn(Optional.of(company));
     when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
-    when(jwtTokenProvider.generateToken(anyString(), any(UserRole.class))).thenReturn("generatedToken");
+    when(jwtTokenProvider.generateToken(anyString(), any(UserRole.class))).thenReturn(
+        "generatedToken");
 
     // when
     SignInDto.Response response = commonUserService.loginUser("test@company.com", "password123");
@@ -216,7 +221,8 @@ class CommonUserServiceTest {
 
     when(candidateRepository.findByEmail(anyString())).thenReturn(Optional.of(candidate));
     when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
-    when(jwtTokenProvider.generateToken(anyString(), any(UserRole.class))).thenReturn("generatedToken");
+    when(jwtTokenProvider.generateToken(anyString(), any(UserRole.class))).thenReturn(
+        "generatedToken");
 
     // when
     SignInDto.Response response = commonUserService.loginUser("test@candidate.com", "password123");
@@ -241,7 +247,8 @@ class CommonUserServiceTest {
 
     // Mocking behavior
     when(companyRepository.findByEmail(anyString())).thenReturn(Optional.of(company));
-    when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false); // Password does not match
+    when(passwordEncoder.matches(anyString(), anyString())).thenReturn(
+        false); // Password does not match
 
     // when
     RuntimeException exception = assertThrows(RuntimeException.class, () -> {
@@ -268,7 +275,6 @@ class CommonUserServiceTest {
     // then
     assertEquals("가입된 정보가 없습니다.", exception.getMessage());
   }
-
 
 
 }
