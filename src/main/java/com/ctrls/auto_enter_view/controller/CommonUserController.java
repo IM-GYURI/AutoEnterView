@@ -6,6 +6,7 @@ import static com.ctrls.auto_enter_view.enums.ResponseMessage.SUCCESS_TEMPORARY_
 
 import com.ctrls.auto_enter_view.dto.common.EmailDto;
 import com.ctrls.auto_enter_view.dto.common.EmailVerificationDto;
+import com.ctrls.auto_enter_view.dto.common.SignInDto;
 import com.ctrls.auto_enter_view.dto.common.SignInDto.Request;
 import com.ctrls.auto_enter_view.dto.common.SignInDto.Response;
 import com.ctrls.auto_enter_view.dto.common.TemporaryPasswordDto;
@@ -90,7 +91,7 @@ public class CommonUserController {
 
   // 로그인
   @PostMapping("/signin")
-  public ResponseEntity<?> login(
+  public ResponseEntity<SignInDto.Response> login(
       @Validated @RequestBody Request request) {
 
     Response response = commonUserService.loginUser(request.getEmail(), request.getPassword());
