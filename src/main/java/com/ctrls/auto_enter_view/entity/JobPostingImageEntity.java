@@ -34,5 +34,4 @@ public class JobPostingImageEntity extends BaseEntity {
 
   @Column(nullable = false)
   private String filePath;
-
 }
