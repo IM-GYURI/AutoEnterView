@@ -21,7 +21,7 @@ public class JobPostingEntity extends BaseEntity {
   @Id
   private String jobPostingKey;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private String companyKey;
 
   @Column(nullable = false)

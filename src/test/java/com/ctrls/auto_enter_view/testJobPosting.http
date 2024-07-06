@@ -1,6 +1,6 @@
 ### create job posting test
-POST http://localhost:8080/companies/eefae5c7f8044dcab3dc0711b8c4a1c3/job-postings
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjAyNjQyMDEsImV4cCI6MTcyMDI2NzgwMX0.xG65fphL2jRJh1XnIDu8_GVRVSlAtVYm-HjB5Dk6Upg
+POST http://localhost:8080/companies/56908b4bf2284fccaefc8c690ea3f440/job-postings
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjAyNzM0MzIsImV4cCI6MTcyMDI3NzAzMn0._wtdo9Fuj4QgAk8e7yXtxJhC52CfOgnZuR9z1SoNaZo
 Content-Type: application/json
 
 {
