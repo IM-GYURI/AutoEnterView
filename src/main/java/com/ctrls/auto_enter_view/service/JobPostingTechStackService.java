@@ -1,6 +1,7 @@
 package com.ctrls.auto_enter_view.service;
 
 import com.ctrls.auto_enter_view.dto.jobposting.JobPostingDto;
+import com.ctrls.auto_enter_view.dto.jobposting.JobPostingDto.Request;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingTechStackEntity;
 import com.ctrls.auto_enter_view.repository.JobPostingTechStackRepository;
@@ -23,7 +24,7 @@ public class JobPostingTechStackService {
     List<String> techStack = request.getTechStack();
 
     List<JobPostingTechStackEntity> entities = techStack.stream()
-        .map(e -> request.toTechStackEntity(jobPostingEntity, e))
+        .map(e -> Request.toTechStackEntity(jobPostingEntity, e))
         .collect(Collectors.toList());
 
     jobPostingTechStackRepository.saveAll(entities);

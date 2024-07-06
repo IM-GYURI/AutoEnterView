@@ -16,11 +16,9 @@ public class JobPostingService {
 
   public JobPostingEntity createJobPosting(String companyKey, Request request) {
 
-    JobPostingEntity entity = request.toEntity(companyKey, request);
+    JobPostingEntity entity = Request.toEntity(companyKey, request);
 
-    JobPostingEntity save = jobPostingRepository.save(entity);
-
-    return save;
+    return jobPostingRepository.save(entity);
   }
 
 

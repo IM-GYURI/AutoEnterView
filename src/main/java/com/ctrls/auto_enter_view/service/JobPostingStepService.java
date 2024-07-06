@@ -1,6 +1,7 @@
 package com.ctrls.auto_enter_view.service;
 
 import com.ctrls.auto_enter_view.dto.jobposting.JobPostingDto;
+import com.ctrls.auto_enter_view.dto.jobposting.JobPostingDto.Request;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
 import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
@@ -22,7 +23,7 @@ public class JobPostingStepService {
     List<String> jobPostingStep = request.getJobPostingStep();
 
     List<JobPostingStepEntity> entities = jobPostingStep.stream()
-        .map(e -> request.toStepEntity(entity, e))
+        .map(e -> Request.toStepEntity(entity, e))
         .collect(Collectors.toList());
 
     jobPostingStepRepository.saveAll(entities);
