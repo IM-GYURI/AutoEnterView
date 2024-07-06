@@ -50,6 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   // HTTP 요청에서 JWT 토큰을 추출하는 역할
   private String resolveToken(HttpServletRequest request) {
+
     String bearerToken = request.getHeader(TOKEN_HEADER);
 
     if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(TOKEN_PREFIX)) {
@@ -57,7 +58,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
     return null;
   }
-
-
-
 }

@@ -61,6 +61,7 @@ public class JwtTokenProvider {
    * @return 생성된 JWT 토큰
    */
   public String generateToken(String email, UserRole role) {
+
     log.info("Generating token for email: {} with role: {}", email, role);
 
     Claims claims = Jwts.claims().setSubject(email);
@@ -76,9 +77,9 @@ public class JwtTokenProvider {
         .signWith(secretKey, SignatureAlgorithm.HS256)
         .compact();
 
-        log.info("Generated token: {}", token);
+    log.info("Generated token: {}", token);
 
-        return token;
+    return token;
   }
 
   /**
@@ -88,6 +89,7 @@ public class JwtTokenProvider {
    * @return 토큰의 유효성 여부
    */
   public boolean validateToken(String token) {
+
     log.info("토큰 유효성 체크 시작");
     try {
       Jwts.parserBuilder()
@@ -95,7 +97,6 @@ public class JwtTokenProvider {
           .build()
           .parseClaimsJws(token);
       return true;
-
     } catch (ExpiredJwtException e) {
       log.error("JWT 토큰이 만료되었습니다", e);
     } catch (Exception e) {
@@ -125,7 +126,8 @@ public class JwtTokenProvider {
     log.info("Getting authentication for email: {}, role: {}", email, role);
 
     UserDetails userDetails = getUserDetails(email, role);
-    return new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
+    return new UsernamePasswordAuthenticationToken(userDetails, token,
+        userDetails.getAuthorities());
   }
 
   /**
@@ -138,15 +140,17 @@ public class JwtTokenProvider {
    */
 
   private UserDetails getUserDetails(String email, UserRole role) {
+
     if (role == UserRole.ROLE_COMPANY) {
       CompanyEntity company = companyRepository.findByEmail(email)
-          .orElseThrow(() -> new UsernameNotFoundException("Company not found for email: " + email));
+          .orElseThrow(
+              () -> new UsernameNotFoundException("Company not found for email: " + email));
       return buildUserDetails(company.getEmail(), company.getPassword(), role);
-
     } else if (role == UserRole.ROLE_CANDIDATE) {
       CandidateEntity candidate = candidateRepository.findByEmail(email)
-          .orElseThrow(() -> new UsernameNotFoundException("Candidate not found for email: " + email));
-      return buildUserDetails(candidate.getEmail(), candidate.getPassword(),  role);
+          .orElseThrow(
+              () -> new UsernameNotFoundException("Candidate not found for email: " + email));
+      return buildUserDetails(candidate.getEmail(), candidate.getPassword(), role);
     }
     throw new IllegalArgumentException("Unsupported role: " + role);
   }
@@ -154,9 +158,9 @@ public class JwtTokenProvider {
   /**
    * 사용자의 이메일과 역할을 기반으로 UserDetails 객체를 생성합니다.
    *
-   * @param email 사용자의 이메일
+   * @param email    사용자의 이메일
    * @param password 사용자의 비밀번호
-   * @param role  사용자의 역할
+   * @param role     사용자의 역할
    * @return 생성된 UserDetails 객체
    */
   private UserDetails buildUserDetails(String email, String password, UserRole role) {
@@ -166,6 +170,5 @@ public class JwtTokenProvider {
         .password(password)
         .authorities(Collections.singletonList(new SimpleGrantedAuthority(role.name())))
         .build();
-
   }
 }

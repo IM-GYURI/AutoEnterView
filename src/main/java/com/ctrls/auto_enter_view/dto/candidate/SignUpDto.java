@@ -49,7 +49,6 @@ public class SignUpDto {
           .role(UserRole.ROLE_CANDIDATE)
           .build();
     }
-
   }
 
   @Getter
@@ -63,7 +62,5 @@ public class SignUpDto {
     private String email;
 
     private String message;
-
   }
-
 }

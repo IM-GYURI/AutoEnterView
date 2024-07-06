@@ -46,7 +46,7 @@ public class SecurityConfig {
             sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
         .authorizeHttpRequests(authHttpRequest -> authHttpRequest
-            // 인증 없이 허용
+            
             .requestMatchers("/companies/signup", "/candidates/signup").permitAll()
             .requestMatchers("/companies/**").hasRole(UserRole.ROLE_COMPANY.name().substring(5))
             .requestMatchers("/candidates/**").hasRole(UserRole.ROLE_CANDIDATE.name().substring(5))
@@ -55,7 +55,6 @@ public class SecurityConfig {
             .permitAll()
             .requestMatchers("/error").permitAll()
 
-            // 나머지는 인증 필요
             .anyRequest().authenticated())
 
         // JWT 필터 추가
@@ -63,5 +62,4 @@ public class SecurityConfig {
 
     return http.build();
   }
-
 }

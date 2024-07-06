@@ -16,7 +16,9 @@ import com.ctrls.auto_enter_view.component.MailComponent;
 import com.ctrls.auto_enter_view.dto.common.SignInDto;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
+import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.enums.UserRole;
+import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.security.JwtTokenProvider;
@@ -121,7 +123,8 @@ class CommonUserServiceTest {
 
     when(valueOpsMock.get(anyString())).thenReturn("123456");
 
-    RuntimeException exception = assertThrows(RuntimeException.class, () -> commonUserService.verifyEmailVerificationCode("test@example.com", "654321"));
+    RuntimeException exception = assertThrows(RuntimeException.class,
+        () -> commonUserService.verifyEmailVerificationCode("test@example.com", "654321"));
 
     assertEquals("유효하지 않은 인증 코드입니다.", exception.getMessage());
   }
@@ -134,7 +137,8 @@ class CommonUserServiceTest {
 
     when(valueOpsMock.get(anyString())).thenReturn(null);
 
-    RuntimeException exception = assertThrows(RuntimeException.class, () -> commonUserService.verifyEmailVerificationCode("test@example.com", "123456"));
+    RuntimeException exception = assertThrows(RuntimeException.class,
+        () -> commonUserService.verifyEmailVerificationCode("test@example.com", "123456"));
 
     assertEquals("유효하지 않은 인증 코드입니다.", exception.getMessage());
   }
@@ -257,6 +261,7 @@ class CommonUserServiceTest {
 
     when(companyRepository.findByEmail(email)).thenReturn(Optional.of(company));
     when(passwordEncoder.matches(wrongPassword, encodedPassword)).thenReturn(false);
+
 
     // when
     RuntimeException exception = assertThrows(RuntimeException.class, () -> commonUserService.loginUser(email, wrongPassword));
