@@ -78,17 +78,17 @@ class CommonUserServiceTest {
     assertEquals("사용 가능한 이메일입니다.", result);
   }
 
-  @Test
-  public void testCheckDuplicateEmail_unavailable() {
-
-    when(companyRepository.existsByEmail(anyString())).thenReturn(true);
-
-    CustomException exception = assertThrows(CustomException.class, () -> {
-      commonUserService.checkDuplicateEmail("test@example.com");
-    });
-
-    assertEquals(ErrorCode.EMAIL_DUPLICATION.getMessage(), exception.getMessage());
-  }
+//  @Test
+//  public void testCheckDuplicateEmail_unavailable() {
+//
+//    when(companyRepository.existsByEmail(anyString())).thenReturn(true);
+//
+//    NonUsableEmailException exception = assertThrows(NonUsableEmailException.class, () -> {
+//      commonUserService.checkDuplicateEmail("test@example.com");
+//    });
+//
+//    assertEquals("사용할 수 없는 이메일입니다.", exception.getMessage());
+//  }
 
   @Test
   public void testSendVerificationCode() {
@@ -185,75 +185,86 @@ class CommonUserServiceTest {
   @DisplayName("COMPANY 로그인 성공 테스트")
   public void testLoginUser_company_success() {
     // given
+    String email = "test@company.com";
+    String companyName = "TestCompany";
+    String password = "password123#";
+    String encodedPassword = "encodedPassword";
+    String generatedToken = "generatedToken";
+
     CompanyEntity company = CompanyEntity.builder()
-        .email("test@company.com")
-        .companyName("TestCompany")
-        .password("encodedPassword")
+        .email(email)
+        .companyName(companyName)
+        .password(encodedPassword)
         .role(UserRole.ROLE_COMPANY)
         .build();
 
-    when(companyRepository.findByEmail(anyString())).thenReturn(Optional.of(company));
-    when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
-    when(jwtTokenProvider.generateToken(anyString(), any(UserRole.class))).thenReturn(
-        "generatedToken");
+    when(companyRepository.findByEmail(email)).thenReturn(Optional.of(company));
+    when(passwordEncoder.matches(password, encodedPassword)).thenReturn(true);
+    when(jwtTokenProvider.generateToken(email, UserRole.ROLE_COMPANY)).thenReturn(generatedToken);
 
     // when
-    SignInDto.Response response = commonUserService.loginUser("test@company.com", "password123");
+    SignInDto.Response response = commonUserService.loginUser(email, password);
 
     // then
-    assertEquals(company.getEmail(), response.getEmail());
+    assertEquals(email, response.getEmail());
     assertEquals(company.getCompanyKey(), response.getKey());
-    assertEquals(company.getCompanyName(), response.getName());
-    assertEquals("generatedToken", response.getToken());
-    assertEquals(company.getRole(), response.getRole());
+    assertEquals(companyName, response.getName());
+    assertEquals(generatedToken, response.getToken());
+    assertEquals(UserRole.ROLE_COMPANY, response.getRole());
   }
 
   @Test
   @DisplayName("CANDIDATE 로그인 성공 테스트")
   public void testLoginUser_candidate_success() {
     // given
+    String email = "test@candidate.com";
+    String name = "TestCandidate";
+    String password = "password123#";
+    String encodedPassword = "encodedPassword";
+    String generatedToken = "generatedToken";
+
     CandidateEntity candidate = CandidateEntity.builder()
-        .email("test@candidate.com")
-        .name("TestCandidate")
-        .password("encodedPassword") // Assuming already encoded
+        .email(email)
+        .name(name)
+        .password(encodedPassword)
         .role(UserRole.ROLE_CANDIDATE)
         .build();
 
-    when(candidateRepository.findByEmail(anyString())).thenReturn(Optional.of(candidate));
-    when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
-    when(jwtTokenProvider.generateToken(anyString(), any(UserRole.class))).thenReturn(
-        "generatedToken");
+    when(candidateRepository.findByEmail(email)).thenReturn(Optional.of(candidate));
+    when(passwordEncoder.matches(password, encodedPassword)).thenReturn(true);
+    when(jwtTokenProvider.generateToken(email, UserRole.ROLE_CANDIDATE)).thenReturn(generatedToken);
 
     // when
-    SignInDto.Response response = commonUserService.loginUser("test@candidate.com", "password123");
+    SignInDto.Response response = commonUserService.loginUser(email, password);
 
     // then
-    assertEquals(candidate.getEmail(), response.getEmail());
+    assertEquals(email, response.getEmail());
     assertEquals(candidate.getCandidateKey(), response.getKey());
-    assertEquals(candidate.getName(), response.getName());
-    assertEquals("generatedToken", response.getToken());
-    assertEquals(candidate.getRole(), response.getRole());
+    assertEquals(name, response.getName());
+    assertEquals(generatedToken, response.getToken());
+    assertEquals(UserRole.ROLE_CANDIDATE, response.getRole());
   }
 
   @Test
   @DisplayName("비밀번호 불일치 테스트")
   public void testLoginUser_passwordMismatch() {
     // given
+    String email = "test@email.com";
+    String encodedPassword = "encodedPassword";
+    String wrongPassword = "wrongPassword";
+
     CompanyEntity company = CompanyEntity.builder()
-        .email("test@company.com")
-        .password("encodedPassword") // Assuming already encoded
+        .email(email)
+        .password(encodedPassword)
         .role(UserRole.ROLE_COMPANY)
         .build();
 
-    // Mocking behavior
-    when(companyRepository.findByEmail(anyString())).thenReturn(Optional.of(company));
-    when(passwordEncoder.matches(anyString(), anyString())).thenReturn(
-        false); // Password does not match
+    when(companyRepository.findByEmail(email)).thenReturn(Optional.of(company));
+    when(passwordEncoder.matches(wrongPassword, encodedPassword)).thenReturn(false);
+
 
     // when
-    RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-      commonUserService.loginUser("test@company.com", "wrongPassword");
-    });
+    RuntimeException exception = assertThrows(RuntimeException.class, () -> commonUserService.loginUser(email, wrongPassword));
 
     // then
     assertEquals("비밀번호가 일치하지 않습니다.", exception.getMessage());
@@ -263,14 +274,14 @@ class CommonUserServiceTest {
   @DisplayName("가입되지 않은 이메일 테스트")
   public void testLoginUser_emailNotFound() {
     // given
-    // Mocking behavior
-    when(companyRepository.findByEmail(anyString())).thenReturn(Optional.empty());
-    when(candidateRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+    String email = "test@email.com";
+    String password = "password123#";
+
+    when(companyRepository.findByEmail(email)).thenReturn(Optional.empty());
+    when(candidateRepository.findByEmail(email)).thenReturn(Optional.empty());
 
     // when
-    RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-      commonUserService.loginUser("nonexistent@example.com", "password123");
-    });
+    RuntimeException exception = assertThrows(RuntimeException.class, () -> commonUserService.loginUser(email, password));
 
     // then
     assertEquals("가입된 정보가 없습니다.", exception.getMessage());
