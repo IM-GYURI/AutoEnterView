@@ -1,5 +1,8 @@
 package com.ctrls.auto_enter_view.security;
 
+import com.ctrls.auto_enter_view.enums.ErrorCode;
+import com.ctrls.auto_enter_view.exception.CustomException;
+import com.ctrls.auto_enter_view.service.BlacklistTokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +27,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   public static final String TOKEN_PREFIX = "Bearer ";
 
   private final JwtTokenProvider jwtTokenProvider;
+  private final BlacklistTokenService blacklistTokenService;
 
   @Override
   // 필터가 실제로 HTTP 요청을 필터링하는데 사용
@@ -36,12 +40,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     if (StringUtils.hasText(token)) {
       try {
-        if (jwtTokenProvider.validateToken(token)) {
+        if (jwtTokenProvider.validateToken(token) && !blacklistTokenService.isTokenBlacklist(token)) {
           Authentication authentication = jwtTokenProvider.getAuthentication(token);
           SecurityContextHolder.getContext().setAuthentication(authentication);
+        } else {
+          log.info("토큰이 블랙리스트에 존재하여 사용할 수 없는 토큰입니다.");
+          throw new CustomException(ErrorCode.TOKEN_BLACKLISTED);
         }
+      } catch (CustomException e) {
+        log.error("토큰 검증 실패", e);
+        throw e;
       } catch (Exception e) {
-        log.error("사용자 인증을 설정할 수 없습니다.", e);
+        log.error("사용자 인증 실패", e);
+        throw new CustomException(ErrorCode.AUTHENTICATION_FAILED);
       }
     }
 
