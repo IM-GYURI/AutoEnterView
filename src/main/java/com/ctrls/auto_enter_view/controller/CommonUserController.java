@@ -6,16 +6,19 @@ import static com.ctrls.auto_enter_view.enums.ResponseMessage.SUCCESS_TEMPORARY_
 
 import com.ctrls.auto_enter_view.dto.common.EmailDto;
 import com.ctrls.auto_enter_view.dto.common.EmailVerificationDto;
+import com.ctrls.auto_enter_view.dto.common.SignInDto;
 import com.ctrls.auto_enter_view.dto.common.SignInDto.Request;
 import com.ctrls.auto_enter_view.dto.common.SignInDto.Response;
 import com.ctrls.auto_enter_view.dto.common.TemporaryPasswordDto;
 import com.ctrls.auto_enter_view.service.CommonUserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/common")
 @RequiredArgsConstructor
 @RestController
+@Slf4j
 public class CommonUserController {
 
   private final CommonUserService commonUserService;
@@ -90,10 +94,20 @@ public class CommonUserController {
 
   // 로그인
   @PostMapping("/signin")
-  public ResponseEntity<Response> login(
+  public ResponseEntity<SignInDto.Response> login(
       @Validated @RequestBody Request request) {
 
     Response response = commonUserService.loginUser(request.getEmail(), request.getPassword());
     return ResponseEntity.ok(response);
+  }
+
+  // 로그 아웃
+  @PostMapping("/signout")
+  public ResponseEntity<String> logout(@RequestHeader("Authorization") String token) {
+
+    log.info(token);
+    commonUserService.logoutUser(token);
+
+    return ResponseEntity.ok("정상적으로 로그아웃 되었습니다.");
   }
 }

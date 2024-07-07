@@ -35,6 +35,7 @@ public class CommonUserService {
   private final PasswordEncoder passwordEncoder;
 
   private final JwtTokenProvider jwtTokenProvider;
+  private final BlacklistTokenService blacklistTokenService;
   private final RedisTemplate<String, String> redisTemplate;
 
   // 이메일을 통해 이메일의 사용 여부를 확인 - 회사
@@ -200,5 +201,10 @@ public class CommonUserService {
 
     // 이메일이 존재하지 않는 경우
     throw new RuntimeException("가입된 정보가 없습니다.");
+  }
+
+  // 로그 아웃
+  public void logoutUser(String token) {
+    blacklistTokenService.addToBlacklist(token);
   }
 }

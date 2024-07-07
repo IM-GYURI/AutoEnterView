@@ -1,6 +1,6 @@
 package com.ctrls.auto_enter_view.controller;
 
-import com.ctrls.auto_enter_view.dto.candidate.ChangePasswordDto.Request;
+import com.ctrls.auto_enter_view.dto.candidate.ChangePasswordDto;
 import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto;
 import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto.Response;
 import com.ctrls.auto_enter_view.dto.candidate.SignUpDto;
@@ -9,7 +9,6 @@ import com.ctrls.auto_enter_view.enums.ResponseMessage;
 import com.ctrls.auto_enter_view.service.CandidateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
@@ -37,12 +35,10 @@ public class CandidateController {
   }
 
   // 비밀번호 변경
-  @PreAuthorize("hasRole('CANDIDATE')")
   @PutMapping("/candidates/{candidateKey}/password")
   public ResponseEntity<String> changePassword(
       @PathVariable String candidateKey,
-      @RequestHeader("Authorization") String header,
-      @RequestBody @Validated Request request) {
+      @RequestBody @Validated ChangePasswordDto.Request request) {
 
     candidateService.changePassword(candidateKey, request);
 
@@ -50,11 +46,9 @@ public class CandidateController {
   }
 
   // 회원 탈퇴
-  @PreAuthorize("hasRole('CANDIDATE')")
   @DeleteMapping("/candidates/withdraw/{candidateKey}")
   public ResponseEntity<String> withdraw(
       @PathVariable String candidateKey,
-      @RequestHeader("Authorization") String header,
       @RequestBody @Validated WithdrawDto.Request request) {
 
     candidateService.withdraw(request, candidateKey);
