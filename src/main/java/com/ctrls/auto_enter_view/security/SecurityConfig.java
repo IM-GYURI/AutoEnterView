@@ -4,7 +4,6 @@ import com.ctrls.auto_enter_view.enums.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -52,7 +51,7 @@ public class SecurityConfig {
             .requestMatchers("/companies/**").hasRole(UserRole.ROLE_COMPANY.name().substring(5))
             .requestMatchers("/candidates/**").hasRole(UserRole.ROLE_CANDIDATE.name().substring(5))
             .requestMatchers("/common/**").permitAll()
-            .requestMatchers(HttpMethod.POST, "/common/signout").hasAnyRole(UserRole.ROLE_COMPANY.name().substring(5), UserRole.ROLE_CANDIDATE.name().substring(5))
+            .requestMatchers("/common/signout").authenticated()
             .requestMatchers("/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**")
             .permitAll()
             .requestMatchers("/error").permitAll()
