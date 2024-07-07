@@ -51,6 +51,7 @@ public class SecurityConfig {
             .requestMatchers("/companies/**").hasRole(UserRole.ROLE_COMPANY.name().substring(5))
             .requestMatchers("/candidates/**").hasRole(UserRole.ROLE_CANDIDATE.name().substring(5))
             .requestMatchers("/common/**").permitAll()
+            .requestMatchers("/common/signout").authenticated()
             .requestMatchers("/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**")
             .permitAll()
             .requestMatchers("/error").permitAll()
