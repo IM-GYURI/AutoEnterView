@@ -17,7 +17,7 @@ public enum ErrorCode {
   INVALID_VERIFICATION_CODE(400, "유효하지 않은 인증 코드입니다."),
   TOKEN_BLACKLISTED(401, "토큰이 블랙리스트에 존재하여 사용할 수 없는 토큰입니다."),
   AUTHENTICATION_FAILED(401, "사용자 인증에 실패했습니다."),
-  NOT_LOGIN(401, "로그인 상태가 아닙니다.");
+  INVALID_TOKEN(401, "유효하지 않은 토큰입니다.");
 
   private final int status;
   private final String message;
