@@ -40,16 +40,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     if (StringUtils.hasText(token)) {
       try {
-        if (jwtTokenProvider.validateToken(token) && !blacklistTokenService.isTokenBlacklist(token)) {
-          Authentication authentication = jwtTokenProvider.getAuthentication(token);
-          SecurityContextHolder.getContext().setAuthentication(authentication);
+        if (jwtTokenProvider.validateToken(token)) {
+          if(!blacklistTokenService.isTokenBlacklist(token)) {
+            Authentication authentication = jwtTokenProvider.getAuthentication(token);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         } else {
-          log.info("토큰이 블랙리스트에 존재하여 사용할 수 없는 토큰입니다.");
-          throw new CustomException(ErrorCode.TOKEN_BLACKLISTED);
+            log.info("토큰이 블랙리스트에 존재하여 사용할 수 없는 토큰입니다.");
+            throw new CustomException(ErrorCode.TOKEN_BLACKLISTED);
+          }
+      } else {
+          log.info("유효하지 않은 토큰입니다.");
+          throw  new CustomException(ErrorCode.INVALID_TOKEN);
         }
-      } catch (CustomException e) {
+
+      }catch (CustomException e) {
         log.error("토큰 검증 실패", e);
         throw e;
+
       } catch (Exception e) {
         log.error("사용자 인증 실패", e);
         throw new CustomException(ErrorCode.AUTHENTICATION_FAILED);
