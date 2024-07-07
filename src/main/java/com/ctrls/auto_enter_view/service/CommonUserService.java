@@ -10,7 +10,6 @@ import com.ctrls.auto_enter_view.component.MailComponent;
 import com.ctrls.auto_enter_view.dto.common.SignInDto;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
-import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
@@ -206,12 +205,6 @@ public class CommonUserService {
 
   // 로그 아웃
   public void logoutUser(String token) {
-
-    if(token != null) {
-      blacklistTokenService.addToBlacklist(token);
-    } else {
-      throw new CustomException(ErrorCode.NOT_LOGIN);
-    }
+    blacklistTokenService.addToBlacklist(token);
   }
-
 }
