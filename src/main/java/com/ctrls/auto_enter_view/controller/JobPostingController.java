@@ -7,6 +7,7 @@ import com.ctrls.auto_enter_view.service.JobPostingStepService;
 import com.ctrls.auto_enter_view.service.JobPostingTechStackService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,7 +25,7 @@ public class JobPostingController {
 
   @PostMapping("/companies/{companyKey}/job-postings")
   public ResponseEntity<String> createJobPosting(@PathVariable String companyKey,
-      @RequestBody JobPostingDto.Request request) {
+      @RequestBody @Validated JobPostingDto.Request request) {
 
     JobPostingEntity jobPosting = jobPostingService.createJobPosting(companyKey, request);
 
