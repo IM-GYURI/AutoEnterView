@@ -6,6 +6,7 @@ Content-Type: application/json
 {
   "name": "임규리",
   "email": "kgulr0517@naver.com",
+  "verificationCode": "aa",
   "password": "!JEi2ofj3",
   "phoneNumber": "010-1111-1111"
 }

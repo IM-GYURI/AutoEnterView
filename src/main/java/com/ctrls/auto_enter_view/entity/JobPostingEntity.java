@@ -1,10 +1,11 @@
 package com.ctrls.auto_enter_view.entity;
 
+import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto.Request;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,7 +22,7 @@ public class JobPostingEntity extends BaseEntity {
   @Id
   private String jobPostingKey;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private String companyKey;
 
   @Column(nullable = false)
@@ -40,16 +41,31 @@ public class JobPostingEntity extends BaseEntity {
   private String employmentType;
 
   @Column(nullable = false)
-  private String salary;
+  private Long salary;
 
   @Column(nullable = false)
   private String workTime;
 
   @Column(nullable = false)
-  private LocalDateTime startDateTime;
+  private LocalDate startDate;
 
   @Column(nullable = false)
-  private LocalDateTime endDateTime;
+  private LocalDate endDate;
 
   private String jobPostingContent;
+
+  public void updateEntity(Request request) {
+    this.title = request.getTitle();
+    this.jobCategory = request.getJobCategory();
+    this.career = request.getCareer();
+    this.workLocation = request.getWorkLocation();
+    this.education = request.getEducation();
+    this.employmentType = request.getEmploymentType();
+    this.salary = request.getSalary();
+    this.workTime = request.getWorkTime();
+    this.startDate = request.getStartDate();
+    this.endDate = request.getEndDate();
+    this.jobPostingContent = request.getJobPostingContent();
+  }
+
 }

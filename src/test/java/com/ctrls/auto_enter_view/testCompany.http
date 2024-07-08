@@ -1,0 +1,20 @@
+### company signUp test
+POST http://localhost:8080/companies/signup
+Content-Type: application/json
+
+{
+  "email": "company@naver.com",
+  "verificationCode": "code",
+  "password": "!A345678",
+  "companyName": "회사이름",
+  "companyNumber": "010-1111-1111"
+}
+
+### company signIn test
+POST http://localhost:8080/common/signin
+Content-Type: application/json
+
+{
+  "email": "company@naver.com",
+  "password": "!A345678"
+}

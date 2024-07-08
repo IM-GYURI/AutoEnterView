@@ -1,0 +1,88 @@
+### create job posting test
+<<<<<<< HEAD
+POST http://localhost:8080/companies/5165804fb170420a82785a2ddfa8478a/job-postings
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjgxMDksImV4cCI6MTcyMDQzMTcwOX0.O421TLSEjx_tY8o28Xvr02mFzndbDvLCc5kivRJbr7c
+=======
+POST http://localhost:8080/companies/c2f0003a1b1648f28583754fe9c90ac0/job-postings
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjYxNTQsImV4cCI6MTcyMDQyOTc1NH0.shOyF991AeE1cT13SlId5qC1fAJKL5JPbyLPb7cJvyM
+>>>>>>> feature/job-posting-update
+Content-Type: application/json
+
+{
+  "title": "공고제목",
+  "jobCategory": "백엔드",
+  "career": "3",
+  "techStack": [
+    "JAVA",
+    "SPRING"
+  ],
+  "jobPostingStep": [
+    "서류단계",
+    "최종면접"
+  ],
+  "workLocation": "서울특별시",
+  "education": "4년제",
+  "employmentType": "비정규직",
+  "salary": 3000,
+  "workTime": "09:00 ~ 15:00",
+  "startDate": "2023-03-05",
+  "endDate": "2023-03-15",
+  "jobPostingContent": "내용"
+}
+
+<<<<<<< HEAD
+### get job postings test
+GET http://localhost:8080/companies/5165804fb170420a82785a2ddfa8478a/posted-job-postings
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjgxMDksImV4cCI6MTcyMDQzMTcwOX0.O421TLSEjx_tY8o28Xvr02mFzndbDvLCc5kivRJbr7c
+Content-Type: application/json
+
+### get job posting steps test
+GET http://localhost:8080/job-postings/3318da39258a499a8c067385ce15ab1a/steps
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjgxMDksImV4cCI6MTcyMDQzMTcwOX0.O421TLSEjx_tY8o28Xvr02mFzndbDvLCc5kivRJbr7c
+Content-Type: application/json
+
+### 채용 공고에 지원한 지원자 목록을 단계별로 보여주는 api라, 지원하기 기능이 구현된 이후에 다시 테스트해봐야 할 것 같습니다.
+### get job posting steps test 1
+GET http://localhost:8080/job-postings/3318da39258a499a8c067385ce15ab1a/steps/5/candidates-list
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjgxMDksImV4cCI6MTcyMDQzMTcwOX0.O421TLSEjx_tY8o28Xvr02mFzndbDvLCc5kivRJbr7c
+Content-Type: application/json
+
+### 채용 공고에 지원한 지원자 목록을 단계별로 보여주는 api라, 지원하기 기능이 구현된 이후에 다시 테스트해봐야 할 것 같습니다.
+### get job posting steps test 2
+GET http://localhost:8080/job-postings/3318da39258a499a8c067385ce15ab1a/steps/6/candidates-list
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjgxMDksImV4cCI6MTcyMDQzMTcwOX0.O421TLSEjx_tY8o28Xvr02mFzndbDvLCc5kivRJbr7c
+Content-Type: application/json
+=======
+
+### edit job posting test
+PUT http://localhost:8080/job-postings/79efcf5156714a4da28571a15b8890f4
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjYxNTQsImV4cCI6MTcyMDQyOTc1NH0.shOyF991AeE1cT13SlId5qC1fAJKL5JPbyLPb7cJvyM
+Content-Type: application/json
+
+{
+  "title": "공고제목 수정",
+  "jobCategory": "백엔드",
+  "career": "3",
+  "techStack": [
+    "JAVA",
+    "SPRING",
+    "Node.js"
+  ],
+  "jobPostingStep": [
+    "서류"
+  ],
+  "workLocation": "서울특별시",
+  "education": "4년제",
+  "employmentType": "비정규직",
+  "salary": 3000,
+  "workTime": "09:00 ~ 15:00",
+  "startDate": "2023-03-05",
+  "endDate": "2023-03-15",
+  "jobPostingContent": "내용"
+}
+
+
+### delete job posting test
+DELETE http://localhost:8080/job-postings/79efcf5156714a4da28571a15b8890f4
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjYxNTQsImV4cCI6MTcyMDQyOTc1NH0.shOyF991AeE1cT13SlId5qC1fAJKL5JPbyLPb7cJvyM
+>>>>>>> feature/job-posting-update

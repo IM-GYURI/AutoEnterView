@@ -50,6 +50,7 @@ public class SecurityConfig {
 
             .requestMatchers("/companies/signup", "/candidates/signup").permitAll()
             .requestMatchers("/candidates/**").hasRole(UserRole.ROLE_CANDIDATE.name().substring(5))
+            .requestMatchers("/common/signout").authenticated()
             .requestMatchers("/common/**").permitAll()
             .requestMatchers("/error").permitAll()
 
