@@ -1,6 +1,6 @@
 ### create job posting test
-POST http://localhost:8080/companies/56908b4bf2284fccaefc8c690ea3f440/job-postings
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjAyNzM0MzIsImV4cCI6MTcyMDI3NzAzMn0._wtdo9Fuj4QgAk8e7yXtxJhC52CfOgnZuR9z1SoNaZo
+POST http://localhost:8080/companies/31d3a87b11ff47119b853f08d2714e31/job-postings
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MTY3NTMsImV4cCI6MTcyMDQyMDM1M30.GhOMQftHh9WT8-R-Qe4Q3Xn4-8I7i34sNnM_EkOYJtw
 Content-Type: application/json
 
 {
@@ -20,7 +20,7 @@ Content-Type: application/json
   "employmentType": "비정규직",
   "salary": 3000,
   "workTime": "09:00 ~ 15:00",
-  "startDateTime": "2023-03-05",
-  "endDateTime": "2023-03-15",
+  "startDate": "2023-03-05",
+  "endDate": "2023-03-15",
   "jobPostingContent": "내용"
 }
