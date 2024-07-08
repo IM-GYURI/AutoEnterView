@@ -10,6 +10,7 @@ import com.ctrls.auto_enter_view.component.MailComponent;
 import com.ctrls.auto_enter_view.dto.common.SignInDto;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
+import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
@@ -184,7 +185,7 @@ public class CommonUserService {
         String token = jwtTokenProvider.generateToken(company.getEmail(), company.getRole());
         return SignInDto.fromCompany(company, token);
       } else {
-        throw new RuntimeException("비밀번호가 일치하지 않습니다.");
+        throw new CustomException(ErrorCode.PASSWORD_NOT_MATCH);
       }
     }
 
@@ -195,12 +196,12 @@ public class CommonUserService {
         String token = jwtTokenProvider.generateToken(candidate.getEmail(), candidate.getRole());
         return SignInDto.fromCandidate(candidate, token);
       } else {
-        throw new RuntimeException("비밀번호가 일치하지 않습니다.");
+        throw new CustomException(ErrorCode.PASSWORD_NOT_MATCH);
       }
     }
 
     // 이메일이 존재하지 않는 경우
-    throw new RuntimeException("가입된 정보가 없습니다.");
+    throw new CustomException(USER_NOT_FOUND);
   }
 
   // 로그 아웃
