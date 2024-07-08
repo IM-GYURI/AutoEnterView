@@ -31,6 +31,7 @@ public class JobPostingTechStackService {
     jobPostingTechStackRepository.saveAll(entities);
   }
 
+  // 채용 공고 key -> 기술 스택 조회
   public List<String> getTechStackByJobPostingKey(String jobPostingKey) {
 
     List<JobPostingTechStackEntity> entities = jobPostingTechStackRepository.findByJobPostingKey(
