@@ -46,10 +46,10 @@ public class JobPostingEntity extends BaseEntity {
   private String workTime;
 
   @Column(nullable = false)
-  private LocalDate startDateTime;
+  private LocalDate startDate;
 
   @Column(nullable = false)
-  private LocalDate endDateTime;
+  private LocalDate endDate;
 
   private String jobPostingContent;
 }

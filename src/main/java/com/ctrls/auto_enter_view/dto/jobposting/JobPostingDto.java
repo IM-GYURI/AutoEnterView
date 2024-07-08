@@ -72,8 +72,8 @@ public class JobPostingDto extends BaseEntity {
           .education(request.getEducation())
           .employmentType(request.getEmploymentType())
           .salary(request.getSalary())
-          .startDateTime(request.getStartDate())
-          .endDateTime(request.getEndDate())
+          .startDate(request.getStartDate())
+          .endDate(request.getEndDate())
           .workTime(request.getWorkTime())
           .jobPostingContent(request.getJobPostingContent())
           .build();
