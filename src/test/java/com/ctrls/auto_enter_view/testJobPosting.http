@@ -1,6 +1,6 @@
 ### create job posting test
-POST http://localhost:8080/companies/31d3a87b11ff47119b853f08d2714e31/job-postings
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MTY3NTMsImV4cCI6MTcyMDQyMDM1M30.GhOMQftHh9WT8-R-Qe4Q3Xn4-8I7i34sNnM_EkOYJtw
+POST http://localhost:8080/companies/c2f0003a1b1648f28583754fe9c90ac0/job-postings
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjYxNTQsImV4cCI6MTcyMDQyOTc1NH0.shOyF991AeE1cT13SlId5qC1fAJKL5JPbyLPb7cJvyM
 Content-Type: application/json
 
 {
@@ -24,3 +24,36 @@ Content-Type: application/json
   "endDate": "2023-03-15",
   "jobPostingContent": "내용"
 }
+
+
+### edit job posting test
+PUT http://localhost:8080/job-postings/79efcf5156714a4da28571a15b8890f4
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjYxNTQsImV4cCI6MTcyMDQyOTc1NH0.shOyF991AeE1cT13SlId5qC1fAJKL5JPbyLPb7cJvyM
+Content-Type: application/json
+
+{
+  "title": "공고제목 수정",
+  "jobCategory": "백엔드",
+  "career": "3",
+  "techStack": [
+    "JAVA",
+    "SPRING",
+    "Node.js"
+  ],
+  "jobPostingStep": [
+    "서류"
+  ],
+  "workLocation": "서울특별시",
+  "education": "4년제",
+  "employmentType": "비정규직",
+  "salary": 3000,
+  "workTime": "09:00 ~ 15:00",
+  "startDate": "2023-03-05",
+  "endDate": "2023-03-15",
+  "jobPostingContent": "내용"
+}
+
+
+### delete job posting test
+DELETE http://localhost:8080/job-postings/79efcf5156714a4da28571a15b8890f4
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjYxNTQsImV4cCI6MTcyMDQyOTc1NH0.shOyF991AeE1cT13SlId5qC1fAJKL5JPbyLPb7cJvyM
