@@ -1,10 +1,11 @@
 package com.ctrls.auto_enter_view.entity;
 
+import com.ctrls.auto_enter_view.dto.company.CreateCompanyInfoDto.Request;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,14 +22,14 @@ public class CompanyInfoEntity extends BaseEntity {
   @Id
   private String companyInfoKey;
 
-  @Column(nullable = false)
-  private String company_key;
+  @Column(nullable = false, unique = true)
+  private String companyKey;
 
   @Column(nullable = false)
   private int employees;
 
   @Column(nullable = false)
-  private LocalDateTime companyAge;
+  private LocalDate companyAge;
 
   @Column(nullable = false)
   private String companyUrl;
@@ -38,4 +39,13 @@ public class CompanyInfoEntity extends BaseEntity {
 
   @Column(nullable = false)
   private String address;
+
+  public void updateEntity(Request request) {
+
+    employees = request.getEmployees();
+    companyAge = request.getCompanyAge();
+    companyUrl = request.getCompanyUrl();
+    boss = request.getBoss();
+    address = request.getAddress();
+  }
 }

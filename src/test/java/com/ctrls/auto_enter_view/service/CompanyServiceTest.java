@@ -137,9 +137,8 @@ class CompanyServiceTest {
     }
 
     // then
-    assertTrue(
-        expectedWrongFormats.size() == actualWrongFormats.size()
-            && actualWrongFormats.containsAll(expectedWrongFormats));
+    assertTrue(expectedWrongFormats.size() == actualWrongFormats.size()
+        && actualWrongFormats.containsAll(expectedWrongFormats));
     verify(companyRepository, times(0)).save(any());
   }
 

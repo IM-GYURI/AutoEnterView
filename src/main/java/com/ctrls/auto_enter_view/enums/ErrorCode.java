@@ -7,8 +7,6 @@ import lombok.Getter;
 @Getter
 public enum ErrorCode {
 
-  NOT_FOUND(404, "페이지를 찾을 수 없습니다."),
-  INTER_SERVER_ERROR(500, "내부 서버 오류"),
   EMAIL_DUPLICATION(400, "이메일이 중복됩니다."),
   USER_NOT_FOUND(404, "사용자를 찾을 수 없습니다."),
   COMPANY_NOT_FOUND(404, "가입된 회사를 찾을 수 없습니다."),
