@@ -4,7 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,7 +21,7 @@ public class JobPostingEntity extends BaseEntity {
   @Id
   private String jobPostingKey;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private String companyKey;
 
   @Column(nullable = false)
@@ -40,16 +40,16 @@ public class JobPostingEntity extends BaseEntity {
   private String employmentType;
 
   @Column(nullable = false)
-  private String salary;
+  private Long salary;
 
   @Column(nullable = false)
   private String workTime;
 
   @Column(nullable = false)
-  private LocalDateTime startDateTime;
+  private LocalDate startDate;
 
   @Column(nullable = false)
-  private LocalDateTime endDateTime;
+  private LocalDate endDate;
 
   private String jobPostingContent;
 }
