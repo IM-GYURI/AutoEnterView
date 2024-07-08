@@ -21,5 +21,15 @@ public class JobPostingService {
     return jobPostingRepository.save(entity);
   }
 
+  public void editJobPosting(String jobPostingKey, Request request) {
 
+    JobPostingEntity entity = jobPostingRepository.findByJobPostingKey(jobPostingKey);
+    entity.updateEntity(request);
+
+  }
+
+
+  public void deleteJobPosting(String jobPostingKey) {
+    jobPostingRepository.deleteByJobPostingKey(jobPostingKey);
+  }
 }
