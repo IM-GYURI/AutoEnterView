@@ -7,6 +7,8 @@ import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingTechStackEntity;
 import com.ctrls.auto_enter_view.util.KeyGenerator;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -30,10 +32,10 @@ public class JobPostingDto extends BaseEntity {
 
     private Integer career;
 
-    @NotBlank(message = "기술 스택은 필수 입력 항목입니다.")
+    @NotEmpty(message = "기술 스택은 필수 입력 항목입니다.")
     private List<String> techStack;
 
-    @NotBlank(message = "채용 단계는 필수 입력 항목입니다.")
+    @NotEmpty(message = "채용 단계는 필수 입력 항목입니다.")
     private List<String> jobPostingStep;
 
     @NotBlank(message = "근무 위치는 필수 입력 항목입니다.")
@@ -44,17 +46,17 @@ public class JobPostingDto extends BaseEntity {
     @NotBlank(message = "고용 형태는 필수 항목입니다.")
     private String employmentType;
 
-    @NotBlank(message = "급여는 필수 입력 항목입니다.")
+    @NotNull(message = "급여는 필수 입력 항목입니다.")
     private Long salary;
 
     @NotBlank(message = "근무 시간은 필수 입력 항목입니다.")
     private String workTime;
 
-    @NotBlank(message = "채용 공고 시작일은 필수 입력 항목입니다.")
+    @NotNull(message = "채용 공고 시작일은 필수 입력 항목입니다.")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
 
-    @NotBlank(message = "채용 공고 마감일은 필수 입력 항목입니다.")
+    @NotNull(message = "채용 공고 마감일은 필수 입력 항목입니다.")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 
