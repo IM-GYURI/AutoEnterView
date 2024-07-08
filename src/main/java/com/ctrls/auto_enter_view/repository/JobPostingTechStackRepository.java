@@ -12,5 +12,4 @@ public interface JobPostingTechStackRepository extends
   List<JobPostingTechStackEntity> findByJobPostingKey(String jobPostingKey);
 
   void deleteByJobPostingKey(String jobPostingKey);
-
 }

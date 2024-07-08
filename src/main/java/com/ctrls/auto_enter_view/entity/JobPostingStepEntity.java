@@ -29,6 +29,7 @@ public class JobPostingStepEntity extends BaseEntity {
   private String step;
 
   public void updateEntity(String step) {
+
     this.step = step;
   }
 }

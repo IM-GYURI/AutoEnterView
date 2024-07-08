@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.orm.jpa.support.OpenEntityManagerInViewInterceptor;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Service;
 public class JobPostingTechStackService {
 
   private final JobPostingTechStackRepository jobPostingTechStackRepository;
-  private final OpenEntityManagerInViewInterceptor openEntityManagerInViewInterceptor;
 
   public void createJobPostingTechStack(JobPostingEntity jobPostingEntity,
       JobPostingDto.Request request) {
@@ -31,12 +29,12 @@ public class JobPostingTechStackService {
         .collect(Collectors.toList());
 
     jobPostingTechStackRepository.saveAll(entities);
-
   }
 
-
   public List<String> getTechStackByJobPostingKey(String jobPostingKey) {
-    List<JobPostingTechStackEntity> entities = jobPostingTechStackRepository.findByJobPostingKey(jobPostingKey);
+
+    List<JobPostingTechStackEntity> entities = jobPostingTechStackRepository.findByJobPostingKey(
+        jobPostingKey);
     List<String> techStack = new ArrayList<>();
 
     for (JobPostingTechStackEntity entity : entities) {
@@ -45,6 +43,7 @@ public class JobPostingTechStackService {
 
     log.info("techStack 가져오기 성공 {}", techStack);
     return techStack;
+  }
 
   public void editJobPostingTechStack(String jobPostingKey, JobPostingDto.Request request) {
 
@@ -60,12 +59,10 @@ public class JobPostingTechStackService {
         .toList();
 
     jobPostingTechStackRepository.saveAll(techStackEntities);
-
   }
 
-
   public void deleteJobPostingTechStack(String jobPostingKey) {
-    jobPostingTechStackRepository.deleteByJobPostingKey(jobPostingKey);
 
+    jobPostingTechStackRepository.deleteByJobPostingKey(jobPostingKey);
   }
 }

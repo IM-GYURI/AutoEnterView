@@ -206,6 +206,7 @@ public class CommonUserService {
 
   // 로그 아웃
   public void logoutUser(String token) {
+
     blacklistTokenService.addToBlacklist(token);
   }
 }

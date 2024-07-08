@@ -19,6 +19,7 @@ public class JobPostingStepDto {
 
   // Entity -> DTO 변환
   public static JobPostingStepDto fromEntity(JobPostingStepEntity entity) {
+
     return JobPostingStepDto.builder()
         .stepId(entity.getId())
         .stepName(entity.getStep())
@@ -27,6 +28,7 @@ public class JobPostingStepDto {
 
   // Entity 리스트 -> DTO 리스트 변환
   public static List<JobPostingStepDto> fromEntityList(List<JobPostingStepEntity> entities) {
+
     return entities.stream()
         .map(JobPostingStepDto::fromEntity)
         .toList();

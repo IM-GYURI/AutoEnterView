@@ -1,7 +1,5 @@
 package com.ctrls.auto_enter_view.dto.jobPosting;
 
-
-import com.ctrls.auto_enter_view.entity.BaseEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingTechStackEntity;
@@ -17,7 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
-public class JobPostingDto extends BaseEntity {
+public class JobPostingDto {
 
   @Getter
   @Builder
@@ -79,7 +77,6 @@ public class JobPostingDto extends BaseEntity {
           .workTime(request.getWorkTime())
           .jobPostingContent(request.getJobPostingContent())
           .build();
-
     }
 
     public static JobPostingTechStackEntity toTechStackEntity(JobPostingEntity entity,
@@ -89,7 +86,6 @@ public class JobPostingDto extends BaseEntity {
           .jobPostingKey(entity.getJobPostingKey())
           .techName(techName)
           .build();
-
     }
 
     public static JobPostingTechStackEntity toTechStackEntity(String jobPostingKey,
@@ -99,10 +95,10 @@ public class JobPostingDto extends BaseEntity {
           .jobPostingKey(jobPostingKey)
           .techName(techName)
           .build();
-
     }
 
     public static JobPostingStepEntity toStepEntity(JobPostingEntity entity, String stepName) {
+
       return JobPostingStepEntity.builder()
           .jobPostingKey(entity.getJobPostingKey())
           .step(stepName)
@@ -110,13 +106,11 @@ public class JobPostingDto extends BaseEntity {
     }
 
     public static JobPostingStepEntity toStepEntity(String jobPostingKey, String stepName) {
+
       return JobPostingStepEntity.builder()
           .jobPostingKey(jobPostingKey)
           .step(stepName)
           .build();
     }
-
   }
-
-
 }

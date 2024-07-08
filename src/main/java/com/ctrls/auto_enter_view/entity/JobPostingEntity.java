@@ -55,6 +55,7 @@ public class JobPostingEntity extends BaseEntity {
   private String jobPostingContent;
 
   public void updateEntity(Request request) {
+
     this.title = request.getTitle();
     this.jobCategory = request.getJobCategory();
     this.career = request.getCareer();
@@ -67,5 +68,4 @@ public class JobPostingEntity extends BaseEntity {
     this.endDate = request.getEndDate();
     this.jobPostingContent = request.getJobPostingContent();
   }
-
 }
