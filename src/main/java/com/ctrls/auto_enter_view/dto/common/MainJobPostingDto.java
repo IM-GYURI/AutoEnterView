@@ -13,6 +13,7 @@ public class MainJobPostingDto {
   @AllArgsConstructor
   @Builder
   public static class Response {
+
     private List<JobPostingMainInfo> jobPostingsList;
   }
 
@@ -20,13 +21,16 @@ public class MainJobPostingDto {
   @AllArgsConstructor
   @Builder
   public static class JobPostingMainInfo {
+
     private String jobPostingKey;
     private String companyName;
     private String title;
     private List<String> techStack;
     private LocalDate endDate;
 
-    public static JobPostingMainInfo from(JobPostingEntity entity, String companyName, List<String> techStack) {
+    public static JobPostingMainInfo from(JobPostingEntity entity, String companyName,
+        List<String> techStack) {
+
       return JobPostingMainInfo.builder()
           .jobPostingKey(entity.getJobPostingKey())
           .companyName(companyName)

@@ -106,7 +106,7 @@ class CompanyInfoServiceTest {
         // execute
         () -> companyInfoService.createInfo(companyKey, request));
 
-    assertEquals(ErrorCode.INTER_SERVER_ERROR, exception.getErrorCode());
+    assertEquals(ErrorCode.INTERNAL_SERVER_ERROR, exception.getErrorCode());
   }
 
   @Test

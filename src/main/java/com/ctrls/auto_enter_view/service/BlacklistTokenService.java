@@ -15,6 +15,7 @@ public class BlacklistTokenService {
 
   // 블랙 리스트에 토큰 추가
   public void addToBlacklist(String token) {
+
     if (token.startsWith("Bearer ")) {
       token = token.substring(7);
     }

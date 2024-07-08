@@ -11,8 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -51,9 +51,9 @@ public class JobPostingController {
   @GetMapping("/companies/{companyKey}/posted-job-postings")
   public ResponseEntity<List<JobPostingInfoDto>> getJobPostingsByCompanyKey(
       @PathVariable String companyKey) {
+
     return ResponseEntity.ok(jobPostingService.getJobPostingsByCompanyKey(companyKey));
   }
-
 
   @PutMapping("/job-postings/{jobPostingKey}")
   public ResponseEntity<String> editJobPosting(@PathVariable String jobPostingKey,
@@ -76,5 +76,4 @@ public class JobPostingController {
 
     return ResponseEntity.ok("삭제 완료");
   }
-
 }

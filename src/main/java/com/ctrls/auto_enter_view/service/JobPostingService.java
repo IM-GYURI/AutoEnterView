@@ -9,10 +9,10 @@ import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto.Request;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingInfoDto;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
+import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
-import com.ctrls.auto_enter_view.enums.ErrorCode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +32,6 @@ public class JobPostingService {
   private final CompanyRepository companyRepository;
   private final JobPostingTechStackService jobPostingTechStackService;
 
-
   public JobPostingEntity createJobPosting(String companyKey, Request request) {
 
     JobPostingEntity entity = Request.toEntity(companyKey, request);
@@ -47,6 +46,7 @@ public class JobPostingService {
    */
   public List<JobPostingInfoDto> getJobPostingsByCompanyKey(
       String companyKey) {
+
     User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     CompanyEntity company = findCompanyByPrincipal(principal);
 
@@ -62,12 +62,14 @@ public class JobPostingService {
 
   // 사용자 인증 정보로 회사 entity 찾기
   private CompanyEntity findCompanyByPrincipal(User principal) {
+
     return companyRepository.findByEmail(principal.getUsername())
         .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
   }
 
   // 회사 본인인지 확인
   private void verifyCompanyOwnership(CompanyEntity company, String companyKey) {
+
     if (!company.getCompanyKey().equals(companyKey)) {
       throw new CustomException(USER_NOT_FOUND);
     }
@@ -76,6 +78,7 @@ public class JobPostingService {
   // JobPostingEntity -> JobPostingDto 매핑
   private JobPostingInfoDto mapToJobPostingDto(
       JobPostingEntity jobPostingEntity) {
+
     return JobPostingInfoDto.builder()
         .jobPostingKey(jobPostingEntity.getJobPostingKey())
         .title(jobPostingEntity.getTitle())
@@ -93,6 +96,7 @@ public class JobPostingService {
   }
 
   public List<Response> getAllJobPosting() {
+
     List<JobPostingEntity> jobPostingEntities = jobPostingRepository.findAll();
     List<Response> responseList = new ArrayList<>();
 
@@ -105,9 +109,11 @@ public class JobPostingService {
       log.info("회사명 조회 완료 : {}", companyName);
 
       String jobPostingKey = entity.getJobPostingKey();
-      List<String> techStack = jobPostingTechStackService.getTechStackByJobPostingKey(jobPostingKey);
+      List<String> techStack = jobPostingTechStackService.getTechStackByJobPostingKey(
+          jobPostingKey);
 
-      JobPostingMainInfo jobPostingMainInfo = JobPostingMainInfo.from(entity, companyName, techStack);
+      JobPostingMainInfo jobPostingMainInfo = JobPostingMainInfo.from(entity, companyName,
+          techStack);
 
       MainJobPostingDto.Response response = MainJobPostingDto.Response.builder()
           .jobPostingsList(List.of(jobPostingMainInfo))
@@ -121,8 +127,7 @@ public class JobPostingService {
   }
 
   public void deleteJobPosting(String jobPostingKey) {
+
     jobPostingRepository.deleteByJobPostingKey(jobPostingKey);
   }
-    
 }
-

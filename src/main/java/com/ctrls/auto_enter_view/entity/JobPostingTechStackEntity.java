@@ -30,6 +30,7 @@ public class JobPostingTechStackEntity extends BaseEntity {
   private String techName;
 
   public void updateEntity(String techName) {
+
     this.techName = techName;
   }
 }

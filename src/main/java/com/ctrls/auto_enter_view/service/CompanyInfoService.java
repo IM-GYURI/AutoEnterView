@@ -37,7 +37,7 @@ public class CompanyInfoService {
     try {
       companyInfoRepository.save(companyInfoEntity);
     } catch (DataIntegrityViolationException e) {
-      throw new CustomException(ErrorCode.INTER_SERVER_ERROR);
+      throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
     }
   }
 

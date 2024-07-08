@@ -23,5 +23,4 @@ public class CommonJobPostingController {
     List<MainJobPostingDto.Response> response = jobPostingService.getAllJobPosting();
     return ResponseEntity.ok(response);
   }
-
 }

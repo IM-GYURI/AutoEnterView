@@ -24,6 +24,7 @@ public class JobPostingStepController {
    */
   @GetMapping("/job-postings/{jobPostingKey}/steps")
   public ResponseEntity<JobPostingStepsDto> getJobPostingSteps(@PathVariable String jobPostingKey) {
+
     return ResponseEntity.ok(jobPostingStepService.getJobPostingSteps(jobPostingKey));
   }
 
@@ -38,6 +39,7 @@ public class JobPostingStepController {
   public ResponseEntity<List<CandidateTechStackListDto>> getCandidatesListByStepId(
       @PathVariable String jobPostingKey,
       @PathVariable Long stepId) {
+
     return ResponseEntity.ok(
         jobPostingStepService.getCandidatesListByStepId(jobPostingKey, stepId));
   }
