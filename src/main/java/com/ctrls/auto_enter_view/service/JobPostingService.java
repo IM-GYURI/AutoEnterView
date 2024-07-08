@@ -67,9 +67,9 @@ public class JobPostingService {
   }
 
   // JobPostingEntity -> JobPostingDto 매핑
-  private com.ctrls.auto_enter_view.dto.jobPosting.JobPostingInfoDto mapToJobPostingDto(
+  private JobPostingInfoDto mapToJobPostingDto(
       JobPostingEntity jobPostingEntity) {
-    return com.ctrls.auto_enter_view.dto.jobPosting.JobPostingInfoDto.builder()
+    return JobPostingInfoDto.builder()
         .jobPostingKey(jobPostingEntity.getJobPostingKey())
         .title(jobPostingEntity.getTitle())
         .jobCategory(jobPostingEntity.getJobCategory())
