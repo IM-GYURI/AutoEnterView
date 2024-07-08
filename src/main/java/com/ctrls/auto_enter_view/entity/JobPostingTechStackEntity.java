@@ -28,4 +28,8 @@ public class JobPostingTechStackEntity extends BaseEntity {
 
   @Column(nullable = false)
   private String techName;
+
+  public void updateEntity(String techName) {
+    this.techName = techName;
+  }
 }
