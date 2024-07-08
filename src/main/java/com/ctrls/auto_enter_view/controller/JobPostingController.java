@@ -9,10 +9,13 @@ import com.ctrls.auto_enter_view.service.JobPostingTechStackService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -50,5 +53,28 @@ public class JobPostingController {
       @PathVariable String companyKey) {
     return ResponseEntity.ok(jobPostingService.getJobPostingsByCompanyKey(companyKey));
   }
-}
 
+
+  @PutMapping("/job-postings/{jobPostingKey}")
+  public ResponseEntity<String> editJobPosting(@PathVariable String jobPostingKey,
+      @RequestBody @Validated JobPostingDto.Request request) {
+
+    jobPostingService.editJobPosting(jobPostingKey, request);
+    jobPostingTechStackService.editJobPostingTechStack(jobPostingKey, request);
+    jobPostingStepService.editJobPostingStep(jobPostingKey, request);
+
+    return ResponseEntity.ok("수정 완료");
+  }
+
+  @Transactional
+  @DeleteMapping("/job-postings/{jobPostingKey}")
+  public ResponseEntity<String> deleteJobPosting(@PathVariable String jobPostingKey) {
+
+    jobPostingService.deleteJobPosting(jobPostingKey);
+    jobPostingTechStackService.deleteJobPostingTechStack(jobPostingKey);
+    jobPostingStepService.deleteJobPostingStep(jobPostingKey);
+
+    return ResponseEntity.ok("삭제 완료");
+  }
+
+}

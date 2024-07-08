@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.orm.jpa.support.OpenEntityManagerInViewInterceptor;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 public class JobPostingTechStackService {
 
   private final JobPostingTechStackRepository jobPostingTechStackRepository;
+  private final OpenEntityManagerInViewInterceptor openEntityManagerInViewInterceptor;
 
   public void createJobPostingTechStack(JobPostingEntity jobPostingEntity,
       JobPostingDto.Request request) {
@@ -29,5 +31,27 @@ public class JobPostingTechStackService {
 
     jobPostingTechStackRepository.saveAll(entities);
 
+  }
+
+  public void editJobPostingTechStack(String jobPostingKey, JobPostingDto.Request request) {
+
+    List<JobPostingTechStackEntity> entities = jobPostingTechStackRepository.findByJobPostingKey(
+        jobPostingKey);
+
+    jobPostingTechStackRepository.deleteAll(entities);
+
+    List<String> techStack = request.getTechStack();
+
+    List<JobPostingTechStackEntity> techStackEntities = techStack.stream()
+        .map(e -> Request.toTechStackEntity(jobPostingKey, e))
+        .toList();
+
+    jobPostingTechStackRepository.saveAll(techStackEntities);
+
+  }
+
+
+  public void deleteJobPostingTechStack(String jobPostingKey) {
+    jobPostingTechStackRepository.deleteByJobPostingKey(jobPostingKey);
   }
 }

@@ -11,4 +11,7 @@ public interface JobPostingStepRepository extends JpaRepository<JobPostingStepEn
   List<JobPostingStepEntity> findAllByJobPostingKey(String jobPostingKey);
 
   boolean existsByIdAndJobPostingKey(Long stepId, String jobPostingKey);
+  List<JobPostingStepEntity> findByJobPostingKey(String jobPostingKey);
+
+  void deleteByJobPostingKey(String jobPostingKey);
 }

@@ -10,6 +10,7 @@ import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -77,4 +78,18 @@ public class JobPostingService {
         .endDate(jobPostingEntity.getEndDate())
         .build();
   }
+
+  public void editJobPosting(String jobPostingKey, Request request) {
+
+    Optional<JobPostingEntity> entity = jobPostingRepository.findByJobPostingKey(jobPostingKey);
+
+    entity.get().updateEntity(request);
+
+  }
+
+  public void deleteJobPosting(String jobPostingKey) {
+    jobPostingRepository.deleteByJobPostingKey(jobPostingKey);
+  }
+    
 }
+
