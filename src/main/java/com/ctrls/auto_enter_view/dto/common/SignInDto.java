@@ -28,7 +28,6 @@ public class SignInDto {
   }
 
   @Getter
-  @NoArgsConstructor
   @AllArgsConstructor
   @Builder
   public static class Response {

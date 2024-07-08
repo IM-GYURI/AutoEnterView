@@ -5,6 +5,7 @@ import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto.Request;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingTechStackEntity;
 import com.ctrls.auto_enter_view.repository.JobPostingTechStackRepository;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,18 @@ public class JobPostingTechStackService {
 
   }
 
+
+  public List<String> getTechStackByJobPostingKey(String jobPostingKey) {
+    List<JobPostingTechStackEntity> entities = jobPostingTechStackRepository.findByJobPostingKey(jobPostingKey);
+    List<String> techStack = new ArrayList<>();
+
+    for (JobPostingTechStackEntity entity : entities) {
+      techStack.add(entity.getTechName());
+    }
+
+    log.info("techStack 가져오기 성공 {}", techStack);
+    return techStack;
+
   public void editJobPostingTechStack(String jobPostingKey, JobPostingDto.Request request) {
 
     List<JobPostingTechStackEntity> entities = jobPostingTechStackRepository.findByJobPostingKey(
@@ -53,5 +66,6 @@ public class JobPostingTechStackService {
 
   public void deleteJobPostingTechStack(String jobPostingKey) {
     jobPostingTechStackRepository.deleteByJobPostingKey(jobPostingKey);
+
   }
 }
