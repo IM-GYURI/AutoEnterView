@@ -1,7 +1,7 @@
 package com.ctrls.auto_enter_view.service;
 
-import com.ctrls.auto_enter_view.dto.jobposting.JobPostingDto;
-import com.ctrls.auto_enter_view.dto.jobposting.JobPostingDto.Request;
+import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto;
+import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto.Request;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingTechStackEntity;
 import com.ctrls.auto_enter_view.repository.JobPostingTechStackRepository;
