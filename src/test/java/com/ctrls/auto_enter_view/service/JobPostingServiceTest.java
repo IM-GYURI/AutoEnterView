@@ -74,7 +74,7 @@ class JobPostingServiceTest {
   }
 
   @Test
-  @DisplayName("회사 키로 채용 공고 목록 조회 - 실패")
+  @DisplayName("회사 키로 채용 공고 목록 조회 - 실패 : USER_NOT_FOUND 예외 발생")
   void testGetJobPostingsByCompanyKey_UserNotFound() {
     String companyKey = "companyKey12345";
     User user = new User("email", "password", new ArrayList<>());
