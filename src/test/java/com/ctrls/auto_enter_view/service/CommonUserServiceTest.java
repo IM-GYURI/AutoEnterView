@@ -59,6 +59,9 @@ class CommonUserServiceTest {
   @Mock
   private JwtTokenProvider jwtTokenProvider;
 
+  @Mock
+  private BlacklistTokenService blacklistTokenService;
+
   @InjectMocks
   private CommonUserService commonUserService;
 
@@ -324,5 +327,20 @@ class CommonUserServiceTest {
 
     // then
     assertEquals("가입된 정보가 없습니다.", exception.getMessage());
+  }
+
+  @Test
+  @DisplayName("로그아웃 테스트")
+  void logoutUser() {
+    // given
+    String token = "testToken";
+    // 실제로 동작하지 않아도 됨
+    doNothing().when(blacklistTokenService).addToBlacklist(token);
+
+    // when
+    commonUserService.logoutUser(token);
+
+    // then
+    verify(blacklistTokenService, times(1)).addToBlacklist(token);
   }
 }

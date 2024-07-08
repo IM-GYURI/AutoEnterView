@@ -1,4 +1,4 @@
-package com.ctrls.auto_enter_view.dto.jobposting;
+package com.ctrls.auto_enter_view.dto.jobPosting;
 
 
 import com.ctrls.auto_enter_view.entity.BaseEntity;
@@ -92,9 +92,26 @@ public class JobPostingDto extends BaseEntity {
 
     }
 
+    public static JobPostingTechStackEntity toTechStackEntity(String jobPostingKey,
+        String techName) {
+
+      return JobPostingTechStackEntity.builder()
+          .jobPostingKey(jobPostingKey)
+          .techName(techName)
+          .build();
+
+    }
+
     public static JobPostingStepEntity toStepEntity(JobPostingEntity entity, String stepName) {
       return JobPostingStepEntity.builder()
           .jobPostingKey(entity.getJobPostingKey())
+          .step(stepName)
+          .build();
+    }
+
+    public static JobPostingStepEntity toStepEntity(String jobPostingKey, String stepName) {
+      return JobPostingStepEntity.builder()
+          .jobPostingKey(jobPostingKey)
           .step(stepName)
           .build();
     }

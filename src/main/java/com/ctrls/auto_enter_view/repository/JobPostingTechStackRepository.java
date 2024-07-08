@@ -8,4 +8,7 @@ public interface JobPostingTechStackRepository extends
     JpaRepository<JobPostingTechStackEntity, Long> {
 
   List<JobPostingTechStackEntity> findByJobPostingKey(String jobPostingKey);
+
+  void deleteByJobPostingKey(String jobPostingKey);
+
 }
