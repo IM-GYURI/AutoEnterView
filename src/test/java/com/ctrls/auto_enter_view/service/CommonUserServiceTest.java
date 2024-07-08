@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -18,7 +17,9 @@ import com.ctrls.auto_enter_view.component.MailComponent;
 import com.ctrls.auto_enter_view.dto.common.SignInDto;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
+import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.enums.UserRole;
+import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.security.JwtTokenProvider;
@@ -300,9 +301,9 @@ class CommonUserServiceTest {
     when(companyRepository.findByEmail(email)).thenReturn(Optional.of(company));
     when(passwordEncoder.matches(wrongPassword, encodedPassword)).thenReturn(false);
 
-
     // when
-    RuntimeException exception = assertThrows(RuntimeException.class, () -> commonUserService.loginUser(email, wrongPassword));
+    RuntimeException exception = assertThrows(RuntimeException.class,
+        () -> commonUserService.loginUser(email, wrongPassword));
 
     // then
     assertEquals("비밀번호가 일치하지 않습니다.", exception.getMessage());
@@ -319,7 +320,8 @@ class CommonUserServiceTest {
     when(candidateRepository.findByEmail(email)).thenReturn(Optional.empty());
 
     // when
-    RuntimeException exception = assertThrows(RuntimeException.class, () -> commonUserService.loginUser(email, password));
+    RuntimeException exception = assertThrows(RuntimeException.class,
+        () -> commonUserService.loginUser(email, password));
 
     // then
     assertEquals("가입된 정보가 없습니다.", exception.getMessage());
