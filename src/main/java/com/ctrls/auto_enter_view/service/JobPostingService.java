@@ -6,11 +6,12 @@ import com.ctrls.auto_enter_view.dto.common.MainJobPostingDto.Response;
 import com.ctrls.auto_enter_view.dto.jobposting.JobPostingDto.Request;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
+import com.ctrls.auto_enter_view.enums.ErrorCode;
+import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,6 @@ public class JobPostingService {
   public JobPostingEntity createJobPosting(String companyKey, Request request) {
 
     JobPostingEntity entity = Request.toEntity(companyKey, request);
-
     return jobPostingRepository.save(entity);
   }
 
@@ -38,15 +38,11 @@ public class JobPostingService {
 
     for (JobPostingEntity entity : jobPostingEntities) {
       String companyKey = entity.getCompanyKey();
-      Optional<CompanyEntity> optionalCompany = companyRepository.findByCompanyKey(companyKey);
+      CompanyEntity companyEntity = companyRepository.findByCompanyKey(companyKey)
+          .orElseThrow(() -> new CustomException(ErrorCode.COMPANY_NOT_FOUND));
 
-      String companyName = null;
-      if (optionalCompany.isPresent()) {
-        companyName = optionalCompany.get().getCompanyName();
-        log.info("회사명 조회 완료 : {}", companyName);
-      } else {
-        log.warn("회사명 조회 실패 - companyKey: {}", companyKey);
-      }
+      String companyName = companyEntity.getCompanyName();
+      log.info("회사명 조회 완료 : {}", companyName);
 
       String jobPostingKey = entity.getJobPostingKey();
       List<String> techStack = jobPostingTechStackService.getTechStackByJobPostingKey(jobPostingKey);
