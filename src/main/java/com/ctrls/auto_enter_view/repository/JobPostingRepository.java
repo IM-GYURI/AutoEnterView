@@ -8,8 +8,11 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface JobPostingRepository extends JpaRepository<JobPostingEntity, String> {
-
+  
   Optional<JobPostingEntity> findByJobPostingKey(String jobPostingKey);
 
   List<JobPostingEntity> findAllByCompanyKey(String companyKey);
+
+  void deleteByJobPostingKey(String jobPostingKey);
 }
+

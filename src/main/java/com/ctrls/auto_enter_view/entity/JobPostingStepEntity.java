@@ -22,9 +22,13 @@ public class JobPostingStepEntity extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
-  
+
   @Column(nullable = false)
   private String jobPostingKey;
 
   private String step;
+
+  public void updateEntity(String step) {
+    this.step = step;
+  }
 }
