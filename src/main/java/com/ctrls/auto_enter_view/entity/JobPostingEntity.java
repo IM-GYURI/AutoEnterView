@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.entity;
 
+import com.ctrls.auto_enter_view.dto.jobposting.JobPostingDto.Request;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -52,4 +53,19 @@ public class JobPostingEntity extends BaseEntity {
   private LocalDate endDate;
 
   private String jobPostingContent;
+
+  public void updateEntity(Request request) {
+    this.title = request.getTitle();
+    this.jobCategory = request.getJobCategory();
+    this.career = request.getCareer();
+    this.workLocation = request.getWorkLocation();
+    this.education = request.getEducation();
+    this.employmentType = request.getEmploymentType();
+    this.salary = request.getSalary();
+    this.workTime = request.getWorkTime();
+    this.startDate = request.getStartDate();
+    this.endDate = request.getEndDate();
+    this.jobPostingContent = request.getJobPostingContent();
+  }
+
 }
