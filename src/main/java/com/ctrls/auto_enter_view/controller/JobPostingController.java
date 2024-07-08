@@ -1,13 +1,16 @@
 package com.ctrls.auto_enter_view.controller;
 
-import com.ctrls.auto_enter_view.dto.jobposting.JobPostingDto;
+import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto;
+import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingInfoDto;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.service.JobPostingService;
 import com.ctrls.auto_enter_view.service.JobPostingStepService;
 import com.ctrls.auto_enter_view.service.JobPostingTechStackService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,4 +38,17 @@ public class JobPostingController {
 
     return ResponseEntity.ok("jobPostingKey: " + jobPosting.getJobPostingKey());
   }
+
+  /**
+   * 회사 본인이 등록한 채용공고 목록 조회
+   *
+   * @param companyKey
+   * @return
+   */
+  @GetMapping("/companies/{companyKey}/posted-job-postings")
+  public ResponseEntity<List<JobPostingInfoDto>> getJobPostingsByCompanyKey(
+      @PathVariable String companyKey) {
+    return ResponseEntity.ok(jobPostingService.getJobPostingsByCompanyKey(companyKey));
+  }
 }
+

@@ -1,4 +1,4 @@
-package com.ctrls.auto_enter_view.dto.jobposting;
+package com.ctrls.auto_enter_view.dto.jobPosting;
 
 
 import com.ctrls.auto_enter_view.entity.BaseEntity;
