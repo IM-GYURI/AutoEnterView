@@ -113,9 +113,7 @@ class JobPostingServiceTest {
 
     when(companyRepository.findByEmail(user.getUsername())).thenReturn(Optional.empty());
 
-    CustomException exception = assertThrows(CustomException.class, () -> {
-      jobPostingService.getJobPostingsByCompanyKey(companyKey);
-    });
+    CustomException exception = assertThrows(CustomException.class, () -> jobPostingService.getJobPostingsByCompanyKey(companyKey));
 
     verify(companyRepository, times(1)).findByEmail(user.getUsername());
     assertEquals(USER_NOT_FOUND, exception.getErrorCode());
