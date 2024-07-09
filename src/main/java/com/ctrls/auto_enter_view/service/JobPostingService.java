@@ -2,9 +2,9 @@ package com.ctrls.auto_enter_view.service;
 
 import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 
+import com.ctrls.auto_enter_view.dto.common.JobPostingDetailDto;
 import com.ctrls.auto_enter_view.dto.common.MainJobPostingDto;
 import com.ctrls.auto_enter_view.dto.common.MainJobPostingDto.JobPostingMainInfo;
-import com.ctrls.auto_enter_view.dto.common.MainJobPostingDto.Response;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto.Request;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingInfoDto;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
@@ -31,6 +31,7 @@ public class JobPostingService {
   private final JobPostingRepository jobPostingRepository;
   private final CompanyRepository companyRepository;
   private final JobPostingTechStackService jobPostingTechStackService;
+  private final JobPostingStepService jobPostingStepService;
 
   public JobPostingEntity createJobPosting(String companyKey, Request request) {
 
@@ -95,30 +96,17 @@ public class JobPostingService {
     entity.get().updateEntity(request);
   }
 
-  public List<Response> getAllJobPosting() {
-
+  // Main 화면 채용 공고 조회
+  public List<MainJobPostingDto.Response> getAllJobPosting() {
     List<JobPostingEntity> jobPostingEntities = jobPostingRepository.findAll();
-    List<Response> responseList = new ArrayList<>();
+    List<MainJobPostingDto.Response> responseList = new ArrayList<>();
 
     for (JobPostingEntity entity : jobPostingEntities) {
-      String companyKey = entity.getCompanyKey();
-      CompanyEntity companyEntity = companyRepository.findByCompanyKey(companyKey)
-          .orElseThrow(() -> new CustomException(ErrorCode.COMPANY_NOT_FOUND));
-
-      String companyName = companyEntity.getCompanyName();
-      log.info("회사명 조회 완료 : {}", companyName);
-
-      String jobPostingKey = entity.getJobPostingKey();
-      List<String> techStack = jobPostingTechStackService.getTechStackByJobPostingKey(
-          jobPostingKey);
-
-      JobPostingMainInfo jobPostingMainInfo = JobPostingMainInfo.from(entity, companyName,
-          techStack);
+      JobPostingMainInfo jobPostingMainInfo = createJobPostingMainInfo(entity);
 
       MainJobPostingDto.Response response = MainJobPostingDto.Response.builder()
           .jobPostingsList(List.of(jobPostingMainInfo))
           .build();
-
       responseList.add(response);
     }
 
@@ -126,8 +114,53 @@ public class JobPostingService {
     return responseList;
   }
 
+  // 채용 공고 상세 보기
+  public JobPostingDetailDto.Response getJobPostingDetail(String jobPostingKey) {
+    JobPostingEntity jobPosting = jobPostingRepository.findByJobPostingKey(jobPostingKey)
+        .orElseThrow(() -> new CustomException(ErrorCode.JOB_POSTING_NOT_FOUND));
+
+    List<String> techStack = getTechStack(jobPosting.getJobPostingKey());
+    List<String> step = getStep(jobPosting.getJobPostingKey());
+
+    return JobPostingDetailDto.Response.from(jobPosting, techStack, step);
+  }
+
+  // 전체 체용 공고 List 들어갈 정보
+  private JobPostingMainInfo createJobPostingMainInfo(JobPostingEntity entity) {
+    String companyName = getCompanyName(entity.getCompanyKey());
+    List<String> techStack = getTechStack(entity.getJobPostingKey());
+
+    return JobPostingMainInfo.from(entity, companyName, techStack);
+  }
+
+  // 회사 이름 가져오기
+  private String getCompanyName(String companyKey) {
+    CompanyEntity companyEntity = companyRepository.findByCompanyKey(companyKey)
+        .orElseThrow(() -> new CustomException(ErrorCode.COMPANY_NOT_FOUND));
+
+    String companyName = companyEntity.getCompanyName();
+    log.info("회사명 조회 완료 : {}", companyName);
+    return companyName;
+  }
+
+  // 기술 스택 가져오기
+  private List<String> getTechStack(String jobPostingKey) {
+    List<String> techStack = jobPostingTechStackService.getTechStackByJobPostingKey(jobPostingKey);
+    log.info("기술 스택 조회 완료 : {}", techStack);
+    return techStack;
+  }
+
+  // 채용 일정 가져오기
+  private List<String> getStep(String jobPostingKey) {
+    List<String> step = jobPostingStepService.getStepByJobPostingKey(jobPostingKey);
+    log.info("채용 단계 조회 완료 : {}", step);
+    return step;
+  }
+
+
   public void deleteJobPosting(String jobPostingKey) {
 
     jobPostingRepository.deleteByJobPostingKey(jobPostingKey);
   }
+
 }
