@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.controller;
 
+import com.ctrls.auto_enter_view.dto.candidate.CandidateApplyDto;
 import com.ctrls.auto_enter_view.dto.candidate.ChangePasswordDto;
 import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto;
 import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto.Response;
@@ -65,4 +66,14 @@ public class CandidateController {
 
     return ResponseEntity.ok(response);
   }
+
+  // (지원자) 지원한 채용 공고 조회하기
+  @GetMapping("/candidates/{candidateKey}/applied-job-postings")
+  public ResponseEntity<CandidateApplyDto.Response> getApplyJobPosting(@PathVariable String candidateKey) {
+
+    CandidateApplyDto.Response response = candidateService.getApplyJobPostings(candidateKey);
+
+    return ResponseEntity.ok(response);
+  }
+
 }
