@@ -15,4 +15,6 @@ public interface JobPostingStepRepository extends JpaRepository<JobPostingStepEn
   void deleteByJobPostingKey(String jobPostingKey);
 
   JobPostingStepEntity findFirstByJobPostingKeyOrderByIdAsc(String jobPostingKey);
+
+  List<JobPostingStepEntity> findByJobPostingKey(String jobPostingKey);
 }
