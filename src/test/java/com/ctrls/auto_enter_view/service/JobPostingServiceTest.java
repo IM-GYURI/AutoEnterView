@@ -215,4 +215,41 @@ class JobPostingServiceTest {
 
   }
 
+  @Test
+  @DisplayName("채용 공고 삭제 성공 테스트")
+  void testDeleteJobPosting() {
+    //given
+    String jobPostingKey = "jobPostingKey";
+
+    String companyKey = "companyKey";
+
+    JobPostingEntity jobPostingEntity = JobPostingEntity.builder()
+        .jobPostingKey(jobPostingKey)
+        .companyKey(companyKey)
+        .title("title")
+        .jobCategory("jobCategory")
+        .career(3)
+        .workLocation("workLocation")
+        .education("education")
+        .employmentType("employmentType")
+        .salary(3000L)
+        .workTime("workTime")
+        .startDate(LocalDate.of(2024, 07, 15))
+        .endDate(LocalDate.of(2024, 07, 20))
+        .jobPostingContent("content")
+        .build();
+
+    when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(
+        Optional.of(jobPostingEntity));
+
+    //when
+    jobPostingService.deleteJobPosting(jobPostingKey);
+
+    //then
+    verify(jobPostingRepository, times(1)).deleteByJobPostingKey(jobPostingKey);
+
+
+  }
+
+
 }
