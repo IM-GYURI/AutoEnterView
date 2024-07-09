@@ -177,22 +177,6 @@ public class JobPostingStepService {
         .build();
   }
 
-  public void editJobPostingStep(String jobPostingKey, JobPostingDto.Request request) {
-
-    List<JobPostingStepEntity> entities = jobPostingStepRepository.findByJobPostingKey(
-        jobPostingKey);
-
-    jobPostingStepRepository.deleteAll(entities);
-
-    List<String> jobPostingStep = request.getJobPostingStep();
-
-    List<JobPostingStepEntity> jobPostingStepEntities = jobPostingStep.stream()
-        .map(e -> Request.toStepEntity(jobPostingKey, e))
-        .toList();
-
-    jobPostingStepRepository.saveAll(jobPostingStepEntities);
-  }
-
   public void deleteJobPostingStep(String jobPostingKey) {
 
     jobPostingStepRepository.deleteByJobPostingKey(jobPostingKey);

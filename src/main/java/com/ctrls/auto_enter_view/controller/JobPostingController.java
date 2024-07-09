@@ -3,6 +3,7 @@ package com.ctrls.auto_enter_view.controller;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingInfoDto;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
+import com.ctrls.auto_enter_view.enums.ResponseMessage;
 import com.ctrls.auto_enter_view.service.JobPostingService;
 import com.ctrls.auto_enter_view.service.JobPostingStepService;
 import com.ctrls.auto_enter_view.service.JobPostingTechStackService;
@@ -61,9 +62,8 @@ public class JobPostingController {
 
     jobPostingService.editJobPosting(jobPostingKey, request);
     jobPostingTechStackService.editJobPostingTechStack(jobPostingKey, request);
-    jobPostingStepService.editJobPostingStep(jobPostingKey, request);
 
-    return ResponseEntity.ok("수정 완료");
+    return ResponseEntity.ok(ResponseMessage.SUCCESS_EDIT_JOB_POSTING.getMessage());
   }
 
   @Transactional
@@ -74,6 +74,6 @@ public class JobPostingController {
     jobPostingTechStackService.deleteJobPostingTechStack(jobPostingKey);
     jobPostingStepService.deleteJobPostingStep(jobPostingKey);
 
-    return ResponseEntity.ok("삭제 완료");
+    return ResponseEntity.ok(ResponseMessage.SUCCESS_DELETE_JOB_POSTING.getMessage());
   }
 }

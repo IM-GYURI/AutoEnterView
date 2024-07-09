@@ -1,0 +1,2 @@
+### change step name
+PUT http://localhost:8080/job-postings/{{jobPostingKey}}/steps/{{stepId}}

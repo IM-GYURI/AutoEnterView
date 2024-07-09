@@ -15,7 +15,9 @@ public enum ResponseMessage {
   SUCCESS_TEMPORARY_PASSWORD_SEND("임시 비밀번호 전송 성공."),
   SUCCESS_UPDATE_COMPANY_INFO("회사 정보 수정이 완료되었습니다."),
   USABLE_EMAIL("사용 가능한 이메일입니다."),
-  WITHDRAW("회원탈퇴 완료.");
+  WITHDRAW("회원탈퇴 완료."),
+  SUCCESS_EDIT_JOB_POSTING("채용 공고 수정 완료."),
+  SUCCESS_DELETE_JOB_POSTING("채용 공고 삭제 완료.");
 
   private final String message;
 }
