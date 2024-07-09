@@ -304,9 +304,9 @@ class CommonUserServiceTest {
     when(companyRepository.findByEmail(email)).thenReturn(Optional.of(company));
     when(passwordEncoder.matches(wrongPassword, encodedPassword)).thenReturn(false);
 
-
     // when
-    RuntimeException exception = assertThrows(RuntimeException.class, () -> commonUserService.loginUser(email, wrongPassword));
+    RuntimeException exception = assertThrows(RuntimeException.class,
+        () -> commonUserService.loginUser(email, wrongPassword));
 
     // then
     assertEquals("비밀번호가 일치하지 않습니다.", exception.getMessage());
@@ -323,7 +323,8 @@ class CommonUserServiceTest {
     when(candidateRepository.findByEmail(email)).thenReturn(Optional.empty());
 
     // when
-    RuntimeException exception = assertThrows(RuntimeException.class, () -> commonUserService.loginUser(email, password));
+    RuntimeException exception = assertThrows(RuntimeException.class,
+        () -> commonUserService.loginUser(email, password));
 
     // then
     assertEquals("가입된 정보가 없습니다.", exception.getMessage());
