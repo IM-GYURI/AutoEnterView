@@ -11,6 +11,7 @@ import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto.Response;
 import com.ctrls.auto_enter_view.dto.candidate.SignUpDto;
 import com.ctrls.auto_enter_view.dto.candidate.WithdrawDto;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
+import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import lombok.RequiredArgsConstructor;
@@ -100,5 +101,19 @@ public class CandidateService {
     return Response.builder()
         .email(candidateEntity.getEmail())
         .build();
+  }
+
+  // 로그인 한 지원자 email -> candidateKey 추출
+  public String findCandidateKeyByEmail(String candidateEmail) {
+    return candidateRepository.findByEmail(candidateEmail)
+        .map(CandidateEntity::getCandidateKey)
+        .orElseThrow(() -> new CustomException(EMAIL_NOT_FOUND));
+  }
+
+  // candidateKey -> 지원자 정보 조회
+  public String getCandidateNameByKey(String candidateKey) {
+    return candidateRepository.findByCandidateKey(candidateKey)
+        .map(CandidateEntity::getName)
+        .orElseThrow(() -> new CustomException(ErrorCode.CANDIDATE_NOT_FOUND));
   }
 }

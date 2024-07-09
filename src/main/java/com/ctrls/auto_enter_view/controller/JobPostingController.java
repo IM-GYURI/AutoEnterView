@@ -4,12 +4,15 @@ import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingInfoDto;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.enums.ResponseMessage;
+import com.ctrls.auto_enter_view.service.CandidateService;
 import com.ctrls.auto_enter_view.service.JobPostingService;
 import com.ctrls.auto_enter_view.service.JobPostingStepService;
 import com.ctrls.auto_enter_view.service.JobPostingTechStackService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,6 +32,8 @@ public class JobPostingController {
   private final JobPostingTechStackService jobPostingTechStackService;
 
   private final JobPostingStepService jobPostingStepService;
+
+  private final CandidateService candidateService;
 
   @PostMapping("/companies/{companyKey}/job-postings")
   public ResponseEntity<String> createJobPosting(@PathVariable String companyKey,
@@ -75,5 +80,19 @@ public class JobPostingController {
     jobPostingStepService.deleteJobPostingStep(jobPostingKey);
 
     return ResponseEntity.ok(ResponseMessage.SUCCESS_DELETE_JOB_POSTING.getMessage());
+  }
+
+  // (지원자) 채용 공고 지원하기
+  @PostMapping("/candidate/job-postings/{jobPostingKey}/apply")
+  public ResponseEntity<?> applyJobPosting(
+      @PathVariable String jobPostingKey,
+      @AuthenticationPrincipal UserDetails userDetails) {
+
+    String candidateEmail = userDetails.getUsername();
+    String candidateKey = candidateService.findCandidateKeyByEmail(candidateEmail);
+
+    jobPostingService.applyJobPosting(jobPostingKey, candidateKey);
+
+    return ResponseEntity.ok(ResponseMessage.SUCCESS_JOB_POSTING_APPLY.getMessage());
   }
 }

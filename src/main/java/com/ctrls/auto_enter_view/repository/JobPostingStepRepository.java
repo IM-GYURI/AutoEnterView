@@ -13,4 +13,6 @@ public interface JobPostingStepRepository extends JpaRepository<JobPostingStepEn
   boolean existsByIdAndJobPostingKey(Long stepId, String jobPostingKey);
 
   void deleteByJobPostingKey(String jobPostingKey);
+
+  JobPostingStepEntity findFirstByJobPostingKeyOrderByIdAsc(String jobPostingKey);
 }
