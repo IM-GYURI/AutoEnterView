@@ -1,11 +1,6 @@
 ### create job posting test
-<<<<<<< HEAD
-POST http://localhost:8080/companies/5165804fb170420a82785a2ddfa8478a/job-postings
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjgxMDksImV4cCI6MTcyMDQzMTcwOX0.O421TLSEjx_tY8o28Xvr02mFzndbDvLCc5kivRJbr7c
-=======
 POST http://localhost:8080/companies/c2f0003a1b1648f28583754fe9c90ac0/job-postings
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjYxNTQsImV4cCI6MTcyMDQyOTc1NH0.shOyF991AeE1cT13SlId5qC1fAJKL5JPbyLPb7cJvyM
->>>>>>> feature/job-posting-update
 Content-Type: application/json
 
 {
@@ -30,7 +25,7 @@ Content-Type: application/json
   "jobPostingContent": "내용"
 }
 
-<<<<<<< HEAD
+
 ### get job postings test
 GET http://localhost:8080/companies/5165804fb170420a82785a2ddfa8478a/posted-job-postings
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjgxMDksImV4cCI6MTcyMDQzMTcwOX0.O421TLSEjx_tY8o28Xvr02mFzndbDvLCc5kivRJbr7c
@@ -52,7 +47,6 @@ Content-Type: application/json
 GET http://localhost:8080/job-postings/3318da39258a499a8c067385ce15ab1a/steps/6/candidates-list
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjgxMDksImV4cCI6MTcyMDQzMTcwOX0.O421TLSEjx_tY8o28Xvr02mFzndbDvLCc5kivRJbr7c
 Content-Type: application/json
-=======
 
 ### edit job posting test
 PUT http://localhost:8080/job-postings/79efcf5156714a4da28571a15b8890f4
@@ -81,8 +75,7 @@ Content-Type: application/json
   "jobPostingContent": "내용"
 }
 
-
 ### delete job posting test
 DELETE http://localhost:8080/job-postings/79efcf5156714a4da28571a15b8890f4
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjYxNTQsImV4cCI6MTcyMDQyOTc1NH0.shOyF991AeE1cT13SlId5qC1fAJKL5JPbyLPb7cJvyM
->>>>>>> feature/job-posting-update
+
