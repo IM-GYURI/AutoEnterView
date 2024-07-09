@@ -1,6 +1,6 @@
 ### create job posting test
-POST http://localhost:8080/companies/825368af42474dc48fdeb4315d41a96f/job-postings
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA1MjEzMjEsImV4cCI6MTcyMDUyNDkyMX0.I2gzvIwSRoSrJCSq-qUk44pr7X2JhfgGAYcBgtic3k0
+POST http://localhost:8080/companies/c2f0003a1b1648f28583754fe9c90ac0/job-postings
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjYxNTQsImV4cCI6MTcyMDQyOTc1NH0.shOyF991AeE1cT13SlId5qC1fAJKL5JPbyLPb7cJvyM
 Content-Type: application/json
 
 {
@@ -49,8 +49,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsI
 Content-Type: application/json
 
 ### edit job posting test
-PUT http://localhost:8080/job-postings/df10b6aad04f44be85a378d1795cb2b2
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA1MjEzMjEsImV4cCI6MTcyMDUyNDkyMX0.I2gzvIwSRoSrJCSq-qUk44pr7X2JhfgGAYcBgtic3k0
+PUT http://localhost:8080/job-postings/79efcf5156714a4da28571a15b8890f4
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjYxNTQsImV4cCI6MTcyMDQyOTc1NH0.shOyF991AeE1cT13SlId5qC1fAJKL5JPbyLPb7cJvyM
 Content-Type: application/json
 
 {
@@ -74,7 +74,6 @@ Content-Type: application/json
   "endDate": "2023-03-15",
   "jobPostingContent": "내용"
 }
-
 
 ### delete job posting test
 DELETE http://localhost:8080/job-postings/79efcf5156714a4da28571a15b8890f4

@@ -62,7 +62,6 @@ public class JobPostingController {
 
     jobPostingService.editJobPosting(jobPostingKey, request);
     jobPostingTechStackService.editJobPostingTechStack(jobPostingKey, request);
-    jobPostingStepService.editJobPostingStep(jobPostingKey, request);
 
     return ResponseEntity.ok(ResponseMessage.SUCCESS_EDIT_JOB_POSTING.getMessage());
   }
