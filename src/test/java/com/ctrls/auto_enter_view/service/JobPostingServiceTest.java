@@ -132,7 +132,7 @@ class JobPostingServiceTest {
     for (int i = 0; i < size; i++) {
       jobPostingEntities.add(new JobPostingEntity());
     }
-    Page<JobPostingEntity> jobPostingPage = new PageImpl<>(jobPostingEntities, pageable, jobPostingEntities.size());
+    Page<JobPostingEntity> jobPostingPage = new PageImpl<>(jobPostingEntities, pageable, 100);
 
     // when
     when(jobPostingRepository.findAll(pageable)).thenReturn(jobPostingPage);
@@ -147,9 +147,11 @@ class JobPostingServiceTest {
     verify(jobPostingRepository, times(1)).findAll(pageable);
     verify(companyRepository, times(size)).findByCompanyKey(jobPostingEntities.get(0).getCompanyKey());
     verify(jobPostingTechStackService, times(size)).getTechStackByJobPostingKey(jobPostingEntities.get(0).getJobPostingKey());
-    assertEquals(size, response.getJobPostingsList().size());
-  }
 
+    assertEquals(size, response.getJobPostingsList().size());
+    assertEquals(5, response.getTotalPages());
+    assertEquals(100, response.getTotalElements());
+  }
   @Test
   @DisplayName("채용 공고 상세 조회 - 성공")
   void testGetJobPostingDetail() {
