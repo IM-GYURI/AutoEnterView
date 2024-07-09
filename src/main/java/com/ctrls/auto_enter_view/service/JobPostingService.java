@@ -7,12 +7,17 @@ import com.ctrls.auto_enter_view.dto.common.MainJobPostingDto.JobPostingMainInfo
 import com.ctrls.auto_enter_view.dto.common.MainJobPostingDto.Response;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto.Request;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingInfoDto;
+import com.ctrls.auto_enter_view.entity.CandidateListEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
+import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.CustomException;
+import com.ctrls.auto_enter_view.repository.CandidateListRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
+import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
+import com.ctrls.auto_enter_view.util.KeyGenerator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -30,7 +36,10 @@ public class JobPostingService {
 
   private final JobPostingRepository jobPostingRepository;
   private final CompanyRepository companyRepository;
+  private final CandidateListRepository candidateListRepository;
   private final JobPostingTechStackService jobPostingTechStackService;
+  private final CandidateService candidateService;
+  private final JobPostingStepRepository jobPostingStepRepository;
 
   public JobPostingEntity createJobPosting(String companyKey, Request request) {
 
@@ -129,5 +138,40 @@ public class JobPostingService {
   public void deleteJobPosting(String jobPostingKey) {
 
     jobPostingRepository.deleteByJobPostingKey(jobPostingKey);
+  }
+
+  // 채용 공고 지원하기
+  @Transactional
+  public void applyJobPosting(String jobPostingKey, String candidateKey) {
+
+    if (!jobPostingRepository.existsByJobPostingKey(jobPostingKey)) {
+      throw new CustomException(ErrorCode.JOB_POSTING_NOT_FOUND);
+    }
+
+    // 이름 가져오기
+    String candidateName = candidateService.getCandidateNameByKey(candidateKey);
+
+    // 해당 채용 공고의 첫 번째 단계 가져오기
+    JobPostingStepEntity firstStep = jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey);
+    if (firstStep == null) {
+      throw new CustomException(ErrorCode.JOB_POSTING_STEP_NOT_FOUND);
+    }
+
+    // 채용 지원 중복 체크
+    boolean isApplied = candidateListRepository.existsByCandidateKeyAndJobPostingKey(candidateKey, jobPostingKey);
+    if (isApplied) {
+      throw new CustomException(ErrorCode.ALREADY_APPLIED);
+    }
+
+    CandidateListEntity candidateList = CandidateListEntity.builder()
+        .candidateListKey(KeyGenerator.generateKey())
+        .jobPostingStepId(firstStep.getId())
+        .jobPostingKey(jobPostingKey)
+        .candidateKey(candidateKey)
+        .candidateName(candidateName)
+        .build();
+
+    candidateListRepository.save(candidateList);
+    log.info("지원 완료 - jobPostingKey: {}, candidateKey: {}", jobPostingKey, candidateKey);
   }
 }
