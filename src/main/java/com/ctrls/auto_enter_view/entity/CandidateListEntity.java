@@ -20,10 +20,10 @@ public class CandidateListEntity extends BaseEntity {
   @Id
   private String candidateListKey;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private Long jobPostingStepId;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private String jobPostingKey;
 
   @Column(nullable = false, unique = true)
