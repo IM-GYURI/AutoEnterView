@@ -52,7 +52,10 @@ public class JobPostingStepService {
         .map(e -> Request.toStepEntity(entity, e))
         .collect(Collectors.toList());
 
-    jobPostingStepRepository.saveAll(entities);
+    List<JobPostingStepEntity> savedEntities = jobPostingStepRepository.saveAll(entities);
+    log.info("Saved jobPostingSteps : {}", savedEntities.stream()
+        .map(e -> "id: " + e.getId() + ", step: " + e.getStep())
+        .collect(Collectors.toList()));
   }
 
   /**
