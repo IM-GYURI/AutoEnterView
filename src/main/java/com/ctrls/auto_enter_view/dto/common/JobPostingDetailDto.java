@@ -15,6 +15,7 @@ public class JobPostingDetailDto {
   public static class Response {
 
     private String jobPostingKey;
+    private String companyKey;
     private String title;
     private String jobCategory;
     private Integer career;
@@ -36,6 +37,7 @@ public class JobPostingDetailDto {
 
       return Response.builder()
           .jobPostingKey(entity.getJobPostingKey())
+          .companyKey(entity.getCompanyKey())
           .title(entity.getTitle())
           .jobCategory(entity.getJobCategory())
           .career(entity.getCareer())
