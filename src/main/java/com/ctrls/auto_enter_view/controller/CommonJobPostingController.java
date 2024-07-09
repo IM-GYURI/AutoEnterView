@@ -3,7 +3,6 @@ package com.ctrls.auto_enter_view.controller;
 import com.ctrls.auto_enter_view.dto.common.JobPostingDetailDto;
 import com.ctrls.auto_enter_view.dto.common.MainJobPostingDto;
 import com.ctrls.auto_enter_view.service.JobPostingService;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,9 +19,9 @@ public class CommonJobPostingController {
 
   // main 화면에 보여질 채용 공고 가져오기
   @GetMapping
-  public ResponseEntity<List<MainJobPostingDto.Response>> getAllJobPosting() {
+  public ResponseEntity<MainJobPostingDto.Response> getAllJobPosting() {
 
-    List<MainJobPostingDto.Response> response = jobPostingService.getAllJobPosting();
+    MainJobPostingDto.Response response = jobPostingService.getAllJobPosting();
     return ResponseEntity.ok(response);
   }
 

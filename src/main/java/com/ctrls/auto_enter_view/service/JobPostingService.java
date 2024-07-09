@@ -107,21 +107,19 @@ public class JobPostingService {
   }
 
   // Main 화면 채용 공고 조회
-  public List<MainJobPostingDto.Response> getAllJobPosting() {
+  public MainJobPostingDto.Response getAllJobPosting() {
     List<JobPostingEntity> jobPostingEntities = jobPostingRepository.findAll();
-    List<MainJobPostingDto.Response> responseList = new ArrayList<>();
+    List<MainJobPostingDto.JobPostingMainInfo> jobPostingMainInfoList = new ArrayList<>();
 
     for (JobPostingEntity entity : jobPostingEntities) {
       JobPostingMainInfo jobPostingMainInfo = createJobPostingMainInfo(entity);
-
-      MainJobPostingDto.Response response = MainJobPostingDto.Response.builder()
-          .jobPostingsList(List.of(jobPostingMainInfo))
-          .build();
-      responseList.add(response);
+      jobPostingMainInfoList.add(jobPostingMainInfo);
     }
 
-    log.info("총 {}개의 채용 공고 조회 완료", responseList.size());
-    return responseList;
+    log.info("총 {}개의 채용 공고 조회 완료", jobPostingMainInfoList.size());
+    return MainJobPostingDto.Response.builder()
+        .jobPostingsList(jobPostingMainInfoList)
+        .build();
   }
 
   // 채용 공고 상세 보기
