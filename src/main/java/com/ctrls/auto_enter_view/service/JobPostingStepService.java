@@ -23,6 +23,7 @@ import com.ctrls.auto_enter_view.repository.JobPostingRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
 import com.ctrls.auto_enter_view.repository.ResumeRepository;
 import com.ctrls.auto_enter_view.repository.ResumeTechStackRepository;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -179,24 +180,21 @@ public class JobPostingStepService {
         .build();
   }
 
-  public void editJobPostingStep(String jobPostingKey, JobPostingDto.Request request) {
-
-    List<JobPostingStepEntity> entities = jobPostingStepRepository.findByJobPostingKey(
-        jobPostingKey);
-
-    jobPostingStepRepository.deleteAll(entities);
-
-    List<String> jobPostingStep = request.getJobPostingStep();
-
-    List<JobPostingStepEntity> jobPostingStepEntities = jobPostingStep.stream()
-        .map(e -> Request.toStepEntity(jobPostingKey, e))
-        .toList();
-
-    jobPostingStepRepository.saveAll(jobPostingStepEntities);
-  }
-
   public void deleteJobPostingStep(String jobPostingKey) {
 
     jobPostingStepRepository.deleteByJobPostingKey(jobPostingKey);
   }
+
+  // 채용 공고 key -> 채용 단계 조회
+  public List<String> getStepByJobPostingKey(String jobPostingKey) {
+    List<JobPostingStepEntity> entities = jobPostingStepRepository.findByJobPostingKey(jobPostingKey);
+    List<String> step = new ArrayList<>();
+
+    for (JobPostingStepEntity entity : entities) {
+      step.add(entity.getStep());
+    }
+    log.info("step 가져오기 성공 {}", step);
+    return step;
+  }
+
 }
