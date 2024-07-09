@@ -72,6 +72,7 @@ public class JobPostingController {
 
     jobPostingService.deleteJobPosting(jobPostingKey);
     jobPostingTechStackService.deleteJobPostingTechStack(jobPostingKey);
+    jobPostingStepService.deleteJobPostingStep(jobPostingKey);
 
     return ResponseEntity.ok(ResponseMessage.SUCCESS_DELETE_JOB_POSTING.getMessage());
   }

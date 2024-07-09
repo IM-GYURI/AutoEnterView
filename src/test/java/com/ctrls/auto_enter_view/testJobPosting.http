@@ -1,6 +1,6 @@
 ### create job posting test
-POST http://localhost:8080/companies/c2f0003a1b1648f28583754fe9c90ac0/job-postings
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjYxNTQsImV4cCI6MTcyMDQyOTc1NH0.shOyF991AeE1cT13SlId5qC1fAJKL5JPbyLPb7cJvyM
+POST http://localhost:8080/companies/74811b4ad1264b03b0047206868efe11/job-postings
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA1MjIwMTEsImV4cCI6MTcyMDUyNTYxMX0.G48xYsdhjpj4xl0MHx-w3vUK127vOPXiCE0kj7ajZyA
 Content-Type: application/json
 
 {
@@ -49,8 +49,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsI
 Content-Type: application/json
 
 ### edit job posting test
-PUT http://localhost:8080/job-postings/79efcf5156714a4da28571a15b8890f4
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjYxNTQsImV4cCI6MTcyMDQyOTc1NH0.shOyF991AeE1cT13SlId5qC1fAJKL5JPbyLPb7cJvyM
+PUT http://localhost:8080/job-postings/e36751f551764b9d8ba528e7ef3ef672
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA1MjIwMTEsImV4cCI6MTcyMDUyNTYxMX0.G48xYsdhjpj4xl0MHx-w3vUK127vOPXiCE0kj7ajZyA
 Content-Type: application/json
 
 {
