@@ -14,4 +14,6 @@ public interface JobPostingRepository extends JpaRepository<JobPostingEntity, St
   List<JobPostingEntity> findAllByCompanyKey(String companyKey);
 
   void deleteByJobPostingKey(String jobPostingKey);
+
+  boolean existsByJobPostingKey(String jobPostingKey);
 }
