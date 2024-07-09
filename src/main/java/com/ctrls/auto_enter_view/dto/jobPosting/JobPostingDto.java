@@ -51,11 +51,9 @@ public class JobPostingDto {
     private String workTime;
 
     @NotNull(message = "채용 공고 시작일은 필수 입력 항목입니다.")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
 
     @NotNull(message = "채용 공고 마감일은 필수 입력 항목입니다.")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 
     private String jobPostingContent;
