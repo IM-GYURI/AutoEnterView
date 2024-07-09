@@ -26,6 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -130,12 +133,13 @@ public class CandidateService {
   }
 
   // 지원자가 지원한 채용 공고 조회
-  public CandidateApplyDto.Response getApplyJobPostings(String candidateKey) {
-    List<CandidateListEntity> candidateListEntities = candidateListRepository.findAllByCandidateKey(candidateKey);
+  public CandidateApplyDto.Response getApplyJobPostings(String candidateKey, int page, int size) {
+    Pageable pageable = PageRequest.of(page-1, size);
+    Page<CandidateListEntity> candidateListPage = candidateListRepository.findAllByCandidateKey(candidateKey, pageable);
 
     List<CandidateApplyDto.ApplyInfo> applyInfoList = new ArrayList<>();
 
-    for (CandidateListEntity candidateListEntity : candidateListEntities) {
+    for (CandidateListEntity candidateListEntity : candidateListPage.getContent()) {
       JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(candidateListEntity.getJobPostingKey())
           .orElseThrow(() -> new CustomException(ErrorCode.JOB_POSTING_NOT_FOUND));
 
@@ -149,6 +153,8 @@ public class CandidateService {
     log.info("{}개의 지원한 채용 공고 조회 완료", applyInfoList.size());
     return CandidateApplyDto.Response.builder()
         .applyJobPostingsList(applyInfoList)
+        .totalPages(candidateListPage.getTotalPages())
+        .totalElements(candidateListPage.getTotalElements())
         .build();
   }
 

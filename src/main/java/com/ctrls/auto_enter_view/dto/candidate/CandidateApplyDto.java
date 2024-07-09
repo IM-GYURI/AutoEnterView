@@ -17,6 +17,8 @@ public class CandidateApplyDto {
   public static class Response {
 
     private List<ApplyInfo> applyJobPostingsList;
+    private int totalPages;
+    private long totalElements;
   }
 
   @Getter
