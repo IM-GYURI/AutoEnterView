@@ -15,6 +15,8 @@ public class MainJobPostingDto {
   public static class Response {
 
     private List<JobPostingMainInfo> jobPostingsList;
+    private int totalPages;
+    private long totalElements;
   }
 
   @Getter

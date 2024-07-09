@@ -123,6 +123,8 @@ public class JobPostingService {
     log.info("총 {}개의 채용 공고 조회 완료", jobPostingMainInfoList.size());
     return MainJobPostingDto.Response.builder()
         .jobPostingsList(jobPostingMainInfoList)
+        .totalPages(jobPostingPage.getTotalPages())
+        .totalElements(jobPostingPage.getTotalElements())
         .build();
   }
 
