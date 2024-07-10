@@ -3,12 +3,12 @@ package com.ctrls.auto_enter_view.controller;
 import com.ctrls.auto_enter_view.dto.common.JobPostingDetailDto;
 import com.ctrls.auto_enter_view.dto.common.MainJobPostingDto;
 import com.ctrls.auto_enter_view.service.JobPostingService;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping("/common/job-postings")
@@ -20,9 +20,11 @@ public class CommonJobPostingController {
 
   // main 화면에 보여질 채용 공고 가져오기
   @GetMapping
-  public ResponseEntity<List<MainJobPostingDto.Response>> getAllJobPosting() {
+  public ResponseEntity<MainJobPostingDto.Response> getAllJobPosting(
+      @RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "24") int size) {
 
-    List<MainJobPostingDto.Response> response = jobPostingService.getAllJobPosting();
+    MainJobPostingDto.Response response = jobPostingService.getAllJobPosting(page, size);
     return ResponseEntity.ok(response);
   }
 
