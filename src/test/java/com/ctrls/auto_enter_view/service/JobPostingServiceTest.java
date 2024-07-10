@@ -294,7 +294,6 @@ class JobPostingServiceTest {
     verify(jobPostingStepRepository, times(1)).findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey);
     verify(candidateListRepository, times(1)).existsByCandidateKeyAndJobPostingKey(candidateKey, jobPostingKey);
   }
-}
 
   @DisplayName("채용 공고 등록 성공 테스트")
   void testCreateJobPosting() {
