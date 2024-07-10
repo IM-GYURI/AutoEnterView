@@ -8,11 +8,12 @@ import com.ctrls.auto_enter_view.dto.common.EmailDto;
 import com.ctrls.auto_enter_view.dto.common.EmailVerificationDto;
 import com.ctrls.auto_enter_view.dto.common.SignInDto;
 import com.ctrls.auto_enter_view.dto.common.SignInDto.Request;
-import com.ctrls.auto_enter_view.dto.common.SignInDto.Response;
 import com.ctrls.auto_enter_view.dto.common.TemporaryPasswordDto;
+import com.ctrls.auto_enter_view.security.JwtTokenProvider;
 import com.ctrls.auto_enter_view.service.CommonUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +34,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class CommonUserController {
 
   private final CommonUserService commonUserService;
+  private final JwtTokenProvider jwtTokenProvider;
+
 
   /**
    * 이메일 중복 확인
@@ -94,11 +97,20 @@ public class CommonUserController {
 
   // 로그인
   @PostMapping("/signin")
-  public ResponseEntity<SignInDto.Response> login(
-      @Validated @RequestBody Request request) {
+  public ResponseEntity<SignInDto.Response> login(@Validated @RequestBody Request request) {
 
-    Response response = commonUserService.loginUser(request.getEmail(), request.getPassword());
-    return ResponseEntity.ok(response);
+    SignInDto.Response response = commonUserService.loginUser(request.getEmail(), request.getPassword());
+
+    // JWT 토큰 생성
+    String token = jwtTokenProvider.generateToken(response.getEmail(), response.getRole());
+
+    // 응답 헤더에 JWT 토큰 추가
+    HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.add(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+
+    return ResponseEntity.ok()
+        .headers(httpHeaders)
+        .body(response);
   }
 
   // 로그 아웃
