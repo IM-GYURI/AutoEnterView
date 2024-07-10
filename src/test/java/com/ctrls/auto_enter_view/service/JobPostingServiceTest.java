@@ -327,8 +327,8 @@ class JobPostingServiceTest {
         .employmentType("employmentType")
         .salary(3000L)
         .workTime("workTime")
-        .startDate(LocalDate.of(2024, 07, 15))
-        .endDate(LocalDate.of(2024, 07, 20))
+        .startDate(LocalDate.of(2024, 7, 15))
+        .endDate(LocalDate.of(2024, 7, 20))
         .jobPostingContent("content")
         .build();
 
@@ -375,8 +375,8 @@ class JobPostingServiceTest {
         .employmentType("edit employmentType")
         .salary(3000L)
         .workTime("workTime")
-        .startDate(LocalDate.of(2024, 07, 15))
-        .endDate(LocalDate.of(2024, 07, 20))
+        .startDate(LocalDate.of(2024, 7, 15))
+        .endDate(LocalDate.of(2024, 7, 20))
         .jobPostingContent("content")
         .build();
 
@@ -430,8 +430,8 @@ class JobPostingServiceTest {
         .employmentType("employmentType")
         .salary(3000L)
         .workTime("workTime")
-        .startDate(LocalDate.of(2024, 07, 15))
-        .endDate(LocalDate.of(2024, 07, 20))
+        .startDate(LocalDate.of(2024, 7, 15))
+        .endDate(LocalDate.of(2024, 7, 20))
         .jobPostingContent("content")
         .build();
 
