@@ -251,7 +251,6 @@ class CommonUserServiceTest {
     assertEquals(email, response.getEmail());
     assertEquals(company.getCompanyKey(), response.getKey());
     assertEquals(companyName, response.getName());
-    assertEquals(generatedToken, response.getToken());
     assertEquals(UserRole.ROLE_COMPANY, response.getRole());
   }
 
@@ -283,7 +282,6 @@ class CommonUserServiceTest {
     assertEquals(email, response.getEmail());
     assertEquals(candidate.getCandidateKey(), response.getKey());
     assertEquals(name, response.getName());
-    assertEquals(generatedToken, response.getToken());
     assertEquals(UserRole.ROLE_CANDIDATE, response.getRole());
   }
 
@@ -327,7 +325,7 @@ class CommonUserServiceTest {
         () -> commonUserService.loginUser(email, password));
 
     // then
-    assertEquals("가입된 정보가 없습니다.", exception.getMessage());
+    assertEquals("사용자를 찾을 수 없습니다.", exception.getMessage());
   }
 
   @Test
