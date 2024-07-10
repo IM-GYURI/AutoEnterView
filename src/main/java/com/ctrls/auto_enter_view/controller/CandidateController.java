@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.controller;
 
+import com.ctrls.auto_enter_view.dto.candidate.CandidateApplyDto;
 import com.ctrls.auto_enter_view.dto.candidate.ChangePasswordDto;
 import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto;
 import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto.Response;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
@@ -65,4 +67,17 @@ public class CandidateController {
 
     return ResponseEntity.ok(response);
   }
+
+  // (지원자) 지원한 채용 공고 조회하기
+  @GetMapping("/candidates/{candidateKey}/applied-job-postings")
+  public ResponseEntity<CandidateApplyDto.Response> getApplyJobPosting(
+      @PathVariable String candidateKey,
+      @RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "20") int size) {
+
+    CandidateApplyDto.Response response = candidateService.getApplyJobPostings(candidateKey, page, size);
+
+    return ResponseEntity.ok(response);
+  }
+
 }
