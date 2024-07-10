@@ -67,6 +67,7 @@ class CommonUserServiceTest {
 
   @BeforeEach
   public void setUp() {
+
     MockitoAnnotations.openMocks(this);
     when(redisTemplate.opsForValue()).thenReturn(valueOperationsMock);
   }
@@ -74,6 +75,7 @@ class CommonUserServiceTest {
   @Test
   @DisplayName("이메일 중복 확인 : 사용 가능")
   public void testCheckDuplicateEmail_available() {
+
     String testEmail = "test@example.com";
 
     when(companyRepository.existsByEmail(testEmail)).thenReturn(false);
@@ -87,6 +89,7 @@ class CommonUserServiceTest {
   @Test
   @DisplayName("이메일 중복 확인 : 사용 불가")
   public void testCheckDuplicateEmail_unavailable() {
+
     String testEmail = "test@example.com";
 
     when(companyRepository.existsByEmail(testEmail)).thenReturn(true);
@@ -101,6 +104,7 @@ class CommonUserServiceTest {
   @Test
   @DisplayName("이메일 인증 코드 전송")
   public void testSendVerificationCode() {
+
     String testEmail = "test@example.com";
     long expirationTime = 5L;
     TimeUnit expirationUnit = TimeUnit.MINUTES;
@@ -130,6 +134,7 @@ class CommonUserServiceTest {
   @Test
   @DisplayName("인증 코드 확인 : 성공 - 유효한 코드")
   public void testVerifyEmailVerificationCode_valid() {
+
     String testEmail = "test@example.com";
     String correctVerificationCode = "123456";
 
@@ -145,6 +150,7 @@ class CommonUserServiceTest {
   @Test
   @DisplayName("인증 코드 확인 : 실패 - 유효하지 않은 코드")
   public void testVerifyEmailVerificationCode_invalid() {
+
     String testEmail = "test@example.com";
     String correctVerificationCode = "123456";
     String incorrectVerificationCode = "654321";
@@ -163,6 +169,7 @@ class CommonUserServiceTest {
   @Test
   @DisplayName("인증 코드 확인 : 실패 - 존재하지 않는 코드")
   public void testVerifyEmailVerificationCode_notFound() {
+
     String testEmail = "test@example.com";
     String correctVerificationCode = "123456";
 
@@ -180,6 +187,7 @@ class CommonUserServiceTest {
   @Test
   @DisplayName("임시 비밀번호 전송 - 회사")
   public void testSendTemporaryPassword_company() {
+
     CompanyEntity company = CompanyEntity.builder()
         .email("test@company.com")
         .companyName("TestCompany")
@@ -203,6 +211,7 @@ class CommonUserServiceTest {
   @Test
   @DisplayName("임시 비밀번호 전송 - 지원자")
   public void testSendTemporaryPassword_candidate() {
+
     CandidateEntity candidate = CandidateEntity.builder()
         .email("test@candidate.com")
         .name("TestCandidate")

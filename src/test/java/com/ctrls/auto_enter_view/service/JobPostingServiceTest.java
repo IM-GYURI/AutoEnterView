@@ -71,10 +71,10 @@ class JobPostingServiceTest {
   @InjectMocks
   private JobPostingService jobPostingService;
 
-
   @Test
   @DisplayName("회사 키로 채용 공고 목록 조회 - 성공")
   void testGetJobPostingsByCompanyKey() {
+
     String companyKey = "companyKey";
     User user = new User("email", "password", new ArrayList<>());
     CompanyEntity companyEntity = CompanyEntity.builder()
@@ -103,6 +103,7 @@ class JobPostingServiceTest {
   @Test
   @DisplayName("회사 키로 채용 공고 목록 조회 - 실패 : USER_NOT_FOUND 예외 발생")
   void testGetJobPostingsByCompanyKey_UserNotFound() {
+
     String companyKey = "companyKey12345";
     User user = new User("email", "password", new ArrayList<>());
     Authentication authentication = new UsernamePasswordAuthenticationToken(user, null,
@@ -113,7 +114,8 @@ class JobPostingServiceTest {
 
     when(companyRepository.findByEmail(user.getUsername())).thenReturn(Optional.empty());
 
-    CustomException exception = assertThrows(CustomException.class, () -> jobPostingService.getJobPostingsByCompanyKey(companyKey));
+    CustomException exception = assertThrows(CustomException.class,
+        () -> jobPostingService.getJobPostingsByCompanyKey(companyKey));
 
     verify(companyRepository, times(1)).findByEmail(user.getUsername());
     assertEquals(USER_NOT_FOUND, exception.getErrorCode());
@@ -138,21 +140,24 @@ class JobPostingServiceTest {
     when(jobPostingRepository.findAll(pageable)).thenReturn(jobPostingPage);
     when(companyRepository.findByCompanyKey(jobPostingEntities.get(0).getCompanyKey()))
         .thenReturn(Optional.of(new CompanyEntity()));
-    when(jobPostingTechStackService.getTechStackByJobPostingKey(jobPostingEntities.get(0).getJobPostingKey()))
+    when(jobPostingTechStackService.getTechStackByJobPostingKey(
+        jobPostingEntities.get(0).getJobPostingKey()))
         .thenReturn(Arrays.asList("Java", "Spring"));
 
     MainJobPostingDto.Response response = jobPostingService.getAllJobPosting(page, size);
 
     // then
     verify(jobPostingRepository, times(1)).findAll(pageable);
-    verify(companyRepository, times(size)).findByCompanyKey(jobPostingEntities.get(0).getCompanyKey());
-    verify(jobPostingTechStackService, times(size)).getTechStackByJobPostingKey(jobPostingEntities.get(0).getJobPostingKey());
+    verify(companyRepository, times(size)).findByCompanyKey(
+        jobPostingEntities.get(0).getCompanyKey());
+    verify(jobPostingTechStackService, times(size)).getTechStackByJobPostingKey(
+        jobPostingEntities.get(0).getJobPostingKey());
 
     assertEquals(size, response.getJobPostingsList().size());
     assertEquals(5, response.getTotalPages());
     assertEquals(100, response.getTotalElements());
   }
-  
+
   @Test
   @DisplayName("채용 공고 상세 조회 - 성공")
   void testGetJobPostingDetail() {
@@ -165,8 +170,10 @@ class JobPostingServiceTest {
     List<String> techStack = Arrays.asList("Java", "Spring");
     List<String> step = Arrays.asList("서류 전형", "면접");
 
-    when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(Optional.of(jobPostingEntity));
-    when(jobPostingTechStackService.getTechStackByJobPostingKey(jobPostingKey)).thenReturn(techStack);
+    when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(
+        Optional.of(jobPostingEntity));
+    when(jobPostingTechStackService.getTechStackByJobPostingKey(jobPostingKey)).thenReturn(
+        techStack);
     when(jobPostingStepService.getStepByJobPostingKey(jobPostingKey)).thenReturn(step);
 
     // when
@@ -196,8 +203,10 @@ class JobPostingServiceTest {
 
     when(jobPostingRepository.existsByJobPostingKey(jobPostingKey)).thenReturn(true);
     when(candidateService.getCandidateNameByKey(candidateKey)).thenReturn(candidateName);
-    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey)).thenReturn(firstStep);
-    when(candidateListRepository.existsByCandidateKeyAndJobPostingKey(candidateKey, jobPostingKey)).thenReturn(false);
+    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey)).thenReturn(
+        firstStep);
+    when(candidateListRepository.existsByCandidateKeyAndJobPostingKey(candidateKey,
+        jobPostingKey)).thenReturn(false);
 
     // when
     jobPostingService.applyJobPosting(jobPostingKey, candidateKey);
@@ -206,10 +215,12 @@ class JobPostingServiceTest {
     verify(jobPostingRepository, times(1)).existsByJobPostingKey(jobPostingKey);
     verify(candidateService, times(1)).getCandidateNameByKey(candidateKey);
     verify(jobPostingStepRepository, times(1)).findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey);
-    verify(candidateListRepository, times(1)).existsByCandidateKeyAndJobPostingKey(candidateKey, jobPostingKey);
+    verify(candidateListRepository, times(1)).existsByCandidateKeyAndJobPostingKey(candidateKey,
+        jobPostingKey);
 
     // 다시 보기 *
-    ArgumentCaptor<CandidateListEntity> candidateListCaptor = ArgumentCaptor.forClass(CandidateListEntity.class);
+    ArgumentCaptor<CandidateListEntity> candidateListCaptor = ArgumentCaptor.forClass(
+        CandidateListEntity.class);
     verify(candidateListRepository, times(1)).save(candidateListCaptor.capture());
     CandidateListEntity savedCandidateList = candidateListCaptor.getValue();
 
@@ -249,7 +260,8 @@ class JobPostingServiceTest {
 
     when(jobPostingRepository.existsByJobPostingKey(jobPostingKey)).thenReturn(true);
     when(candidateService.getCandidateNameByKey(candidateKey)).thenReturn(candidateName);
-    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey)).thenReturn(null);
+    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey)).thenReturn(
+        null);
 
     // when
     CustomException exception = assertThrows(CustomException.class,
@@ -277,8 +289,10 @@ class JobPostingServiceTest {
 
     when(jobPostingRepository.existsByJobPostingKey(jobPostingKey)).thenReturn(true);
     when(candidateService.getCandidateNameByKey(candidateKey)).thenReturn(candidateName);
-    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey)).thenReturn(firstStep);
-    when(candidateListRepository.existsByCandidateKeyAndJobPostingKey(candidateKey, jobPostingKey)).thenReturn(true);
+    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey)).thenReturn(
+        firstStep);
+    when(candidateListRepository.existsByCandidateKeyAndJobPostingKey(candidateKey,
+        jobPostingKey)).thenReturn(true);
 
     // when
     CustomException exception = assertThrows(CustomException.class,
@@ -289,7 +303,8 @@ class JobPostingServiceTest {
     verify(jobPostingRepository, times(1)).existsByJobPostingKey(jobPostingKey);
     verify(candidateService, times(1)).getCandidateNameByKey(candidateKey);
     verify(jobPostingStepRepository, times(1)).findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey);
-    verify(candidateListRepository, times(1)).existsByCandidateKeyAndJobPostingKey(candidateKey, jobPostingKey);
+    verify(candidateListRepository, times(1)).existsByCandidateKeyAndJobPostingKey(candidateKey,
+        jobPostingKey);
   }
 
   @DisplayName("채용 공고 등록 성공 테스트")
@@ -352,7 +367,6 @@ class JobPostingServiceTest {
     assertEquals(request.getStartDate(), captorValue.getStartDate());
     assertEquals(request.getEndDate(), captorValue.getEndDate());
     assertEquals(request.getJobPostingContent(), captorValue.getJobPostingContent());
-
   }
 
   @Test
@@ -405,7 +419,6 @@ class JobPostingServiceTest {
     //제목, 고용타입만 바뀌는것 확인
     assertEquals(request.getTitle(), jobPostingEntity.getTitle());
     assertEquals(request.getEmploymentType(), jobPostingEntity.getEmploymentType());
-
   }
 
   @Test
@@ -437,8 +450,5 @@ class JobPostingServiceTest {
 
     //then
     verify(jobPostingRepository, times(1)).deleteByJobPostingKey(jobPostingKey);
-
-
   }
-
 }
