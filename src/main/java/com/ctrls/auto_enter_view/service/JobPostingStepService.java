@@ -187,7 +187,8 @@ public class JobPostingStepService {
 
   // 채용 공고 key -> 채용 단계 조회
   public List<String> getStepByJobPostingKey(String jobPostingKey) {
-    List<JobPostingStepEntity> entities = jobPostingStepRepository.findByJobPostingKey(jobPostingKey);
+    List<JobPostingStepEntity> entities = jobPostingStepRepository.findByJobPostingKey(
+        jobPostingKey);
     List<String> step = new ArrayList<>();
 
     for (JobPostingStepEntity entity : entities) {

@@ -427,24 +427,6 @@ class JobPostingServiceTest {
     //given
     String jobPostingKey = "jobPostingKey";
 
-    String companyKey = "companyKey";
-
-    JobPostingEntity jobPostingEntity = JobPostingEntity.builder()
-        .jobPostingKey(jobPostingKey)
-        .companyKey(companyKey)
-        .title("title")
-        .jobCategory("jobCategory")
-        .career(3)
-        .workLocation("workLocation")
-        .education("education")
-        .employmentType("employmentType")
-        .salary(3000L)
-        .workTime("workTime")
-        .startDate(LocalDate.of(2024, 7, 15))
-        .endDate(LocalDate.of(2024, 7, 20))
-        .jobPostingContent("content")
-        .build();
-
     //when
     jobPostingService.deleteJobPosting(jobPostingKey);
 

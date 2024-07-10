@@ -24,10 +24,9 @@ public class InterviewScheduleEntity extends BaseEntity {
   @Column(nullable = false, unique = true)
   private Long jobPostingStepId;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private String jobPostingKey;
 
-  @Column(nullable = false)
   private LocalDate firstInterviewDate;
 
   @Column(nullable = false)

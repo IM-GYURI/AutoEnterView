@@ -40,7 +40,4 @@ public class CandidateEntity extends BaseEntity {
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   private UserRole role;
-
-  @Column(nullable = false)
-  private boolean isOpen;
 }
