@@ -403,7 +403,7 @@ class JobPostingServiceTest {
     jobPostingService.editJobPosting(jobPostingKey, request);
 
     //then
-    verify(jobPostingRepository, times(1));
+    verify(jobPostingRepository, times(1)).findByJobPostingKey(jobPostingKey);
 
     //제목, 고용타입만 바뀌는것 확인
     assertEquals(request.getTitle(), jobPostingEntity.getTitle());
