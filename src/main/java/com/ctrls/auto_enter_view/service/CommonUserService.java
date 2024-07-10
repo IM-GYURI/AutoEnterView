@@ -14,7 +14,6 @@ import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
-import com.ctrls.auto_enter_view.security.JwtTokenProvider;
 import com.ctrls.auto_enter_view.util.RandomGenerator;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
