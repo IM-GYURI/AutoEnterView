@@ -29,6 +29,7 @@ class BlacklistTokenServiceTest {
 
   @BeforeEach
   void setUp() {
+
     MockitoAnnotations.openMocks(this);
     when(redisTemplate.opsForValue()).thenReturn(valueOperations);
   }

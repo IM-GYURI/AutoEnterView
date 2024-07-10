@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -54,6 +55,7 @@ class CompanyInfoServiceTest {
   }
 
   @Test
+  @DisplayName("회사 정보 생성_성공")
   void createInfo_Success() {
     // given
     String companyKey = "companyKey";
@@ -80,6 +82,7 @@ class CompanyInfoServiceTest {
   }
 
   @Test
+  @DisplayName("회사 정보 생성_실패_중복")
   void createInfo_Failure_AlreadyExists() {
     // given
     String companyKey = "companyKey";
@@ -110,6 +113,7 @@ class CompanyInfoServiceTest {
   }
 
   @Test
+  @DisplayName("회사 정보 조회_성공")
   void readInfo_Success() {
     // given
     String companyKey = "companyKey";
@@ -134,6 +138,7 @@ class CompanyInfoServiceTest {
   }
 
   @Test
+  @DisplayName("회사 정보 조회_성공_빈 값")
   void readInfo_Success_Empty() {
     // given
     String companyKey = "companyKey";
@@ -149,6 +154,7 @@ class CompanyInfoServiceTest {
   }
 
   @Test
+  @DisplayName("회사 정보 수정_성공")
   void updateInfo_Success() {
     // given
     String companyKey = "companyKey";
@@ -180,6 +186,7 @@ class CompanyInfoServiceTest {
   }
 
   @Test
+  @DisplayName("회사 정보 수정_실패_없음")
   void updateInfo_Failure_NotFound() {
     // given
     String companyKey = "companyKey";
@@ -205,6 +212,7 @@ class CompanyInfoServiceTest {
   }
 
   @Test
+  @DisplayName("회사 정보 삭제_성공")
   void deleteInfo_Success() {
     //given
     String companyKey = "companyKey";
