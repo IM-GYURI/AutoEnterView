@@ -296,7 +296,7 @@ public class CandidateServiceTest {
     String companyName2 = "companyName2";
     int page = 1;
     int size = 20;
-    Pageable pageable = PageRequest.of(page-1, size);
+    Pageable pageable = PageRequest.of(page - 1, size);
 
     CandidateListEntity candidateListEntity1 = CandidateListEntity.builder()
         .candidateKey(candidateKey)
@@ -308,7 +308,8 @@ public class CandidateServiceTest {
         .jobPostingKey(jobPostingKey2)
         .build();
 
-    List<CandidateListEntity> candidateListEntities = Arrays.asList(candidateListEntity1, candidateListEntity2);
+    List<CandidateListEntity> candidateListEntities = Arrays.asList(candidateListEntity1,
+        candidateListEntity2);
 
     JobPostingEntity jobPostingEntity1 = JobPostingEntity.builder()
         .jobPostingKey(jobPostingKey1)
@@ -332,13 +333,16 @@ public class CandidateServiceTest {
 
     given(candidateListRepository.findAllByCandidateKey(candidateKey, pageable))
         .willReturn(new PageImpl<>(candidateListEntities, pageable, candidateListEntities.size()));
-    given(jobPostingRepository.findByJobPostingKey(jobPostingKey1)).willReturn(Optional.of(jobPostingEntity1));
-    given(jobPostingRepository.findByJobPostingKey(jobPostingKey2)).willReturn(Optional.of(jobPostingEntity2));
+    given(jobPostingRepository.findByJobPostingKey(jobPostingKey1)).willReturn(
+        Optional.of(jobPostingEntity1));
+    given(jobPostingRepository.findByJobPostingKey(jobPostingKey2)).willReturn(
+        Optional.of(jobPostingEntity2));
     given(companyRepository.findByCompanyKey(companyKey1)).willReturn(Optional.of(companyEntity1));
     given(companyRepository.findByCompanyKey(companyKey2)).willReturn(Optional.of(companyEntity2));
 
     // when
-    CandidateApplyDto.Response response = candidateService.getApplyJobPostings(candidateKey, page, size);
+    CandidateApplyDto.Response response = candidateService.getApplyJobPostings(candidateKey, page,
+        size);
 
     // then
     assertEquals(2, response.getApplyJobPostingsList().size());
@@ -362,25 +366,30 @@ public class CandidateServiceTest {
     String jobPostingKey = "jobPostingKey";
     int page = 1;
     int size = 20;
-    Pageable pageable = PageRequest.of(page-1, size);
+    Pageable pageable = PageRequest.of(page - 1, size);
 
     CandidateListEntity candidateListEntity = CandidateListEntity.builder()
         .candidateKey(candidateKey)
         .jobPostingKey(jobPostingKey)
         .build();
 
-    List<CandidateListEntity> candidateListEntities = Collections.singletonList(candidateListEntity);
-    Page<CandidateListEntity> candidateListPage = new PageImpl<>(candidateListEntities, pageable, candidateListEntities.size());
+    List<CandidateListEntity> candidateListEntities = Collections.singletonList(
+        candidateListEntity);
+    Page<CandidateListEntity> candidateListPage = new PageImpl<>(candidateListEntities, pageable,
+        candidateListEntities.size());
 
-    given(candidateListRepository.findAllByCandidateKey(candidateKey, pageable)).willReturn(candidateListPage);
+    given(candidateListRepository.findAllByCandidateKey(candidateKey, pageable)).willReturn(
+        candidateListPage);
     given(jobPostingRepository.findByJobPostingKey(jobPostingKey)).willReturn(Optional.empty());
 
     // when
-    Throwable throwable = catchThrowable(() -> candidateService.getApplyJobPostings(candidateKey, page, size));
+    Throwable throwable = catchThrowable(
+        () -> candidateService.getApplyJobPostings(candidateKey, page, size));
 
     // then
     assertThat(throwable).isInstanceOf(CustomException.class);
-    assertThat(((CustomException) throwable).getErrorCode()).isEqualTo(ErrorCode.JOB_POSTING_NOT_FOUND);
+    assertThat(((CustomException) throwable).getErrorCode()).isEqualTo(
+        ErrorCode.JOB_POSTING_NOT_FOUND);
   }
 
   @Test
@@ -392,27 +401,32 @@ public class CandidateServiceTest {
     String companyKey = "companyKey";
     int page = 1;
     int size = 20;
-    Pageable pageable = PageRequest.of(page-1, size);
+    Pageable pageable = PageRequest.of(page - 1, size);
 
     CandidateListEntity candidateListEntity = CandidateListEntity.builder()
         .candidateKey(candidateKey)
         .jobPostingKey(jobPostingKey)
         .build();
 
-    List<CandidateListEntity> candidateListEntities = Collections.singletonList(candidateListEntity);
-    Page<CandidateListEntity> candidateListPage = new PageImpl<>(candidateListEntities, pageable, candidateListEntities.size());
+    List<CandidateListEntity> candidateListEntities = Collections.singletonList(
+        candidateListEntity);
+    Page<CandidateListEntity> candidateListPage = new PageImpl<>(candidateListEntities, pageable,
+        candidateListEntities.size());
 
     JobPostingEntity jobPostingEntity = JobPostingEntity.builder()
         .jobPostingKey(jobPostingKey)
         .companyKey(companyKey)
         .build();
 
-    given(candidateListRepository.findAllByCandidateKey(candidateKey,pageable)).willReturn(candidateListPage);
-    given(jobPostingRepository.findByJobPostingKey(jobPostingKey)).willReturn(Optional.of(jobPostingEntity));
+    given(candidateListRepository.findAllByCandidateKey(candidateKey, pageable)).willReturn(
+        candidateListPage);
+    given(jobPostingRepository.findByJobPostingKey(jobPostingKey)).willReturn(
+        Optional.of(jobPostingEntity));
     given(companyRepository.findByCompanyKey(companyKey)).willReturn(Optional.empty());
 
     // when
-    Throwable throwable = catchThrowable(() -> candidateService.getApplyJobPostings(candidateKey,page,size));
+    Throwable throwable = catchThrowable(
+        () -> candidateService.getApplyJobPostings(candidateKey, page, size));
 
     // then
     assertThat(throwable).isInstanceOf(CustomException.class);
