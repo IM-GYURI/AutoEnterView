@@ -27,17 +27,18 @@ import com.ctrls.auto_enter_view.repository.ResumeTechStackRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 
+@ExtendWith(MockitoExtension.class)
 class JobPostingStepServiceTest {
 
   @Mock
@@ -61,16 +62,9 @@ class JobPostingStepServiceTest {
   @InjectMocks
   private JobPostingStepService jobPostingStepService;
 
-  @BeforeEach
-  void setUp() {
-
-    MockitoAnnotations.openMocks(this);
-  }
-
   @Test
   @DisplayName("채용 공고 단계 전체 조회 - 성공")
   void testGetJobPostingSteps_Success() {
-
     String jobPostingKey = "jobPostingKey";
     User user = new User("email", "password", new ArrayList<>());
     CompanyEntity companyEntity = CompanyEntity.builder()
@@ -105,7 +99,6 @@ class JobPostingStepServiceTest {
   @Test
   @DisplayName("채용 공고 단계 전체 조회 - 실패 : JOB_POSTING_NOT_FOUND 예외 발생")
   void testGetJobPostingSteps_JobPostingNotFound() {
-
     String jobPostingKey = "jobPostingKey";
     User user = new User("email", "password", new ArrayList<>());
 
@@ -127,7 +120,6 @@ class JobPostingStepServiceTest {
   @Test
   @DisplayName("채용 공고 단계 전체 조회 - 실패 : USER_NOT_FOUND 예외 발생")
   void testGetJobPostingSteps_UserNotFound() {
-
     String jobPostingKey = "jobPostingKey";
     User user = new User("email", "password", new ArrayList<>());
     JobPostingEntity jobPostingEntity = JobPostingEntity.builder()
@@ -155,7 +147,6 @@ class JobPostingStepServiceTest {
   @Test
   @DisplayName("해당 채용 단계의 지원자 리스트 조회 - 성공")
   void testGetCandidatesListByStepId_Success() {
-
     String jobPostingKey = "jobPostingKey";
     Long stepId = 1L;
     User user = new User("email", "password", new ArrayList<>());
@@ -216,7 +207,6 @@ class JobPostingStepServiceTest {
   @Test
   @DisplayName("해당 채용 단계의 지원자 리스트 조회 - 실패 : JOB_POSTING_NOT_FOUND 예외 발생")
   void testGetCandidatesListByStepId_JobPostingNotFound() {
-
     String jobPostingKey = "jobPostingKey";
     Long stepId = 1L;
     User user = new User("email", "password", new ArrayList<>());
@@ -239,7 +229,6 @@ class JobPostingStepServiceTest {
   @Test
   @DisplayName("해당 채용 단계의 지원자 리스트 조회 - 실패 : JOB_POSTING_STEP_NOT_FOUND 예외 발생")
   void testGetCandidatesListByStepId_StepNotFound() {
-
     String jobPostingKey = "jobPostingKey";
     Long stepId = 1L;
     User user = new User("email", "password", new ArrayList<>());
