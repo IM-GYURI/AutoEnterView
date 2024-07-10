@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -56,6 +57,7 @@ class CompanyServiceTest {
   private CompanyService companyService;
 
   @Test
+  @DisplayName("회사 회원가입_성공")
   void signUp_Success() {
     // given
     String email = "company@naver.com";
@@ -106,6 +108,7 @@ class CompanyServiceTest {
   }
 
   @Test
+  @DisplayName("회사 회원가입_실패_잘못된 포맷")
   void signUp_WrongFormat() {
     // given
     ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -143,6 +146,7 @@ class CompanyServiceTest {
   }
 
   @Test
+  @DisplayName("회사 비밀번호 변경_성공")
   void changePassword_Success() {
     // given
     String companyKey = "companyKey";
@@ -185,6 +189,7 @@ class CompanyServiceTest {
   }
 
   @Test
+  @DisplayName("회사 비밀번호 변경_실패_틀린 비밀번호")
   void changePassword_Failure_WrongOldPassword() {
     // given
     String companyKey = "companyKey";
@@ -224,6 +229,7 @@ class CompanyServiceTest {
   }
 
   @Test
+  @DisplayName("회사 회원탈퇴_성공")
   void withdraw_Success() {
     // given
     String companyKey = "companyKey";
@@ -261,6 +267,7 @@ class CompanyServiceTest {
   }
 
   @Test
+  @DisplayName("회사 회원탈퇴_실패_잘못된 비밀번호")
   void withdraw_Failure_WrongPassword() {
     // given
     String companyKey = "companyKey";
