@@ -1,6 +1,6 @@
 ### create job posting test
-POST http://localhost:8080/companies/74811b4ad1264b03b0047206868efe11/job-postings
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA1MjIwMTEsImV4cCI6MTcyMDUyNTYxMX0.G48xYsdhjpj4xl0MHx-w3vUK127vOPXiCE0kj7ajZyA
+POST http://localhost:8080/companies/0351b69102cc4c6bbe30e81cd5d6ac1b/job-postings
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA1MjcwMDAsImV4cCI6MTcyMDUzMDYwMH0.-dOxwXUxPk59gQj3sEPQEW4PIrERuiDLxEx-o53qm-M
 Content-Type: application/json
 
 {
@@ -27,25 +27,19 @@ Content-Type: application/json
 
 
 ### get job postings test
-GET http://localhost:8080/companies/5165804fb170420a82785a2ddfa8478a/posted-job-postings
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjgxMDksImV4cCI6MTcyMDQzMTcwOX0.O421TLSEjx_tY8o28Xvr02mFzndbDvLCc5kivRJbr7c
+GET http://localhost:8080/companies/0351b69102cc4c6bbe30e81cd5d6ac1b/posted-job-postings
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA1MjcwMDAsImV4cCI6MTcyMDUzMDYwMH0.-dOxwXUxPk59gQj3sEPQEW4PIrERuiDLxEx-o53qm-M
 Content-Type: application/json
 
 ### get job posting steps test
-GET http://localhost:8080/job-postings/3318da39258a499a8c067385ce15ab1a/steps
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjgxMDksImV4cCI6MTcyMDQzMTcwOX0.O421TLSEjx_tY8o28Xvr02mFzndbDvLCc5kivRJbr7c
+GET http://localhost:8080/job-postings/76f2d0c0f4c1424e92976035dedb9ce8/steps
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA1MjcwMDAsImV4cCI6MTcyMDUzMDYwMH0.-dOxwXUxPk59gQj3sEPQEW4PIrERuiDLxEx-o53qm-M
 Content-Type: application/json
 
 ### 채용 공고에 지원한 지원자 목록을 단계별로 보여주는 api라, 지원하기 기능이 구현된 이후에 다시 테스트해봐야 할 것 같습니다.
 ### get job posting steps test 1
-GET http://localhost:8080/job-postings/3318da39258a499a8c067385ce15ab1a/steps/5/candidates-list
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjgxMDksImV4cCI6MTcyMDQzMTcwOX0.O421TLSEjx_tY8o28Xvr02mFzndbDvLCc5kivRJbr7c
-Content-Type: application/json
-
-### 채용 공고에 지원한 지원자 목록을 단계별로 보여주는 api라, 지원하기 기능이 구현된 이후에 다시 테스트해봐야 할 것 같습니다.
-### get job posting steps test 2
-GET http://localhost:8080/job-postings/3318da39258a499a8c067385ce15ab1a/steps/6/candidates-list
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA0MjgxMDksImV4cCI6MTcyMDQzMTcwOX0.O421TLSEjx_tY8o28Xvr02mFzndbDvLCc5kivRJbr7c
+GET http://localhost:8080/job-postings/76f2d0c0f4c1424e92976035dedb9ce8/steps/5/candidates-list
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb21wYW55QG5hdmVyLmNvbSIsInJvbGUiOiJST0xFX0NPTVBBTlkiLCJpYXQiOjE3MjA1MjcwMDAsImV4cCI6MTcyMDUzMDYwMH0.-dOxwXUxPk59gQj3sEPQEW4PIrERuiDLxEx-o53qm-M
 Content-Type: application/json
 
 ### edit job posting test
