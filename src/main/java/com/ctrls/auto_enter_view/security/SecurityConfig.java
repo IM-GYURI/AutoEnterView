@@ -40,7 +40,7 @@ public class SecurityConfig {
         // JWT 인증을 사용하는 경우 - csrf 보호 비활성화
         .csrf(AbstractHttpConfigurer::disable)
 
-        // cors 설정 비활성화
+        // cors 설정 활성화
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
         // httpBasic 비활성화
