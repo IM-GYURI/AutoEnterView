@@ -24,16 +24,16 @@ public class InterviewScheduleParticipantsEntity extends BaseEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private String interviewScheduleKey;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private String candidateKey;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private String jobPostingKey;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private Long jobPostingStepId;
 
   private LocalDateTime interviewStartDatetime;
