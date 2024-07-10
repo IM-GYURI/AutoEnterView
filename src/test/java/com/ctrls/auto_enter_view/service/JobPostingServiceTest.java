@@ -71,10 +71,6 @@ class JobPostingServiceTest {
   @InjectMocks
   private JobPostingService jobPostingService;
 
-//  @BeforeEach
-//  void setUp() {
-//    MockitoAnnotations.openMocks(this);
-//  }
 
   @Test
   @DisplayName("회사 키로 채용 공고 목록 조회 - 성공")
