@@ -14,7 +14,6 @@ import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
-import com.ctrls.auto_enter_view.security.JwtTokenProvider;
 import com.ctrls.auto_enter_view.util.RandomGenerator;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -32,11 +31,9 @@ public class CommonUserService {
 
   private final CompanyRepository companyRepository;
   private final CandidateRepository candidateRepository;
+  private final BlacklistTokenService blacklistTokenService;
   private final MailComponent mailComponent;
   private final PasswordEncoder passwordEncoder;
-
-  private final JwtTokenProvider jwtTokenProvider;
-  private final BlacklistTokenService blacklistTokenService;
   private final RedisTemplate<String, String> redisTemplate;
 
   // 이메일을 통해 이메일의 사용 여부를 확인 - 회사
@@ -180,10 +177,11 @@ public class CommonUserService {
 
     // 회사 엔티티가 존재하는 경우
     if (companyOptional.isPresent()) {
+
       CompanyEntity company = companyOptional.get();
+
       if (passwordEncoder.matches(password, company.getPassword())) {
-        String token = jwtTokenProvider.generateToken(company.getEmail(), company.getRole());
-        return SignInDto.fromCompany(company, token);
+        return SignInDto.fromCompany(company);
       } else {
         throw new CustomException(ErrorCode.PASSWORD_NOT_MATCH);
       }
@@ -191,10 +189,11 @@ public class CommonUserService {
 
     // 후보자 엔티티가 존재하는 경우
     if (candidateOptional.isPresent()) {
+
       CandidateEntity candidate = candidateOptional.get();
+
       if (passwordEncoder.matches(password, candidate.getPassword())) {
-        String token = jwtTokenProvider.generateToken(candidate.getEmail(), candidate.getRole());
-        return SignInDto.fromCandidate(candidate, token);
+        return SignInDto.fromCandidate(candidate);
       } else {
         throw new CustomException(ErrorCode.PASSWORD_NOT_MATCH);
       }

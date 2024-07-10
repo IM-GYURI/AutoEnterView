@@ -35,28 +35,25 @@ public class SignInDto {
     private String key;
     private String name;
     private String email;
-    private String token;
     private UserRole role;
   }
 
-  public static Response fromCompany(CompanyEntity company, String token) {
+  public static Response fromCompany(CompanyEntity company) {
 
     return Response.builder()
         .key(company.getCompanyKey())
         .name(company.getCompanyName())
         .email(company.getEmail())
-        .token(token)
         .role(company.getRole())
         .build();
   }
 
-  public static Response fromCandidate(CandidateEntity candidate, String token) {
+  public static Response fromCandidate(CandidateEntity candidate) {
 
     return Response.builder()
         .key(candidate.getCandidateKey())
         .name(candidate.getName())
         .email(candidate.getEmail())
-        .token(token)
         .role(candidate.getRole())
         .build();
   }
