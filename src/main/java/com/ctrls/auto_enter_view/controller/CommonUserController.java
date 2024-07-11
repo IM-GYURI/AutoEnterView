@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -43,7 +42,7 @@ public class CommonUserController {
    * @param emailDto
    * @return
    */
-  @GetMapping("/duplicate-email")
+  @PostMapping("/duplicate-email")
   public ResponseEntity<String> checkDuplicateEmail(@RequestBody @Validated EmailDto emailDto) {
 
     return ResponseEntity.ok(commonUserService.checkDuplicateEmail(emailDto.getEmail()));
@@ -69,7 +68,7 @@ public class CommonUserController {
    * @param emailVerificationDto
    * @return
    */
-  @GetMapping("/verify-email")
+  @PostMapping("/verify-email")
   public ResponseEntity<String> verifyEmail(
       @RequestBody @Validated EmailVerificationDto emailVerificationDto) {
 
@@ -99,7 +98,8 @@ public class CommonUserController {
   @PostMapping("/signin")
   public ResponseEntity<SignInDto.Response> login(@Validated @RequestBody Request request) {
 
-    SignInDto.Response response = commonUserService.loginUser(request.getEmail(), request.getPassword());
+    SignInDto.Response response = commonUserService.loginUser(request.getEmail(),
+        request.getPassword());
 
     // JWT 토큰 생성
     String token = jwtTokenProvider.generateToken(response.getEmail(), response.getRole());
