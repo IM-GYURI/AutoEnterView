@@ -1,17 +1,9 @@
 ###
-GET http://localhost:8080/common/duplicate-email
+POST http://localhost:8080/common/duplicate-email
 Content-Type: application/json
 
 {
   "email": "kgulr0517@gmail.com"
-}
-
-###
-GET http://localhost:8080/common/duplicate-email
-Content-Type: application/json
-
-{
-  "email": "aaa@naver.com"
 }
 
 ###
@@ -23,12 +15,12 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:8080/common/verify-email
+POST http://localhost:8080/common/verify-email
 Content-Type: application/json
 
 {
   "email": "kgulr0517@gmail.com",
-  "verificationCode": "4B1@s8"
+  "verificationCode": "#O7qAV"
 }
 
 ###
