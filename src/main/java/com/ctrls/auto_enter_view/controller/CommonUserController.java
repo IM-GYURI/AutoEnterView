@@ -5,6 +5,7 @@ import static com.ctrls.auto_enter_view.enums.ResponseMessage.SUCCESS_SEND_CODE;
 import static com.ctrls.auto_enter_view.enums.ResponseMessage.SUCCESS_TEMPORARY_PASSWORD_SEND;
 
 import com.ctrls.auto_enter_view.dto.common.EmailDto;
+import com.ctrls.auto_enter_view.dto.common.EmailVerificationDto;
 import com.ctrls.auto_enter_view.dto.common.SignInDto;
 import com.ctrls.auto_enter_view.dto.common.SignInDto.Request;
 import com.ctrls.auto_enter_view.dto.common.TemporaryPasswordDto;
@@ -15,8 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -36,16 +35,17 @@ public class CommonUserController {
   private final CommonUserService commonUserService;
   private final JwtTokenProvider jwtTokenProvider;
 
+
   /**
    * 이메일 중복 확인
    *
-   * @param email
+   * @param emailDto
    * @return
    */
-  @GetMapping("/duplicate-email/{email}")
-  public ResponseEntity<String> checkDuplicateEmail(@PathVariable String email) {
+  @PostMapping("/duplicate-email")
+  public ResponseEntity<String> checkDuplicateEmail(@RequestBody @Validated EmailDto emailDto) {
 
-    return ResponseEntity.ok(commonUserService.checkDuplicateEmail(email));
+    return ResponseEntity.ok(commonUserService.checkDuplicateEmail(emailDto.getEmail()));
   }
 
   /**
@@ -65,15 +65,15 @@ public class CommonUserController {
   /**
    * 이메일 인증 코드 확인
    *
-   * @param email
-   * @param verificationCode
+   * @param emailVerificationDto
    * @return
    */
-  @GetMapping("/verify-email/{email}/{verificationCode}")
+  @PostMapping("/verify-email")
   public ResponseEntity<String> verifyEmail(
-      @PathVariable String email, @PathVariable String verificationCode) {
+      @RequestBody @Validated EmailVerificationDto emailVerificationDto) {
 
-    commonUserService.verifyEmailVerificationCode(email, verificationCode);
+    commonUserService.verifyEmailVerificationCode(emailVerificationDto.getEmail(),
+        emailVerificationDto.getVerificationCode());
 
     return ResponseEntity.ok(SUCCESS_EMAIL_VERIFY.getMessage());
   }
