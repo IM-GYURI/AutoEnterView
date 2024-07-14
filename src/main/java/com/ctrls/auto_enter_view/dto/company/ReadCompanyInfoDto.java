@@ -28,7 +28,7 @@ public class ReadCompanyInfoDto {
           .companyAge(e.getCompanyAge())
           .companyUrl(e.getCompanyUrl())
           .boss(e.getBoss())
-          .address(e.getBoss())
+          .address(e.getAddress())
           .build();
     }
   }
