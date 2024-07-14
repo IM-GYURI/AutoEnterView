@@ -1,7 +1,7 @@
 package com.ctrls.auto_enter_view.controller;
 
-import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto;
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto.Request;
+import com.ctrls.auto_enter_view.service.InterviewScheduleParticipantsService;
 import com.ctrls.auto_enter_view.service.InterviewScheduleService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class InterviewScheduleController {
 
   private final InterviewScheduleService interviewScheduleService;
-
 
   @PostMapping("/job-postings/{jobPostingKey}/steps/{stepId}/interview-schedule")
   public ResponseEntity<String> createInterviewSchedule(@PathVariable String jobPostingKey,
