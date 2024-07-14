@@ -38,3 +38,6 @@ out/
 ### VS Code ###
 .vscode/
 logs
+docker-compose.yml
+Dockerfile
+*.http
