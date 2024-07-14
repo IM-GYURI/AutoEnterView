@@ -57,6 +57,8 @@ public class SignUpDto {
   @NoArgsConstructor
   public static class Response {
 
+    private String candidateKey;
+
     private String name;
 
     private String email;
