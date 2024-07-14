@@ -474,7 +474,7 @@ class JobPostingServiceTest {
         .thenReturn(Optional.of(jobPostingStep));
 
     // Mocking mail component
-    doNothing().when(mailComponent).sendMail(anyString(), anyString(), anyString(), eq(true));
+    doNothing().when(mailComponent).sendHtmlMail(anyString(), anyString(), anyString(), eq(true));
 
     // when
     jobPostingService.editJobPosting(jobPostingKey, request);
@@ -483,10 +483,10 @@ class JobPostingServiceTest {
     verify(jobPostingRepository, times(1)).findByJobPostingKey(jobPostingKey);
     verify(candidateListRepository, times(1)).findAllByJobPostingKeyAndJobPostingStepId(
         jobPostingKey, 1L);
-    verify(mailComponent, times(2)).sendMail(anyString(), anyString(), anyString(), eq(true));
+    verify(mailComponent, times(2)).sendHtmlMail(anyString(), anyString(), anyString(), eq(true));
 
     // Verify email contents
-    verify(mailComponent, times(2)).sendMail(toCaptor.capture(), subjectCaptor.capture(),
+    verify(mailComponent, times(2)).sendHtmlMail(toCaptor.capture(), subjectCaptor.capture(),
         textCaptor.capture(), eq(true));
 
     List<String> capturedSubjects = subjectCaptor.getAllValues();

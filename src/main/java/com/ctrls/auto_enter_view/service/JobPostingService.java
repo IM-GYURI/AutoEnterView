@@ -284,7 +284,7 @@ public class JobPostingService {
           "지원해주신 [" + jobPostingEntity.getTitle() + "]의 공고 내용이 수정되었습니다. 확인 부탁드립니다.<br><br>"
               + "<a href=\"http://localhost:8080/common/job-postings/"
               + jobPostingEntity.getJobPostingKey() + "\">수정된 채용 공고 확인하기</a>";
-      mailComponent.sendMail(to, subject, text, true);
+      mailComponent.sendHtmlMail(to, subject, text, true);
     }
   }
 }

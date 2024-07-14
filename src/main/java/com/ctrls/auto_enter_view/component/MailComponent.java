@@ -14,7 +14,7 @@ public class MailComponent {
 
   private final JavaMailSender mailSender;
 
-  public void sendMail(String to, String subject, String text) {
+  public void sendHtmlMail(String to, String subject, String text) {
 
     SimpleMailMessage message = new SimpleMailMessage();
     message.setTo(to);
@@ -23,7 +23,7 @@ public class MailComponent {
     mailSender.send(message);
   }
 
-  public void sendMail(String to, String subject, String text, boolean isHtml) {
+  public void sendHtmlMail(String to, String subject, String text, boolean isHtml) {
     MimeMessage message = mailSender.createMimeMessage();
 
     try {
@@ -41,13 +41,13 @@ public class MailComponent {
 
     String subject = "AutoEnterView 회원가입 인증 코드입니다.";
     String text = "인증 코드 : " + verificationCode;
-    sendMail(to, subject, text);
+    sendHtmlMail(to, subject, text);
   }
 
   public void sendTemporaryPassword(String to, String temporaryPassword) {
 
     String subject = "AutoEnterView 임시 비밀번호입니다.";
     String text = "임시 비밀번호 : " + temporaryPassword;
-    sendMail(to, subject, text);
+    sendHtmlMail(to, subject, text);
   }
 }
