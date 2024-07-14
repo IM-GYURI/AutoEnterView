@@ -16,6 +16,7 @@ import com.ctrls.auto_enter_view.entity.CandidateListEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
+import com.ctrls.auto_enter_view.enums.ResponseMessage;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateListRepository;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
@@ -59,9 +60,10 @@ public class CandidateService {
     candidateRepository.save(candidate);
 
     return SignUpDto.Response.builder()
+        .candidateKey(candidate.getCandidateKey())
         .email(signUpDto.getEmail())
         .name(signUpDto.getName())
-        .message(signUpDto.getName() + "님 회원가입을 환영합니다")
+        .message(ResponseMessage.SIGNUP.getMessage())
         .build();
   }
 
@@ -134,19 +136,22 @@ public class CandidateService {
 
   // 지원자가 지원한 채용 공고 조회
   public CandidateApplyDto.Response getApplyJobPostings(String candidateKey, int page, int size) {
-    Pageable pageable = PageRequest.of(page-1, size);
-    Page<CandidateListEntity> candidateListPage = candidateListRepository.findAllByCandidateKey(candidateKey, pageable);
+    Pageable pageable = PageRequest.of(page - 1, size);
+    Page<CandidateListEntity> candidateListPage = candidateListRepository.findAllByCandidateKey(
+        candidateKey, pageable);
 
     List<CandidateApplyDto.ApplyInfo> applyInfoList = new ArrayList<>();
 
     for (CandidateListEntity candidateListEntity : candidateListPage.getContent()) {
-      JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(candidateListEntity.getJobPostingKey())
+      JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(
+              candidateListEntity.getJobPostingKey())
           .orElseThrow(() -> new CustomException(ErrorCode.JOB_POSTING_NOT_FOUND));
 
       String companyName = getCompanyName(jobPostingEntity.getCompanyKey());
       LocalDateTime applyDate = candidateListEntity.getCreatedAt();
 
-      CandidateApplyDto.ApplyInfo applyInfo = CandidateApplyDto.ApplyInfo.from(jobPostingEntity, companyName, applyDate);
+      CandidateApplyDto.ApplyInfo applyInfo = CandidateApplyDto.ApplyInfo.from(jobPostingEntity,
+          companyName, applyDate);
       applyInfoList.add(applyInfo);
     }
 
