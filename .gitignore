@@ -40,4 +40,4 @@ out/
 logs
 Dockerfile
 docker-compose.yml
-!**/src/test/*.http
+*.http
