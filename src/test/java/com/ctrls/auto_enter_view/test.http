@@ -16,7 +16,7 @@ POST http://localhost:8080/common/signin
 Content-Type: application/json
 
 {
-  "email": "kgulr0000@naver.com",
+  "email": "kgulr0517@naver.com",
   "password": "!JEi2ofj3"
 }
 
