@@ -1,5 +1,7 @@
 package com.ctrls.auto_enter_view.service;
 
+import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_HAS_CANDIDATES;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_STEP_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 
 import com.ctrls.auto_enter_view.dto.common.JobPostingDetailDto;
@@ -111,7 +113,7 @@ public class JobPostingService {
 
   // Main 화면 채용 공고 조회
   public MainJobPostingDto.Response getAllJobPosting(int page, int size) {
-    Pageable pageable = PageRequest.of(page-1, size);
+    Pageable pageable = PageRequest.of(page - 1, size);
     Page<JobPostingEntity> jobPostingPage = jobPostingRepository.findAll(pageable);
     List<MainJobPostingDto.JobPostingMainInfo> jobPostingMainInfoList = new ArrayList<>();
 
@@ -171,8 +173,29 @@ public class JobPostingService {
     return step;
   }
 
+  // 채용 공고에 지원한 지원자가 존재하는지 확인 : 채용 공고의 첫번째 단계에 해당하는 지원자 목록 확인
+  private void verifyExistsByJobPostingKey(String jobPostingKey) {
+    Long firstStep = jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(
+        jobPostingKey).getId();
+    if (firstStep == null) {
+      throw new CustomException(JOB_POSTING_STEP_NOT_FOUND);
+    }
 
+    List<CandidateListEntity> candidateListEntityList = candidateListRepository.findAllByJobPostingKeyAndJobPostingStepId(
+        jobPostingKey, firstStep);
+
+    if (!candidateListEntityList.isEmpty()) {
+      throw new CustomException(JOB_POSTING_HAS_CANDIDATES);
+    }
+  }
+
+  /**
+   * 채용 공고 삭제하기
+   *
+   * @param jobPostingKey
+   */
   public void deleteJobPosting(String jobPostingKey) {
+    verifyExistsByJobPostingKey(jobPostingKey);
 
     jobPostingRepository.deleteByJobPostingKey(jobPostingKey);
   }
@@ -189,13 +212,15 @@ public class JobPostingService {
     String candidateName = candidateService.getCandidateNameByKey(candidateKey);
 
     // 해당 채용 공고의 첫 번째 단계 가져오기
-    JobPostingStepEntity firstStep = jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey);
+    JobPostingStepEntity firstStep = jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(
+        jobPostingKey);
     if (firstStep == null) {
-      throw new CustomException(ErrorCode.JOB_POSTING_STEP_NOT_FOUND);
+      throw new CustomException(JOB_POSTING_STEP_NOT_FOUND);
     }
 
     // 채용 지원 중복 체크
-    boolean isApplied = candidateListRepository.existsByCandidateKeyAndJobPostingKey(candidateKey, jobPostingKey);
+    boolean isApplied = candidateListRepository.existsByCandidateKeyAndJobPostingKey(candidateKey,
+        jobPostingKey);
     if (isApplied) {
       throw new CustomException(ErrorCode.ALREADY_APPLIED);
     }
