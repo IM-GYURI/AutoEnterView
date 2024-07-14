@@ -1,6 +1,7 @@
 package com.ctrls.auto_enter_view.dto.interviewschedule;
 
 import com.ctrls.auto_enter_view.entity.InterviewScheduleEntity;
+import com.ctrls.auto_enter_view.util.KeyGenerator;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -25,8 +26,7 @@ public class InterviewScheduleDto {
     @DateTimeFormat(pattern = "HH:mm")
     private LocalTime startTime;
 
-    @DateTimeFormat(pattern = "mm")
-    private LocalTime term;
+    private Integer term;
 
     private Integer times;
 
@@ -37,6 +37,7 @@ public class InterviewScheduleDto {
       LocalDate lastDate = request.get(request.size() - 1).getStartDate();
 
       return InterviewScheduleEntity.builder()
+          .interviewScheduleKey(KeyGenerator.generateKey())
           .jobPostingStepId(stepId)
           .jobPostingKey(jobPostingKey)
           .firstInterviewDate(firstDate)
