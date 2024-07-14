@@ -5,16 +5,22 @@ import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_STEP_NOT_FOU
 import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ctrls.auto_enter_view.component.MailComponent;
 import com.ctrls.auto_enter_view.dto.common.JobPostingDetailDto;
 import com.ctrls.auto_enter_view.dto.common.MainJobPostingDto;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto.Request;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingInfoDto;
+import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CandidateListEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
@@ -22,6 +28,7 @@ import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateListRepository;
+import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
@@ -35,6 +42,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -61,6 +69,9 @@ class JobPostingServiceTest {
   private CandidateListRepository candidateListRepository;
 
   @Mock
+  private CandidateRepository candidateRepository;
+
+  @Mock
   private JobPostingStepRepository jobPostingStepRepository;
 
   @Mock
@@ -71,6 +82,18 @@ class JobPostingServiceTest {
 
   @Mock
   private CandidateService candidateService;
+
+  @Mock
+  private MailComponent mailComponent;
+
+  @Captor
+  private ArgumentCaptor<String> toCaptor;
+
+  @Captor
+  private ArgumentCaptor<String> subjectCaptor;
+
+  @Captor
+  private ArgumentCaptor<String> textCaptor;
 
   @InjectMocks
   private JobPostingService jobPostingService;
@@ -376,12 +399,11 @@ class JobPostingServiceTest {
   @Test
   @DisplayName("채용 공고 수정 성공 테스트")
   void testEditJobPosting() {
-    //given
+    // given
     String companyKey = "companyKey";
-
     String jobPostingKey = "JobPostingKey";
 
-    JobPostingDto.Request request = Request.builder()
+    JobPostingDto.Request request = JobPostingDto.Request.builder()
         .title("edit title")
         .jobCategory("jobCategory")
         .career(3)
@@ -411,18 +433,77 @@ class JobPostingServiceTest {
         .jobPostingContent("content")
         .build();
 
-    when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(
-        Optional.of(jobPostingEntity));
+    List<CandidateListEntity> candidateList = Arrays.asList(
+        CandidateListEntity.builder()
+            .candidateKey("candidateKey1")
+            .jobPostingKey(jobPostingKey)
+            .build(),
+        CandidateListEntity.builder()
+            .candidateKey("candidateKey2")
+            .jobPostingKey(jobPostingKey)
+            .build()
+    );
 
-    //when
+    JobPostingStepEntity jobPostingStep = JobPostingStepEntity.builder()
+        .jobPostingKey(jobPostingKey)
+        .id(1L)
+        .step("서류 단계")
+        .build();
+
+    // Mocking repository methods
+    when(jobPostingRepository.findByJobPostingKey(jobPostingKey))
+        .thenReturn(Optional.of(jobPostingEntity));
+
+    when(candidateListRepository.findAllByJobPostingKeyAndJobPostingStepId(jobPostingKey, 1L))
+        .thenReturn(candidateList);
+
+    when(candidateRepository.findByCandidateKey("candidateKey1"))
+        .thenReturn(Optional.of(CandidateEntity.builder()
+            .candidateKey("candidateKey1")
+            .name("John")
+            .email("john@example.com")
+            .build()));
+    when(candidateRepository.findByCandidateKey("candidateKey2"))
+        .thenReturn(Optional.of(CandidateEntity.builder()
+            .candidateKey("candidateKey2")
+            .name("Jane")
+            .email("jane@example.com")
+            .build()));
+
+    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey))
+        .thenReturn(Optional.of(jobPostingStep));
+
+    // Mocking mail component
+    doNothing().when(mailComponent).sendMail(anyString(), anyString(), anyString(), eq(true));
+
+    // when
     jobPostingService.editJobPosting(jobPostingKey, request);
 
-    //then
+    // then
     verify(jobPostingRepository, times(1)).findByJobPostingKey(jobPostingKey);
+    verify(candidateListRepository, times(1)).findAllByJobPostingKeyAndJobPostingStepId(
+        jobPostingKey, 1L);
+    verify(mailComponent, times(2)).sendMail(anyString(), anyString(), anyString(), eq(true));
 
-    //제목, 고용타입만 바뀌는것 확인
-    assertEquals(request.getTitle(), jobPostingEntity.getTitle());
-    assertEquals(request.getEmploymentType(), jobPostingEntity.getEmploymentType());
+    // Verify email contents
+    verify(mailComponent, times(2)).sendMail(toCaptor.capture(), subjectCaptor.capture(),
+        textCaptor.capture(), eq(true));
+
+    List<String> capturedSubjects = subjectCaptor.getAllValues();
+    List<String> capturedTexts = textCaptor.getAllValues();
+
+    assertEquals("채용 공고 수정 알림 : edit title", capturedSubjects.get(0));
+    assertEquals("채용 공고 수정 알림 : edit title", capturedSubjects.get(1));
+
+    assertTrue(capturedTexts.get(0).contains("지원해주신 [edit title]의 공고 내용이 수정되었습니다. 확인 부탁드립니다."));
+    assertTrue(capturedTexts.get(1).contains("지원해주신 [edit title]의 공고 내용이 수정되었습니다. 확인 부탁드립니다."));
+
+    assertTrue(capturedTexts.get(0).contains(
+        "<a href=\"http://localhost:8080/common/job-postings/" + jobPostingKey
+            + "\">수정된 채용 공고 확인하기</a>"));
+    assertTrue(capturedTexts.get(1).contains(
+        "<a href=\"http://localhost:8080/common/job-postings/" + jobPostingKey
+            + "\">수정된 채용 공고 확인하기</a>"));
   }
 
   @Test
