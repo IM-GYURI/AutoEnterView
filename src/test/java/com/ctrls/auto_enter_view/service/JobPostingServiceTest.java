@@ -1,8 +1,11 @@
 package com.ctrls.auto_enter_view.service;
 
+import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_HAS_CANDIDATES;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_STEP_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,6 +28,7 @@ import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -191,7 +195,6 @@ class JobPostingServiceTest {
   @Test
   @DisplayName("채용 공고 지원 - 성공")
   void testApplyJobPosting() {
-
     // given
     String jobPostingKey = "test-job-posting-key";
     String candidateKey = "test-candidate-key";
@@ -203,8 +206,8 @@ class JobPostingServiceTest {
 
     when(jobPostingRepository.existsByJobPostingKey(jobPostingKey)).thenReturn(true);
     when(candidateService.getCandidateNameByKey(candidateKey)).thenReturn(candidateName);
-    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey)).thenReturn(
-        firstStep);
+    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey))
+        .thenReturn(Optional.of(firstStep));
     when(candidateListRepository.existsByCandidateKeyAndJobPostingKey(candidateKey,
         jobPostingKey)).thenReturn(false);
 
@@ -261,18 +264,19 @@ class JobPostingServiceTest {
     when(jobPostingRepository.existsByJobPostingKey(jobPostingKey)).thenReturn(true);
     when(candidateService.getCandidateNameByKey(candidateKey)).thenReturn(candidateName);
     when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey)).thenReturn(
-        null);
+        Optional.empty());
 
     // when
     CustomException exception = assertThrows(CustomException.class,
         () -> jobPostingService.applyJobPosting(jobPostingKey, candidateKey));
 
     // then
-    assertEquals(ErrorCode.JOB_POSTING_STEP_NOT_FOUND, exception.getErrorCode());
+    assertEquals(JOB_POSTING_STEP_NOT_FOUND, exception.getErrorCode());
     verify(jobPostingRepository, times(1)).existsByJobPostingKey(jobPostingKey);
     verify(candidateService, times(1)).getCandidateNameByKey(candidateKey);
     verify(jobPostingStepRepository, times(1)).findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey);
   }
+
 
   @Test
   @DisplayName("채용 공고 지원 - 실패 : 이미 지원한 공고")
@@ -289,8 +293,8 @@ class JobPostingServiceTest {
 
     when(jobPostingRepository.existsByJobPostingKey(jobPostingKey)).thenReturn(true);
     when(candidateService.getCandidateNameByKey(candidateKey)).thenReturn(candidateName);
-    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey)).thenReturn(
-        firstStep);
+    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey))
+        .thenReturn(Optional.of(firstStep));
     when(candidateListRepository.existsByCandidateKeyAndJobPostingKey(candidateKey,
         jobPostingKey)).thenReturn(true);
 
@@ -426,11 +430,63 @@ class JobPostingServiceTest {
   void testDeleteJobPosting() {
     //given
     String jobPostingKey = "jobPostingKey";
+    JobPostingStepEntity jobPostingStep = JobPostingStepEntity.builder()
+        .jobPostingKey(jobPostingKey)
+        .id(1L)
+        .build();
+
+    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey))
+        .thenReturn(Optional.of(jobPostingStep));
+    when(candidateListRepository.findAllByJobPostingKeyAndJobPostingStepId(jobPostingKey, 1L))
+        .thenReturn(Collections.emptyList());
 
     //when
     jobPostingService.deleteJobPosting(jobPostingKey);
 
     //then
     verify(jobPostingRepository, times(1)).deleteByJobPostingKey(jobPostingKey);
+  }
+
+  @Test
+  @DisplayName("채용 공고 삭제 실패 테스트 - 지원자가 있는 경우")
+  void testDeleteJobPostingWithCandidates() {
+    //given
+    String jobPostingKey = "jobPostingKey";
+    JobPostingStepEntity jobPostingStep = JobPostingStepEntity.builder()
+        .jobPostingKey(jobPostingKey)
+        .id(1L)
+        .build();
+    CandidateListEntity candidate = new CandidateListEntity();
+
+    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey))
+        .thenReturn(Optional.of(jobPostingStep));
+    when(candidateListRepository.findAllByJobPostingKeyAndJobPostingStepId(jobPostingKey, 1L))
+        .thenReturn(List.of(candidate));
+
+    //when, then
+    CustomException exception = assertThrows(CustomException.class, () -> {
+      jobPostingService.deleteJobPosting(jobPostingKey);
+    });
+
+    assertEquals(JOB_POSTING_HAS_CANDIDATES, exception.getErrorCode());
+    verify(jobPostingRepository, never()).deleteByJobPostingKey(jobPostingKey);
+  }
+
+  @Test
+  @DisplayName("채용 공고 삭제 실패 테스트 - 첫번째 단계가 없는 경우")
+  void testDeleteJobPostingWithoutFirstStep() {
+    //given
+    String jobPostingKey = "jobPostingKey";
+
+    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey))
+        .thenReturn(Optional.empty());
+
+    //when, then
+    CustomException exception = assertThrows(CustomException.class, () -> {
+      jobPostingService.deleteJobPosting(jobPostingKey);
+    });
+
+    assertEquals(JOB_POSTING_STEP_NOT_FOUND, exception.getErrorCode());
+    verify(jobPostingRepository, never()).deleteByJobPostingKey(jobPostingKey);
   }
 }
