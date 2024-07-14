@@ -154,7 +154,9 @@ public class JobPostingService {
    * @param jobPostingKey
    */
   public void deleteJobPosting(String jobPostingKey) {
-    verifyExistsByJobPostingKey(jobPostingKey);
+    if (verifyExistsByJobPostingKey(jobPostingKey)) {
+      throw new CustomException(JOB_POSTING_HAS_CANDIDATES);
+    }
 
     jobPostingRepository.deleteByJobPostingKey(jobPostingKey);
   }
@@ -230,15 +232,11 @@ public class JobPostingService {
   }
 
   // 채용 공고에 지원한 지원자가 존재하는지 확인 : 채용 공고의 첫번째 단계에 해당하는 지원자 목록 확인
-  private void verifyExistsByJobPostingKey(String jobPostingKey) {
+  private boolean verifyExistsByJobPostingKey(String jobPostingKey) {
     Long firstStep = getJobPostingStepEntity(jobPostingKey).getId();
 
-    List<CandidateListEntity> candidateListEntityList = candidateListRepository.findAllByJobPostingKeyAndJobPostingStepId(
+    return candidateListRepository.existsByJobPostingKeyAndJobPostingStepId(
         jobPostingKey, firstStep);
-
-    if (!candidateListEntityList.isEmpty()) {
-      throw new CustomException(JOB_POSTING_HAS_CANDIDATES);
-    }
   }
 
   // 전체 체용 공고 List 들어갈 정보
