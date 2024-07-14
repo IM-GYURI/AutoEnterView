@@ -176,10 +176,7 @@ public class JobPostingService {
   // 채용 공고에 지원한 지원자가 존재하는지 확인 : 채용 공고의 첫번째 단계에 해당하는 지원자 목록 확인
   private void verifyExistsByJobPostingKey(String jobPostingKey) {
     Long firstStep = jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(
-        jobPostingKey).getId();
-    if (firstStep == null) {
-      throw new CustomException(JOB_POSTING_STEP_NOT_FOUND);
-    }
+        jobPostingKey).orElseThrow(() -> new CustomException(JOB_POSTING_STEP_NOT_FOUND)).getId();
 
     List<CandidateListEntity> candidateListEntityList = candidateListRepository.findAllByJobPostingKeyAndJobPostingStepId(
         jobPostingKey, firstStep);
@@ -213,10 +210,7 @@ public class JobPostingService {
 
     // 해당 채용 공고의 첫 번째 단계 가져오기
     JobPostingStepEntity firstStep = jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(
-        jobPostingKey);
-    if (firstStep == null) {
-      throw new CustomException(JOB_POSTING_STEP_NOT_FOUND);
-    }
+        jobPostingKey).orElseThrow(() -> new CustomException(JOB_POSTING_STEP_NOT_FOUND));
 
     // 채용 지원 중복 체크
     boolean isApplied = candidateListRepository.existsByCandidateKeyAndJobPostingKey(candidateKey,
