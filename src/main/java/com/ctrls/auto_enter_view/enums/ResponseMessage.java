@@ -18,7 +18,9 @@ public enum ResponseMessage {
   WITHDRAW("회원탈퇴 완료."),
   SUCCESS_JOB_POSTING_APPLY("지원이 완료되었습니다."),
   SUCCESS_EDIT_JOB_POSTING("채용 공고 수정 완료."),
-  SUCCESS_DELETE_JOB_POSTING("채용 공고 삭제 완료.");
+  SUCCESS_DELETE_JOB_POSTING("채용 공고 삭제 완료."),
+  SUCCESS_PERSONAL_INTERVIEW_SCHEDULE("개인 면접 일정 생성 완료."),
+  SUCCESS_INTERVIEW_SCHEDULE("면접 일정 생성 완료.");
 
 
   private final String message;

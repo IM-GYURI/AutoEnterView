@@ -1,6 +1,7 @@
 package com.ctrls.auto_enter_view.controller;
 
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto.Request;
+import com.ctrls.auto_enter_view.enums.ResponseMessage;
 import com.ctrls.auto_enter_view.service.InterviewScheduleParticipantsService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class InterviewScheduleParticipantsController {
 
     interviewScheduleParticipantsService.createInterviewSchedule(jobPostingKey, stepId, request);
 
-    return ResponseEntity.ok("개인 면접 일정 생성 완료");
+    return ResponseEntity.ok(ResponseMessage.SUCCESS_PERSONAL_INTERVIEW_SCHEDULE.getMessage());
   }
 
 
