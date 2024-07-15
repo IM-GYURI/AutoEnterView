@@ -271,6 +271,35 @@ public class JobPostingService {
     return step;
   }
 
+  public void deleteJobPosting(String jobPostingKey) {
+
+    jobPostingRepository.deleteByJobPostingKey(jobPostingKey);
+  }
+
+  // 채용 공고 지원하기
+  @Transactional
+  public void applyJobPosting(String jobPostingKey, String candidateKey) {
+
+    if (!jobPostingRepository.existsByJobPostingKey(jobPostingKey)) {
+      throw new CustomException(ErrorCode.JOB_POSTING_NOT_FOUND);
+    }
+
+    // 이름 가져오기
+    String candidateName = candidateService.getCandidateNameByKey(candidateKey);
+
+    // 해당 채용 공고의 첫 번째 단계 가져오기
+    JobPostingStepEntity firstStep = jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(
+        jobPostingKey);
+    if (firstStep == null) {
+      throw new CustomException(ErrorCode.JOB_POSTING_STEP_NOT_FOUND);
+    }
+
+    // 채용 지원 중복 체크
+    boolean isApplied = candidateListRepository.existsByCandidateKeyAndJobPostingKey(candidateKey,
+        jobPostingKey);
+    if (isApplied) {
+      throw new CustomException(ErrorCode.ALREADY_APPLIED);
+
   // 지원자에게 이메일 보내기 메서드
   private void notifyCandidates(List<CandidateListEntity> candidates,
       JobPostingEntity jobPostingEntity) {
@@ -279,10 +308,12 @@ public class JobPostingService {
           .orElseThrow(() -> new CustomException(USER_NOT_FOUND)).getEmail();
       String subject = "채용 공고 수정 알림 : " + jobPostingEntity.getTitle();
       String text =
-          "지원해주신 [" + jobPostingEntity.getTitle() + "]의 공고 내용이 수정되었습니다. 확인 부탁드립니다.<br><br>"
+          "지원해주신 <strong>[" + jobPostingEntity.getTitle()
+              + "]</strong>의 공고 내용이 수정되었습니다. 확인 부탁드립니다.<br><br>"
               + "<a href=\"http://localhost:8080/common/job-postings/"
               + jobPostingEntity.getJobPostingKey() + "\">수정된 채용 공고 확인하기</a>";
       mailComponent.sendHtmlMail(to, subject, text, true);
+
     }
   }
 }
