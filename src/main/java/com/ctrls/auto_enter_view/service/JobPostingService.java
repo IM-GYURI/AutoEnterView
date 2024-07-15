@@ -111,7 +111,7 @@ public class JobPostingService {
 
   // Main 화면 채용 공고 조회
   public MainJobPostingDto.Response getAllJobPosting(int page, int size) {
-    Pageable pageable = PageRequest.of(page-1, size);
+    Pageable pageable = PageRequest.of(page - 1, size);
     Page<JobPostingEntity> jobPostingPage = jobPostingRepository.findAll(pageable);
     List<MainJobPostingDto.JobPostingMainInfo> jobPostingMainInfoList = new ArrayList<>();
 
@@ -189,13 +189,15 @@ public class JobPostingService {
     String candidateName = candidateService.getCandidateNameByKey(candidateKey);
 
     // 해당 채용 공고의 첫 번째 단계 가져오기
-    JobPostingStepEntity firstStep = jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey);
+    JobPostingStepEntity firstStep = jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(
+        jobPostingKey);
     if (firstStep == null) {
       throw new CustomException(ErrorCode.JOB_POSTING_STEP_NOT_FOUND);
     }
 
     // 채용 지원 중복 체크
-    boolean isApplied = candidateListRepository.existsByCandidateKeyAndJobPostingKey(candidateKey, jobPostingKey);
+    boolean isApplied = candidateListRepository.existsByCandidateKeyAndJobPostingKey(candidateKey,
+        jobPostingKey);
     if (isApplied) {
       throw new CustomException(ErrorCode.ALREADY_APPLIED);
     }
