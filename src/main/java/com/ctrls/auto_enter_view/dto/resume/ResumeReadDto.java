@@ -30,6 +30,7 @@ public class ResumeReadDto {
     private String phoneNumber;
     private String address;
     private String scholarship;
+    private String schoolName;
     private String portfolio;
     private List<CareerDto> career;
     private List<CertificateDto> certificates;
@@ -55,6 +56,7 @@ public class ResumeReadDto {
       private String phoneNumber;
       private String address;
       private String scholarship;
+      private String schoolName;
       private String portfolio;
       private List<CareerDto> career;
       private List<CertificateDto> certificates;
@@ -79,6 +81,7 @@ public class ResumeReadDto {
         phoneNumber = resumeEntity.getPhoneNumber();
         address = resumeEntity.getAddress();
         scholarship = resumeEntity.getScholarship();
+        schoolName = resumeEntity.getSchoolName();
         portfolio = resumeEntity.getPortfolio();
 
         return this;
@@ -147,6 +150,12 @@ public class ResumeReadDto {
       public ResponseBuilder scholarship(String scholarship) {
 
         this.scholarship = scholarship;
+        return this;
+      }
+
+      public ResponseBuilder schoolName(String schoolName) {
+
+        this.schoolName = schoolName;
         return this;
       }
 
@@ -221,8 +230,8 @@ public class ResumeReadDto {
 
         return new Response(this.resumeKey, this.candidateKey, this.title, this.jobWant, this.name,
             this.gender, this.birthDate, this.email, this.phoneNumber, this.address,
-            this.scholarship, this.portfolio, this.career, this.certificates, this.experience,
-            this.techStack, this.image);
+            this.scholarship, this.schoolName, this.portfolio, this.career, this.certificates,
+            this.experience, this.techStack, this.image);
       }
 
       public String toString() {
@@ -231,10 +240,10 @@ public class ResumeReadDto {
             + ", candidateKey=" + this.candidateKey + ", title=" + this.title + ", jobWant="
             + this.jobWant + ", name=" + this.name + ", gender=" + this.gender + ", birthDate="
             + this.birthDate + ", email=" + this.email + ", phoneNumber=" + this.phoneNumber
-            + ", address=" + this.address + ", scholarship=" + this.scholarship + ", portfolio="
-            + this.portfolio + ", career=" + this.career + ", certificates=" + this.certificates
-            + ", experience=" + this.experience + ", techStack=" + this.techStack + ", image="
-            + this.image + ")";
+            + ", address=" + this.address + ", scholarship=" + this.scholarship + ", schoolName="
+            + this.schoolName + ", portfolio=" + this.portfolio + ", career=" + this.career
+            + ", certificates=" + this.certificates + ", experience=" + this.experience
+            + ", techStack=" + this.techStack + ", image=" + this.image + ")";
       }
     }
   }

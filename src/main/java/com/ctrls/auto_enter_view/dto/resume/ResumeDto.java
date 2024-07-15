@@ -46,6 +46,9 @@ public class ResumeDto {
     @NotBlank(message = "학력은 필수 입력값 입니다.")
     private String scholarship;
 
+    @NotBlank(message = "학교명은 필수 입력값 입니다.")
+    private String schoolName;
+
     @JsonDeserialize(contentUsing = TechStackDeserializer.class)
     private List<TechStack> techStack;
 
@@ -69,6 +72,7 @@ public class ResumeDto {
           .phoneNumber(phoneNumber)
           .address(address)
           .scholarship(scholarship)
+          .schoolName(schoolName)
           .portfolio(portfolio)
           .build();
     }
