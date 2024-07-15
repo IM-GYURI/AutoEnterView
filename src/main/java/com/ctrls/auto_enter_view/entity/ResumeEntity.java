@@ -43,6 +43,8 @@ public class ResumeEntity extends BaseEntity {
 
   private String scholarship;
 
+  private String schoolName;
+
   private String portfolio;
 
   public void updateEntity(Request request) {
@@ -56,6 +58,7 @@ public class ResumeEntity extends BaseEntity {
     phoneNumber = request.getPhoneNumber();
     address = request.getAddress();
     scholarship = request.getScholarship();
+    schoolName = request.getSchoolName();
     portfolio = request.getPortfolio();
   }
 }
