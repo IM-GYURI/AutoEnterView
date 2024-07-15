@@ -1,7 +1,6 @@
 package com.ctrls.auto_enter_view.controller;
 
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto.Request;
-import com.ctrls.auto_enter_view.service.InterviewScheduleParticipantsService;
 import com.ctrls.auto_enter_view.service.InterviewScheduleService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
