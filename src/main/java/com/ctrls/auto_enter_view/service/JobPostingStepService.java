@@ -16,6 +16,7 @@ import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
 import com.ctrls.auto_enter_view.entity.ResumeEntity;
 import com.ctrls.auto_enter_view.entity.ResumeTechStackEntity;
+import com.ctrls.auto_enter_view.enums.TechStack;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateListRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
@@ -156,11 +157,11 @@ public class JobPostingStepService {
   }
 
   // 이력서의 기술 스택 조회
-  private List<String> findTechStackByResumeKey(String resumeKey) {
+  private List<TechStack> findTechStackByResumeKey(String resumeKey) {
 
     return resumeTechStackRepository.findAllByResumeKey(resumeKey)
         .stream()
-        .map(ResumeTechStackEntity::getTechName)
+        .map(ResumeTechStackEntity::getTechStackName)
         .collect(Collectors.toList());
   }
 
@@ -170,7 +171,7 @@ public class JobPostingStepService {
 
     ResumeEntity resumeEntity = findResumeEntityByCandidateKey(
         candidateListEntity.getCandidateKey());
-    List<String> techStack = findTechStackByResumeKey(resumeEntity.getResumeKey());
+    List<TechStack> techStack = findTechStackByResumeKey(resumeEntity.getResumeKey());
 
     return CandidateTechStackListDto.builder()
         .candidateKey(candidateListEntity.getCandidateKey())
@@ -187,6 +188,7 @@ public class JobPostingStepService {
 
   // 채용 공고 key -> 채용 단계 조회
   public List<String> getStepByJobPostingKey(String jobPostingKey) {
+
     List<JobPostingStepEntity> entities = jobPostingStepRepository.findByJobPostingKey(
         jobPostingKey);
     List<String> step = new ArrayList<>();
@@ -197,5 +199,4 @@ public class JobPostingStepService {
     log.info("step 가져오기 성공 {}", step);
     return step;
   }
-
 }

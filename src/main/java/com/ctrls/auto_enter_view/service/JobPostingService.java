@@ -11,12 +11,14 @@ import com.ctrls.auto_enter_view.dto.common.MainJobPostingDto;
 import com.ctrls.auto_enter_view.dto.common.MainJobPostingDto.JobPostingMainInfo;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto.Request;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingInfoDto;
+import com.ctrls.auto_enter_view.entity.ApplicantEntity;
 import com.ctrls.auto_enter_view.entity.CandidateListEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.CustomException;
+import com.ctrls.auto_enter_view.repository.ApplicantRepository;
 import com.ctrls.auto_enter_view.repository.CandidateListRepository;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
@@ -42,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class JobPostingService {
 
   private final JobPostingRepository jobPostingRepository;
+  private final ApplicantRepository applicantRepository;
   private final CompanyRepository companyRepository;
   private final CandidateListRepository candidateListRepository;
   private final CandidateRepository candidateRepository;
@@ -93,6 +96,7 @@ public class JobPostingService {
    * @param request
    */
   public void editJobPosting(String jobPostingKey, Request request) {
+
     JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(jobPostingKey)
         .orElseThrow(() -> new CustomException(JOB_POSTING_NOT_FOUND));
 
@@ -115,6 +119,7 @@ public class JobPostingService {
    * @return
    */
   public MainJobPostingDto.Response getAllJobPosting(int page, int size) {
+
     Pageable pageable = PageRequest.of(page - 1, size);
     Page<JobPostingEntity> jobPostingPage = jobPostingRepository.findAll(pageable);
     List<MainJobPostingDto.JobPostingMainInfo> jobPostingMainInfoList = new ArrayList<>();
@@ -139,6 +144,7 @@ public class JobPostingService {
    * @return
    */
   public JobPostingDetailDto.Response getJobPostingDetail(String jobPostingKey) {
+
     JobPostingEntity jobPosting = jobPostingRepository.findByJobPostingKey(jobPostingKey)
         .orElseThrow(() -> new CustomException(JOB_POSTING_NOT_FOUND));
 
@@ -154,6 +160,7 @@ public class JobPostingService {
    * @param jobPostingKey
    */
   public void deleteJobPosting(String jobPostingKey) {
+
     if (verifyExistsByJobPostingKey(jobPostingKey)) {
       throw new CustomException(JOB_POSTING_HAS_CANDIDATES);
     }
@@ -169,6 +176,7 @@ public class JobPostingService {
    */
   @Transactional
   public void applyJobPosting(String jobPostingKey, String candidateKey) {
+
     if (!jobPostingRepository.existsByJobPostingKey(jobPostingKey)) {
       throw new CustomException(JOB_POSTING_NOT_FOUND);
     }
@@ -196,9 +204,19 @@ public class JobPostingService {
 
     candidateListRepository.save(candidateList);
     log.info("지원 완료 - jobPostingKey: {}, candidateKey: {}", jobPostingKey, candidateKey);
+
+    // 응시자 추가하기
+    ApplicantEntity applicantEntity = ApplicantEntity.builder()
+        .jobPostingKey(jobPostingKey)
+        .candidateKey(candidateKey)
+        .build();
+
+    applicantRepository.save(applicantEntity);
+    log.info("Applicant 추가 완료");
   }
 
   private JobPostingStepEntity getJobPostingStepEntity(String jobPostingKey) {
+
     return jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(
         jobPostingKey).orElseThrow(() -> new CustomException(JOB_POSTING_STEP_NOT_FOUND));
   }
@@ -233,6 +251,7 @@ public class JobPostingService {
 
   // 채용 공고에 지원한 지원자가 존재하는지 확인 : 채용 공고의 첫번째 단계에 해당하는 지원자 목록 확인
   private boolean verifyExistsByJobPostingKey(String jobPostingKey) {
+
     Long firstStep = getJobPostingStepEntity(jobPostingKey).getId();
 
     return candidateListRepository.existsByJobPostingKeyAndJobPostingStepId(
@@ -241,6 +260,7 @@ public class JobPostingService {
 
   // 전체 체용 공고 List 들어갈 정보
   private JobPostingMainInfo createJobPostingMainInfo(JobPostingEntity entity) {
+
     String companyName = getCompanyName(entity.getCompanyKey());
     List<String> techStack = getTechStack(entity.getJobPostingKey());
 
@@ -249,6 +269,7 @@ public class JobPostingService {
 
   // 회사 이름 가져오기
   private String getCompanyName(String companyKey) {
+
     CompanyEntity companyEntity = companyRepository.findByCompanyKey(companyKey)
         .orElseThrow(() -> new CustomException(ErrorCode.COMPANY_NOT_FOUND));
 
@@ -259,6 +280,7 @@ public class JobPostingService {
 
   // 기술 스택 가져오기
   private List<String> getTechStack(String jobPostingKey) {
+
     List<String> techStack = jobPostingTechStackService.getTechStackByJobPostingKey(jobPostingKey);
     log.info("기술 스택 조회 완료 : {}", techStack);
     return techStack;
@@ -266,6 +288,7 @@ public class JobPostingService {
 
   // 채용 일정 가져오기
   private List<String> getStep(String jobPostingKey) {
+
     List<String> step = jobPostingStepService.getStepByJobPostingKey(jobPostingKey);
     log.info("채용 단계 조회 완료 : {}", step);
     return step;
@@ -274,6 +297,7 @@ public class JobPostingService {
   // 지원자에게 이메일 보내기 메서드
   private void notifyCandidates(List<CandidateListEntity> candidates,
       JobPostingEntity jobPostingEntity) {
+
     for (CandidateListEntity candidate : candidates) {
       String to = candidateRepository.findByCandidateKey(candidate.getCandidateKey())
           .orElseThrow(() -> new CustomException(USER_NOT_FOUND)).getEmail();
