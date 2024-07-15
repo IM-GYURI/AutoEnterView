@@ -5,32 +5,20 @@ import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.IOException;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TechStackDeserializer extends JsonDeserializer<TechStack> {
 
   @Override
-  public TechStack deserialize(JsonParser p, DeserializationContext ctxt)
+  public TechStack deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)
       throws IOException, JacksonException {
 
-    String value = p.getText();
+    String value = jsonParser.getText();
 
     System.out.println("value = " + value);
 
     return TechStack.fromString(value);
-  }
-
-  @Bean
-  public Module techStackModule() {
-
-    SimpleModule module = new SimpleModule();
-    module.addDeserializer(TechStack.class, new TechStackDeserializer());
-
-    return module;
   }
 }

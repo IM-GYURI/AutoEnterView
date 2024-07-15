@@ -1,9 +1,7 @@
 package com.ctrls.auto_enter_view.dto.resume;
 
-import com.ctrls.auto_enter_view.component.TechStackDeserializer;
 import com.ctrls.auto_enter_view.entity.ResumeEntity;
 import com.ctrls.auto_enter_view.enums.TechStack;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -49,7 +47,6 @@ public class ResumeDto {
     @NotBlank(message = "학교명은 필수 입력값 입니다.")
     private String schoolName;
 
-    @JsonDeserialize(contentUsing = TechStackDeserializer.class)
     private List<TechStack> techStack;
 
     private List<ExperienceDto> experience;
