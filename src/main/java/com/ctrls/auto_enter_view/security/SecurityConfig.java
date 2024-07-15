@@ -51,12 +51,13 @@ public class SecurityConfig {
             sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
         .authorizeHttpRequests(authHttpRequest -> authHttpRequest
-
-            .requestMatchers("/companies/signup", "/candidates/signup").permitAll()
-            .requestMatchers("/candidates/**").hasRole(UserRole.ROLE_CANDIDATE.name().substring(5))
+            // common 설정
             .requestMatchers("/common/signout").authenticated()
             .requestMatchers("/common/**").permitAll()
-            .requestMatchers("/error").permitAll()
+            .requestMatchers("/companies/signup", "/candidates/signup").permitAll()
+
+            // candidate 설정
+            .requestMatchers("/candidates/**").hasRole(UserRole.ROLE_CANDIDATE.name().substring(5))
 
             // company 설정
             .requestMatchers(HttpMethod.GET, "/companies/*/information").permitAll()
@@ -65,6 +66,7 @@ public class SecurityConfig {
             // else
             .requestMatchers("/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**")
             .permitAll()
+            .requestMatchers("/error").permitAll()
             .anyRequest().authenticated())
 
         // JWT 필터 추가
@@ -75,6 +77,7 @@ public class SecurityConfig {
 
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
+
     CorsConfiguration configuration = new CorsConfiguration();
 
     // 모든 출처 허용
