@@ -26,7 +26,12 @@ public enum ErrorCode {
   USER_NOT_FOUND(404, "사용자를 찾을 수 없습니다."),
   ALREADY_APPLIED(404, "이미 지원한 채용 공고입니다."),
   APPLY_NOT_FOUND(404, "채용 공고에 지원한 정보를 찾을 수 없습니다."),
-  S3_UPLOAD_ERROR(500, "S3에 이미지를 업로드하는 중 오류가 발생했습니다.");
+  S3_UPLOAD_ERROR(500, "S3에 이미지를 업로드하는 중 오류가 발생했습니다."),
+  IMAGE_NOT_FOUND(404, "이미지를 찾을 수 없습니다."),
+  FILE_SIZE_EXCEEDED(400, "파일 크기가 너무 큽니다."),
+  INVALID_FILE_FORMAT(400, "지원하지 않는 파일 형식입니다."),
+  FAILED_TO_DELETE_IMAGE(500, "이미지 삭제에 실패했습니다."),
+  INVALID_IMAGE_URL(400, "잘못된 이미지 URL 입니다.");
 
   private final int status;
   private final String message;
