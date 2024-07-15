@@ -1,8 +1,10 @@
 package com.ctrls.auto_enter_view.service;
 
+import static com.ctrls.auto_enter_view.enums.ErrorCode.COMPANY_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_HAS_CANDIDATES;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_STEP_NOT_FOUND;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.NO_AUTHORITY;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 
 import com.ctrls.auto_enter_view.component.MailComponent;
@@ -100,6 +102,15 @@ public class JobPostingService {
     List<CandidateListEntity> candidateListEntityList = candidateListRepository.findAllByJobPostingKeyAndJobPostingStepId(
         jobPostingKey, getJobPostingStepEntity(jobPostingKey).getId());
 
+    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+    CompanyEntity companyEntity = companyRepository.findByEmail(principal.getUsername())
+        .orElseThrow(() -> new CustomException(COMPANY_NOT_FOUND));
+
+    if (!companyEntity.getCompanyKey().equals(jobPostingEntity.getCompanyKey())) {
+      throw new CustomException(NO_AUTHORITY);
+    }
+
     // 채용 공고 수정
     jobPostingEntity.updateEntity(request);
 
@@ -156,6 +167,19 @@ public class JobPostingService {
   public void deleteJobPosting(String jobPostingKey) {
     if (verifyExistsByJobPostingKey(jobPostingKey)) {
       throw new CustomException(JOB_POSTING_HAS_CANDIDATES);
+    }
+
+    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+    CompanyEntity companyEntity = companyRepository.findByEmail(principal.getUsername())
+        .orElseThrow(() -> new CustomException(COMPANY_NOT_FOUND));
+
+    JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(jobPostingKey)
+        .orElseThrow(() ->
+            new CustomException(JOB_POSTING_NOT_FOUND));
+
+    if (!companyEntity.getCompanyKey().equals(jobPostingEntity.getCompanyKey())) {
+      throw new CustomException(NO_AUTHORITY);
     }
 
     jobPostingRepository.deleteByJobPostingKey(jobPostingKey);
