@@ -27,11 +27,10 @@ public class JobPostingImageEntity extends BaseEntity {
   private String jobPostingKey;
 
   @Column(nullable = false)
-  private String fileName;
+  private String companyImageUrl;
 
-  @Column(nullable = false)
-  private String originalFileName;
+  public void updateCompanyImageUrl(String companyImageUrl) {
+    this.companyImageUrl = companyImageUrl;
+  }
 
-  @Column(nullable = false)
-  private String filePath;
 }
