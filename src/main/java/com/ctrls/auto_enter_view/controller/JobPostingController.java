@@ -5,6 +5,7 @@ import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingInfoDto;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.enums.ResponseMessage;
 import com.ctrls.auto_enter_view.service.CandidateService;
+import com.ctrls.auto_enter_view.service.JobPostingImageService;
 import com.ctrls.auto_enter_view.service.JobPostingService;
 import com.ctrls.auto_enter_view.service.JobPostingStepService;
 import com.ctrls.auto_enter_view.service.JobPostingTechStackService;
@@ -20,32 +21,42 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @RestController
 public class JobPostingController {
 
   private final JobPostingService jobPostingService;
-
   private final JobPostingTechStackService jobPostingTechStackService;
-
   private final JobPostingStepService jobPostingStepService;
-
   private final CandidateService candidateService;
+  private final JobPostingImageService jobPostingImageService;
 
+  // 채용 공고 생성하기
+  @Transactional
   @PostMapping("/companies/{companyKey}/job-postings")
-  public ResponseEntity<String> createJobPosting(@PathVariable String companyKey,
-      @RequestBody @Validated JobPostingDto.Request request) {
+  public ResponseEntity<JobPostingDto.Response> createJobPosting(
+      @PathVariable String companyKey,
+      @RequestPart(value = "jobPostingInfo") @Validated JobPostingDto.Request request,
+      @RequestPart(value = "image", required = false) MultipartFile image) {
 
     JobPostingEntity jobPosting = jobPostingService.createJobPosting(companyKey, request);
 
     jobPostingTechStackService.createJobPostingTechStack(jobPosting, request);
-
     jobPostingStepService.createJobPostingStep(jobPosting, request);
 
-    return ResponseEntity.ok("jobPostingKey: " + jobPosting.getJobPostingKey());
+    JobPostingDto.Response response;
+    if (image != null && !image.isEmpty()) {
+      response = jobPostingImageService.uploadImage(image, jobPosting.getJobPostingKey());
+    } else {
+      response = new JobPostingDto.Response(jobPosting.getJobPostingKey(), null);
+    }
+
+    return ResponseEntity.ok(response);
   }
 
   /**
@@ -61,16 +72,26 @@ public class JobPostingController {
     return ResponseEntity.ok(jobPostingService.getJobPostingsByCompanyKey(companyKey));
   }
 
+  // 채용 공고 수정
   @PutMapping("/job-postings/{jobPostingKey}")
-  public ResponseEntity<String> editJobPosting(@PathVariable String jobPostingKey,
-      @RequestBody @Validated JobPostingDto.Request request) {
+  public ResponseEntity<JobPostingDto.Response> editJobPosting(@PathVariable String jobPostingKey,
+      @RequestPart(value = "jobPostingInfo") @Validated JobPostingDto.Request request,
+      @RequestParam(value = "image", required = false) MultipartFile image) {
 
     jobPostingService.editJobPosting(jobPostingKey, request);
     jobPostingTechStackService.editJobPostingTechStack(jobPostingKey, request);
 
-    return ResponseEntity.ok(ResponseMessage.SUCCESS_EDIT_JOB_POSTING.getMessage());
+    JobPostingDto.Response response;
+    if (image != null && !image.isEmpty()) {
+      response = jobPostingImageService.uploadImage(image, jobPostingKey);
+    } else {
+      response = jobPostingImageService.getJobPostingImage(jobPostingKey);
+    }
+
+    return ResponseEntity.ok(response);
   }
 
+  // 채용 공고 삭제하기
   @Transactional
   @DeleteMapping("/job-postings/{jobPostingKey}")
   public ResponseEntity<String> deleteJobPosting(@PathVariable String jobPostingKey) {
@@ -78,6 +99,7 @@ public class JobPostingController {
     jobPostingService.deleteJobPosting(jobPostingKey);
     jobPostingTechStackService.deleteJobPostingTechStack(jobPostingKey);
     jobPostingStepService.deleteJobPostingStep(jobPostingKey);
+    jobPostingImageService.deleteImage(jobPostingKey);
 
     return ResponseEntity.ok(ResponseMessage.SUCCESS_DELETE_JOB_POSTING.getMessage());
   }
