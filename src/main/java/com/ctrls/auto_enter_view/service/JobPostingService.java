@@ -279,7 +279,8 @@ public class JobPostingService {
           .orElseThrow(() -> new CustomException(USER_NOT_FOUND)).getEmail();
       String subject = "채용 공고 수정 알림 : " + jobPostingEntity.getTitle();
       String text =
-          "지원해주신 [" + jobPostingEntity.getTitle() + "]의 공고 내용이 수정되었습니다. 확인 부탁드립니다.<br><br>"
+          "지원해주신 <strong>[" + jobPostingEntity.getTitle()
+              + "]</strong>의 공고 내용이 수정되었습니다. 확인 부탁드립니다.<br><br>"
               + "<a href=\"http://localhost:8080/common/job-postings/"
               + jobPostingEntity.getJobPostingKey() + "\">수정된 채용 공고 확인하기</a>";
       mailComponent.sendHtmlMail(to, subject, text, true);
