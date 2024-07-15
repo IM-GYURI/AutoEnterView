@@ -30,10 +30,11 @@ public class JobPostingDetailDto {
 
     private List<String> techStack;
     private List<String> step;
+    private String image;
 
 
     public static Response from(JobPostingEntity entity, List<String> techStack,
-        List<String> step) {
+        List<String> step, String imageUrl) {
 
       return Response.builder()
           .jobPostingKey(entity.getJobPostingKey())
@@ -51,6 +52,7 @@ public class JobPostingDetailDto {
           .jobPostingContent(entity.getJobPostingContent())
           .techStack(techStack)
           .step(step)
+          .image(imageUrl)
           .build();
     }
   }
