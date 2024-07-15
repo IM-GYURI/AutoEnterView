@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.dto.candidateList;
 
+import com.ctrls.auto_enter_view.enums.TechStack;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,5 +19,5 @@ public class CandidateTechStackListDto {
 
   private String resumeKey;
 
-  private List<String> techStack;
+  private List<TechStack> techStack;
 }
