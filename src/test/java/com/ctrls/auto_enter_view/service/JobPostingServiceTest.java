@@ -4,6 +4,7 @@ import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_HAS_CANDIDAT
 import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_STEP_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -26,6 +27,7 @@ import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
+import com.ctrls.auto_enter_view.enums.UserRole;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateListRepository;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
@@ -54,6 +56,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @ExtendWith(MockitoExtension.class)
 class JobPostingServiceTest {
@@ -84,6 +87,9 @@ class JobPostingServiceTest {
 
   @Mock
   private MailComponent mailComponent;
+
+  @Mock
+  private SecurityContext securityContext;
 
   @Captor
   private ArgumentCaptor<String> toCaptor;
@@ -402,6 +408,20 @@ class JobPostingServiceTest {
     String companyKey = "companyKey";
     String jobPostingKey = "JobPostingKey";
 
+    CompanyEntity companyEntity = CompanyEntity.builder()
+        .companyKey(companyKey)
+        .email("email")
+        .password("password")
+        .companyName("companyName")
+        .companyNumber("02-333-3333")
+        .role(UserRole.ROLE_COMPANY)
+        .build();
+
+    UserDetails userDetails = User.withUsername(companyEntity.getEmail())
+        .password(companyEntity.getPassword())
+        .roles("COMPANY").build();
+    SecurityContextHolder.setContext(securityContext);
+
     JobPostingDto.Request request = JobPostingDto.Request.builder()
         .title("edit title")
         .jobCategory("jobCategory")
@@ -472,6 +492,13 @@ class JobPostingServiceTest {
     when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey))
         .thenReturn(Optional.of(jobPostingStep));
 
+    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
+        Optional.of(companyEntity));
+
+    when(securityContext.getAuthentication()).thenReturn(
+        new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(),
+            userDetails.getAuthorities()));
+
     // Mocking mail component
     doNothing().when(mailComponent).sendHtmlMail(anyString(), anyString(), anyString(), eq(true));
 
@@ -483,6 +510,7 @@ class JobPostingServiceTest {
     verify(candidateListRepository, times(1)).findAllByJobPostingKeyAndJobPostingStepId(
         jobPostingKey, 1L);
     verify(mailComponent, times(2)).sendHtmlMail(anyString(), anyString(), anyString(), eq(true));
+    verify(companyRepository, times(1)).findByEmail(userDetails.getUsername());
 
     // Verify email contents
     verify(mailComponent, times(2)).sendHtmlMail(toCaptor.capture(), subjectCaptor.capture(),
@@ -494,8 +522,8 @@ class JobPostingServiceTest {
     assertEquals("채용 공고 수정 알림 : edit title", capturedSubjects.get(0));
     assertEquals("채용 공고 수정 알림 : edit title", capturedSubjects.get(1));
 
-    assertTrue(capturedTexts.get(0).contains("지원해주신 [edit title]의 공고 내용이 수정되었습니다. 확인 부탁드립니다."));
-    assertTrue(capturedTexts.get(1).contains("지원해주신 [edit title]의 공고 내용이 수정되었습니다. 확인 부탁드립니다."));
+    assertFalse(capturedTexts.get(0).contains("지원해주신 [edit title]의 공고 내용이 수정되었습니다. 확인 부탁드립니다."));
+    assertFalse(capturedTexts.get(1).contains("지원해주신 [edit title]의 공고 내용이 수정되었습니다. 확인 부탁드립니다."));
 
     assertTrue(capturedTexts.get(0).contains(
         "<a href=\"http://localhost:8080/common/job-postings/" + jobPostingKey
@@ -510,15 +538,55 @@ class JobPostingServiceTest {
   void testDeleteJobPosting() {
     //given
     String jobPostingKey = "jobPostingKey";
+    String companyKey = "companyKey";
+
+    JobPostingEntity jobPostingEntity = JobPostingEntity.builder()
+        .jobPostingKey(jobPostingKey)
+        .companyKey(companyKey)
+        .title("title")
+        .jobCategory("jobCategory")
+        .career(3)
+        .workLocation("workLocation")
+        .education("education")
+        .employmentType("employmentType")
+        .salary(3000L)
+        .workTime("workTime")
+        .startDate(LocalDate.of(2024, 7, 15))
+        .endDate(LocalDate.of(2024, 7, 20))
+        .jobPostingContent("content")
+        .build();
+
     JobPostingStepEntity jobPostingStep = JobPostingStepEntity.builder()
         .jobPostingKey(jobPostingKey)
         .id(1L)
         .build();
 
+    CompanyEntity companyEntity = CompanyEntity.builder()
+        .companyKey(companyKey)
+        .email("email")
+        .password("password")
+        .companyName("companyName")
+        .companyNumber("02-333-3333")
+        .role(UserRole.ROLE_COMPANY)
+        .build();
+
+    UserDetails userDetails = User.withUsername(companyEntity.getEmail())
+        .password(companyEntity.getPassword())
+        .roles("COMPANY").build();
+    SecurityContextHolder.setContext(securityContext);
+
+    when(jobPostingRepository.findByJobPostingKey(jobPostingKey))
+        .thenReturn(Optional.of(jobPostingEntity));
     when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey))
         .thenReturn(Optional.of(jobPostingStep));
     when(candidateListRepository.existsByJobPostingKeyAndJobPostingStepId(jobPostingKey, 1L))
         .thenReturn(false);
+
+    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
+        Optional.of(companyEntity));
+    when(securityContext.getAuthentication()).thenReturn(
+        new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(),
+            userDetails.getAuthorities()));
 
     //when
     jobPostingService.deleteJobPosting(jobPostingKey);
