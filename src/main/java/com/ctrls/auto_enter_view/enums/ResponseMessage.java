@@ -17,7 +17,6 @@ public enum ResponseMessage {
   USABLE_EMAIL("사용 가능한 이메일입니다."),
   WITHDRAW("회원탈퇴 완료."),
   SUCCESS_JOB_POSTING_APPLY("지원이 완료되었습니다."),
-  SUCCESS_EDIT_JOB_POSTING("채용 공고 수정 완료."),
   SUCCESS_DELETE_JOB_POSTING("채용 공고 삭제 완료.");
 
 
