@@ -45,6 +45,7 @@ public class JobPostingService {
   private final CandidateService candidateService;
   private final JobPostingStepRepository jobPostingStepRepository;
   private final JobPostingStepService jobPostingStepService;
+  private final JobPostingImageService jobPostingImageService;
 
   public JobPostingEntity createJobPosting(String companyKey, Request request) {
 
@@ -135,8 +136,9 @@ public class JobPostingService {
 
     List<String> techStack = getTechStack(jobPosting.getJobPostingKey());
     List<String> step = getStep(jobPosting.getJobPostingKey());
+    String imageUrl = getImageUrl(jobPosting.getJobPostingKey());
 
-    return JobPostingDetailDto.Response.from(jobPosting, techStack, step);
+    return JobPostingDetailDto.Response.from(jobPosting, techStack, step, imageUrl);
   }
 
   // 전체 체용 공고 List 들어갈 정보
@@ -169,6 +171,13 @@ public class JobPostingService {
     List<String> step = jobPostingStepService.getStepByJobPostingKey(jobPostingKey);
     log.info("채용 단계 조회 완료 : {}", step);
     return step;
+  }
+
+  // 이미지 URL 가져오기
+  private String getImageUrl(String jobPostingKey) {
+    String imageUrl = jobPostingImageService.getImageUrl(jobPostingKey);
+    log.info("이미지 URL 조회 완료 : {}", imageUrl);
+    return imageUrl;
   }
 
 
