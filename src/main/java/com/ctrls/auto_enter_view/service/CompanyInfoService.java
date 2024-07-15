@@ -11,7 +11,6 @@ import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.util.KeyGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -30,15 +29,15 @@ public class CompanyInfoService {
 
     authCheck(companyKey);
 
+    if (companyInfoRepository.existsByCompanyKey(companyKey)) {
+      throw new CustomException(ErrorCode.ALREADY_EXISTS);
+    }
+
     String key = KeyGenerator.generateKey();
 
     CompanyInfoEntity companyInfoEntity = request.toEntity(key, companyKey);
 
-    try {
-      companyInfoRepository.save(companyInfoEntity);
-    } catch (DataIntegrityViolationException e) {
-      throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
-    }
+    companyInfoRepository.save(companyInfoEntity);
   }
 
   @Transactional(readOnly = true)
