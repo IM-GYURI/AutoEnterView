@@ -86,6 +86,9 @@ public class SecurityConfig {
     // 모든 헤더 허용
     configuration.setAllowedHeaders(List.of("*"));
 
+    // 서버가 보내는 헤더 허용
+    configuration.setExposedHeaders(List.of("Authorization"));
+
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
 
