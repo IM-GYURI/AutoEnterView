@@ -35,7 +35,6 @@ import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -518,8 +517,8 @@ class JobPostingServiceTest {
 
     when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey))
         .thenReturn(Optional.of(jobPostingStep));
-    when(candidateListRepository.findAllByJobPostingKeyAndJobPostingStepId(jobPostingKey, 1L))
-        .thenReturn(Collections.emptyList());
+    when(candidateListRepository.existsByJobPostingKeyAndJobPostingStepId(jobPostingKey, 1L))
+        .thenReturn(false);
 
     //when
     jobPostingService.deleteJobPosting(jobPostingKey);
@@ -541,8 +540,8 @@ class JobPostingServiceTest {
 
     when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey))
         .thenReturn(Optional.of(jobPostingStep));
-    when(candidateListRepository.findAllByJobPostingKeyAndJobPostingStepId(jobPostingKey, 1L))
-        .thenReturn(List.of(candidate));
+    when(candidateListRepository.existsByJobPostingKeyAndJobPostingStepId(jobPostingKey, 1L))
+        .thenReturn(true);
 
     //when, then
     CustomException exception = assertThrows(CustomException.class, () -> {
