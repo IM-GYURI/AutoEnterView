@@ -54,13 +54,14 @@ public class SecurityConfig {
 
             // 권한 없이 접근 가능
             .requestMatchers("/companies/signup", "/candidates/signup").permitAll()
-            .requestMatchers("/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**").permitAll()
+            .requestMatchers("/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**")
+            .permitAll()
             .requestMatchers("/candidates/find-email").permitAll()
             .requestMatchers("/common/**").permitAll()
-            .requestMatchers(HttpMethod.GET, "/companies/*/information").permitAll() 
+            .requestMatchers(HttpMethod.GET, "/companies/*/information").permitAll()
 
             // 권한 필요
-            .requestMatchers("/common/signout").authenticated()
+            .requestMatchers("/common/signout", "common/{key}/password").authenticated()
 
             // candidate 권한 필요
             .requestMatchers("/candidates/**").hasRole(UserRole.ROLE_CANDIDATE.name().substring(5))
@@ -68,6 +69,7 @@ public class SecurityConfig {
             // company 권한 필요
             .requestMatchers("/companies/**").hasRole(UserRole.ROLE_COMPANY.name().substring(5))
 
+            .requestMatchers("/error").permitAll()
             .anyRequest().authenticated())
 
         // JWT 필터 추가

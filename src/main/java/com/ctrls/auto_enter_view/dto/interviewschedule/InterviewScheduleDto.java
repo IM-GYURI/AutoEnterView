@@ -63,4 +63,15 @@ public class InterviewScheduleDto {
 
   }
 
+  @Getter
+  @Builder
+  @AllArgsConstructor
+  @NoArgsConstructor
+  public static class Response {
+
+    private String interviewScheduleKey;
+    private String message;
+
+  }
+
 }

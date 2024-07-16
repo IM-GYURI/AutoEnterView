@@ -4,11 +4,13 @@ import static com.ctrls.auto_enter_view.enums.ResponseMessage.SUCCESS_EMAIL_VERI
 import static com.ctrls.auto_enter_view.enums.ResponseMessage.SUCCESS_SEND_CODE;
 import static com.ctrls.auto_enter_view.enums.ResponseMessage.SUCCESS_TEMPORARY_PASSWORD_SEND;
 
+import com.ctrls.auto_enter_view.dto.common.ChangePasswordDto;
 import com.ctrls.auto_enter_view.dto.common.EmailDto;
 import com.ctrls.auto_enter_view.dto.common.EmailVerificationDto;
 import com.ctrls.auto_enter_view.dto.common.SignInDto;
 import com.ctrls.auto_enter_view.dto.common.SignInDto.Request;
 import com.ctrls.auto_enter_view.dto.common.TemporaryPasswordDto;
+import com.ctrls.auto_enter_view.enums.ResponseMessage;
 import com.ctrls.auto_enter_view.security.JwtTokenProvider;
 import com.ctrls.auto_enter_view.service.CommonUserService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -121,5 +125,13 @@ public class CommonUserController {
     commonUserService.logoutUser(token);
 
     return ResponseEntity.ok("정상적으로 로그아웃 되었습니다.");
+  }
+
+  // 비밀번호 변경
+  @PutMapping("/{key}/password")
+  public ResponseEntity<String> changePassword(@PathVariable String key, @RequestBody @Validated
+  ChangePasswordDto.Request request) {
+    commonUserService.changePassword(key, request);
+    return ResponseEntity.ok(ResponseMessage.CHANGE_PASSWORD.getMessage());
   }
 }

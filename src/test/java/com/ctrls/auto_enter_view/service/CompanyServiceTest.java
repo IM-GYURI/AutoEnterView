@@ -9,7 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ctrls.auto_enter_view.dto.company.ChangePasswordDto;
+import com.ctrls.auto_enter_view.dto.common.ChangePasswordDto;
 import com.ctrls.auto_enter_view.dto.company.SignUpDto;
 import com.ctrls.auto_enter_view.dto.company.SignUpDto.Request;
 import com.ctrls.auto_enter_view.dto.company.SignUpDto.Response;
@@ -144,90 +144,7 @@ class CompanyServiceTest {
         && actualWrongFormats.containsAll(expectedWrongFormats));
     verify(companyRepository, times(0)).save(any());
   }
-
-  @Test
-  @DisplayName("회사 비밀번호 변경_성공")
-  void changePassword_Success() {
-    // given
-    String companyKey = "companyKey";
-    String email = "company@naver.com";
-    String oldPassword = "oldPassword";
-    String newPassword = "newPassword";
-    String newEncodedPassword = "newEncodedPassword";
-
-    ChangePasswordDto.Request request = ChangePasswordDto.Request.builder()
-        .oldPassword(oldPassword)
-        .newPassword(newPassword)
-        .build();
-
-    CompanyEntity companyEntity = CompanyEntity.builder()
-        .companyKey(companyKey)
-        .email(email)
-        .password(oldPassword)
-        .build();
-
-    UserDetails userDetails = User.withUsername(email).password(oldPassword)
-        .roles("COMPANY").build();
-    SecurityContextHolder.setContext(securityContext);
-
-    // when
-    when(securityContext.getAuthentication()).thenReturn(
-        new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(),
-            userDetails.getAuthorities()));
-    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
-        Optional.of(companyEntity));
-    when(passwordEncoder.matches(request.getOldPassword(), companyEntity.getPassword())).thenReturn(
-        true);
-    when(passwordEncoder.encode(newPassword)).thenReturn(newEncodedPassword);
-
-    // execute
-    companyService.changePassword(companyKey, request);
-
-    // then
-    verify(companyRepository, times(1)).save(companyEntity);
-    assertEquals(newEncodedPassword, companyEntity.getPassword());
-  }
-
-  @Test
-  @DisplayName("회사 비밀번호 변경_실패_틀린 비밀번호")
-  void changePassword_Failure_WrongOldPassword() {
-    // given
-    String companyKey = "companyKey";
-    String email = "company@naver.com";
-    String oldPassword = "oldPassword";
-
-    ChangePasswordDto.Request request = ChangePasswordDto.Request.builder()
-        .oldPassword("wrongOldPassword")
-        .newPassword("newPassword")
-        .build();
-
-    CompanyEntity companyEntity = CompanyEntity.builder()
-        .companyKey(companyKey)
-        .email(email)
-        .password(oldPassword)
-        .build();
-
-    UserDetails userDetails = User.withUsername(email).password(oldPassword)
-        .roles("COMPANY").build();
-
-    SecurityContextHolder.setContext(securityContext);
-
-    // when
-    when(securityContext.getAuthentication()).thenReturn(
-        new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(),
-            userDetails.getAuthorities()));
-    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
-        Optional.of(companyEntity));
-
-    // execute
-    CustomException exception = assertThrows(CustomException.class,
-        () -> companyService.changePassword(companyKey, request));
-
-    // then
-    assertEquals(ErrorCode.PASSWORD_NOT_MATCH, exception.getErrorCode());
-    verify(companyRepository, times(0)).save(any());
-  }
-
+  
   @Test
   @DisplayName("회사 회원탈퇴_성공")
   void withdraw_Success() {

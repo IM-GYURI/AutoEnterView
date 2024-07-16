@@ -1,6 +1,7 @@
 package com.ctrls.auto_enter_view.dto.common;
 
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
+import com.ctrls.auto_enter_view.enums.TechStack;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -28,12 +29,12 @@ public class JobPostingDetailDto {
     private LocalDate endDate;
     private String jobPostingContent;
 
-    private List<String> techStack;
+    private List<TechStack> techStack;
     private List<String> step;
     private String image;
 
 
-    public static Response from(JobPostingEntity entity, List<String> techStack,
+    public static Response from(JobPostingEntity entity, List<TechStack> techStack,
         List<String> step, String imageUrl) {
 
       return Response.builder()
