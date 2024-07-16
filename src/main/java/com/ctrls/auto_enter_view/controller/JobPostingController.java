@@ -83,7 +83,7 @@ public class JobPostingController {
   }
 
   // (지원자) 채용 공고 지원하기
-  @PostMapping("/candidate/job-postings/{jobPostingKey}/apply")
+  @PostMapping("/job-postings/{jobPostingKey}/apply")
   public ResponseEntity<String> applyJobPosting(
       @PathVariable String jobPostingKey,
       @AuthenticationPrincipal UserDetails userDetails) {
@@ -95,5 +95,4 @@ public class JobPostingController {
 
     return ResponseEntity.ok(ResponseMessage.SUCCESS_JOB_POSTING_APPLY.getMessage());
   }
-
 }

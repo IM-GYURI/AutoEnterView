@@ -27,6 +27,7 @@ public enum ErrorCode {
   USER_NOT_FOUND(404, "사용자를 찾을 수 없습니다."),
   ALREADY_APPLIED(404, "이미 지원한 채용 공고입니다."),
   APPLY_NOT_FOUND(404, "채용 공고에 지원한 정보를 찾을 수 없습니다."),
+  ALREADY_EXISTS(409, "이미 존재합니다."),
   CANDIDATE_INADEQUATE_ERROR(404, "일정 생성 수 보다 지원자가 부족합니다.");
 
   private final int status;

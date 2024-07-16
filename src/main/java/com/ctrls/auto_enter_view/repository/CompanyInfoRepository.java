@@ -12,6 +12,8 @@ public interface CompanyInfoRepository extends JpaRepository<CompanyInfoEntity, 
 
   Optional<CompanyInfoEntity> findByCompanyKey(String companyKey);
 
+  boolean existsByCompanyKey(String companyKey);
+
   @Modifying
   @Query("DELETE FROM CompanyInfoEntity ci WHERE ci.companyKey =:companyKey")
   void deleteByCompanyKey(String companyKey);

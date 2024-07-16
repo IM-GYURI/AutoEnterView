@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.entity;
 
+import com.ctrls.auto_enter_view.dto.resume.ResumeDto.Request;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -42,5 +43,22 @@ public class ResumeEntity extends BaseEntity {
 
   private String scholarship;
 
+  private String schoolName;
+
   private String portfolio;
+
+  public void updateEntity(Request request) {
+
+    title = request.getTitle();
+    jobWant = request.getJobWant();
+    name = request.getName();
+    gender = request.getGender();
+    birthDate = request.getBirthDate();
+    email = request.getEmail();
+    phoneNumber = request.getPhoneNumber();
+    address = request.getAddress();
+    scholarship = request.getScholarship();
+    schoolName = request.getSchoolName();
+    portfolio = request.getPortfolio();
+  }
 }
