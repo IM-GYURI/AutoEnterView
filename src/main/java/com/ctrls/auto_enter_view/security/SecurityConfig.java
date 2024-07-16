@@ -68,6 +68,7 @@ public class SecurityConfig {
             // company 권한 필요
             .requestMatchers("/companies/**").hasRole(UserRole.ROLE_COMPANY.name().substring(5))
 
+            .requestMatchers("/error").permitAll()
             .anyRequest().authenticated())
 
         // JWT 필터 추가
