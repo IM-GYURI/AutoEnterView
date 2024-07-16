@@ -19,6 +19,7 @@ import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
+import com.ctrls.auto_enter_view.enums.TechStack;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.ApplicantRepository;
 import com.ctrls.auto_enter_view.repository.CandidateListRepository;
@@ -160,7 +161,7 @@ public class JobPostingService {
     JobPostingEntity jobPosting = jobPostingRepository.findByJobPostingKey(jobPostingKey)
         .orElseThrow(() -> new CustomException(JOB_POSTING_NOT_FOUND));
 
-    List<String> techStack = getTechStack(jobPosting.getJobPostingKey());
+    List<TechStack> techStack = getTechStack(jobPosting.getJobPostingKey());
     List<String> step = getStep(jobPosting.getJobPostingKey());
     String imageUrl = getImageUrl(jobPosting.getJobPostingKey());
 
@@ -186,7 +187,6 @@ public class JobPostingService {
     JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(jobPostingKey)
         .orElseThrow(() ->
             new CustomException(JOB_POSTING_NOT_FOUND));
-
 
     if (!companyEntity.getCompanyKey().equals(jobPostingEntity.getCompanyKey())) {
       throw new CustomException(NO_AUTHORITY);
@@ -296,7 +296,7 @@ public class JobPostingService {
   private JobPostingMainInfo createJobPostingMainInfo(JobPostingEntity entity) {
 
     String companyName = getCompanyName(entity.getCompanyKey());
-    List<String> techStack = getTechStack(entity.getJobPostingKey());
+    List<TechStack> techStack = getTechStack(entity.getJobPostingKey());
 
     return JobPostingMainInfo.from(entity, companyName, techStack);
   }
@@ -313,9 +313,10 @@ public class JobPostingService {
   }
 
   // 기술 스택 가져오기
-  private List<String> getTechStack(String jobPostingKey) {
+  private List<TechStack> getTechStack(String jobPostingKey) {
 
-    List<String> techStack = jobPostingTechStackService.getTechStackByJobPostingKey(jobPostingKey);
+    List<TechStack> techStack = jobPostingTechStackService.getTechStackByJobPostingKey(
+        jobPostingKey);
     log.info("기술 스택 조회 완료 : {}", techStack);
     return techStack;
   }

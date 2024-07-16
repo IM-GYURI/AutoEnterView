@@ -1,7 +1,7 @@
 package com.ctrls.auto_enter_view.controller;
 
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto.Request;
-import com.ctrls.auto_enter_view.enums.ResponseMessage;
+import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto.Response;
 import com.ctrls.auto_enter_view.service.InterviewScheduleService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +18,12 @@ public class InterviewScheduleController {
   private final InterviewScheduleService interviewScheduleService;
 
   @PostMapping("/job-postings/{jobPostingKey}/steps/{stepId}/interview-schedule")
-  public ResponseEntity<String> createInterviewSchedule(@PathVariable String jobPostingKey,
+  public ResponseEntity<Response> createInterviewSchedule(@PathVariable String jobPostingKey,
       @PathVariable Long stepId, @RequestBody List<Request> request) {
 
-    interviewScheduleService.createInterviewSchedule(jobPostingKey, stepId, request);
+    Response response = interviewScheduleService.createInterviewSchedule(jobPostingKey,
+        stepId, request);
 
-    return ResponseEntity.ok(ResponseMessage.SUCCESS_INTERVIEW_SCHEDULE.getMessage());
+    return ResponseEntity.ok().body(response);
   }
 }
