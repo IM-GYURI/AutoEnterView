@@ -43,6 +43,10 @@ dependencies {
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+    // AWS SDK for java
+    implementation platform('software.amazon.awssdk:bom:2.20.56')
+    implementation 'software.amazon.awssdk:s3'
+
     // Elastic Search
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 

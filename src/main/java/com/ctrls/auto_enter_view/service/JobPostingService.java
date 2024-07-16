@@ -54,6 +54,7 @@ public class JobPostingService {
   private final CandidateService candidateService;
   private final JobPostingStepRepository jobPostingStepRepository;
   private final JobPostingStepService jobPostingStepService;
+  private final JobPostingImageService jobPostingImageService;
   private final MailComponent mailComponent;
 
   /**
@@ -161,8 +162,9 @@ public class JobPostingService {
 
     List<String> techStack = getTechStack(jobPosting.getJobPostingKey());
     List<String> step = getStep(jobPosting.getJobPostingKey());
+    String imageUrl = getImageUrl(jobPosting.getJobPostingKey());
 
-    return JobPostingDetailDto.Response.from(jobPosting, techStack, step);
+    return JobPostingDetailDto.Response.from(jobPosting, techStack, step, imageUrl);
   }
 
   /**
@@ -185,11 +187,19 @@ public class JobPostingService {
         .orElseThrow(() ->
             new CustomException(JOB_POSTING_NOT_FOUND));
 
+
     if (!companyEntity.getCompanyKey().equals(jobPostingEntity.getCompanyKey())) {
       throw new CustomException(NO_AUTHORITY);
     }
 
     jobPostingRepository.deleteByJobPostingKey(jobPostingKey);
+  }
+
+  // 이미지 URL 가져오기
+  private String getImageUrl(String jobPostingKey) {
+    String imageUrl = jobPostingImageService.getImageUrl(jobPostingKey);
+    log.info("이미지 URL 조회 완료 : {}", imageUrl);
+    return imageUrl;
   }
 
   /**
