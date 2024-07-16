@@ -202,6 +202,7 @@ class JobPostingStepServiceTest {
     assertEquals("candidateKey", result.get(0).getCandidateKey());
     assertEquals("name", result.get(0).getCandidateName());
     assertEquals("resumeKey", result.get(0).getResumeKey());
+    assertEquals(List.of(TechStack.JAVA), result.get(0).getTechStack());
   }
 
   @Test

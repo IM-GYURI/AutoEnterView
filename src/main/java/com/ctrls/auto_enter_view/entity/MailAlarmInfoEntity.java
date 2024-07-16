@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.entity;
 
+import com.ctrls.auto_enter_view.dto.mailAlarmInfo.MailAlarmInfoDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -37,4 +38,9 @@ public class MailAlarmInfoEntity extends BaseEntity {
 
   @Column(nullable = false)
   private LocalDateTime mailSendDateTime;
+
+  public void updateEntity(MailAlarmInfoDto mailAlarmInfoDto) {
+    this.mailContent = mailAlarmInfoDto.getMailContent();
+    this.mailSendDateTime = mailAlarmInfoDto.getMailSendDateTime();
+  }
 }
