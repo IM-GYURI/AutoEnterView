@@ -88,7 +88,7 @@ public class JobPostingService {
         companyKey);
 
     return jobPostingEntityList.stream()
-        .map(this::mapToJobPostingDto)
+        .map(JobPostingInfoDto::fromEntity)
         .collect(Collectors.toList());
   }
 
@@ -187,7 +187,6 @@ public class JobPostingService {
         .orElseThrow(() ->
             new CustomException(JOB_POSTING_NOT_FOUND));
 
-
     if (!companyEntity.getCompanyKey().equals(jobPostingEntity.getCompanyKey())) {
       throw new CustomException(NO_AUTHORITY);
     }
@@ -268,19 +267,6 @@ public class JobPostingService {
     if (!company.getCompanyKey().equals(companyKey)) {
       throw new CustomException(USER_NOT_FOUND);
     }
-  }
-
-  // JobPostingEntity -> JobPostingDto 매핑
-  private JobPostingInfoDto mapToJobPostingDto(
-      JobPostingEntity jobPostingEntity) {
-
-    return JobPostingInfoDto.builder()
-        .jobPostingKey(jobPostingEntity.getJobPostingKey())
-        .title(jobPostingEntity.getTitle())
-        .jobCategory(jobPostingEntity.getJobCategory())
-        .startDate(jobPostingEntity.getStartDate())
-        .endDate(jobPostingEntity.getEndDate())
-        .build();
   }
 
   // 채용 공고에 지원한 지원자가 존재하는지 확인 : 채용 공고의 첫번째 단계에 해당하는 지원자 목록 확인
