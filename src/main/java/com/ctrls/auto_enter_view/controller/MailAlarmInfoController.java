@@ -41,7 +41,15 @@ public class MailAlarmInfoController {
     return ResponseEntity.ok(SUCCESS_CREATE_MAIL_ALARM.getMessage());
   }
 
-  // 예약된 메일 수정
+  /**
+   * 예약된 메일 수정
+   *
+   * @param companyKey
+   * @param interviewScheduleKey
+   * @param stepId
+   * @param mailAlarmInfoDto
+   * @return
+   */
   @PutMapping("/{companyKey}/interview-schedules/{interviewScheduleKey}/steps/{stepId}/mail")
   public ResponseEntity<String> editMailAlarmInfo(@PathVariable String companyKey,
       @PathVariable String interviewScheduleKey, @PathVariable Long stepId,

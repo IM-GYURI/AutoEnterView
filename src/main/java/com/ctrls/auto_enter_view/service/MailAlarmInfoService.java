@@ -38,6 +38,7 @@ import org.quartz.SchedulerException;
 import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
+import org.quartz.TriggerKey;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
@@ -123,6 +124,7 @@ public class MailAlarmInfoService {
    * @param stepId
    * @param mailAlarmInfoDto
    */
+  @Transactional
   public void editMailAlarmInfo(String companyKey, String interviewScheduleKey, Long stepId,
       MailAlarmInfoDto mailAlarmInfoDto) {
     User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -140,8 +142,30 @@ public class MailAlarmInfoService {
       throw new CustomException(MAIL_ALARM_TIME_BEFORE_NOW);
     }
 
-    // 예약 메일 수정
+    // 예약 메일 엔티티 수정
     mailAlarmInfoEntity.updateEntity(mailAlarmInfoDto);
+
+    // 기존의 Quartz 스케줄링된 작업 삭제
+    unscheduleMailJob(mailAlarmInfoEntity);
+
+    // 수정된 시간에 맞춰 새로운 스케줄 설정
+    try {
+      scheduleMailJob(mailAlarmInfoEntity);
+    } catch (SchedulerException e) {
+      throw new RuntimeException("Error scheduling mail job");
+    }
+  }
+
+  // 기존의 Quartz 스케줄링된 작업 삭제
+  private void unscheduleMailJob(MailAlarmInfoEntity mailAlarmInfo) {
+    try {
+      TriggerKey triggerKey = TriggerKey.triggerKey("mailTrigger" + mailAlarmInfo.getId(),
+          "mailGroup");
+      scheduler.unscheduleJob(triggerKey);
+    } catch (SchedulerException e) {
+      log.error("Error unscheduling mail job", e);
+      throw new RuntimeException("Error unscheduling mail job");
+    }
   }
 
   // 예약 메일 스케쥴링
