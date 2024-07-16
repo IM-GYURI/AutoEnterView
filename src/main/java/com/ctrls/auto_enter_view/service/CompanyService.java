@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.service;
 
+import static com.ctrls.auto_enter_view.enums.ErrorCode.EMAIL_DUPLICATION;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.PASSWORD_NOT_MATCH;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 
@@ -27,13 +28,17 @@ public class CompanyService {
   private final PasswordEncoder passwordEncoder;
 
   // 회원 가입
-  public SignUpDto.Response signUp(SignUpDto.Request form) {
+  public SignUpDto.Response signUp(SignUpDto.Request request) {
+
+    if (companyRepository.existsByEmail(request.getEmail())) {
+      throw new CustomException(EMAIL_DUPLICATION);
+    }
 
     // 키 생성
     String companyKey = KeyGenerator.generateKey();
 
-    CompanyEntity companyEntity = form.toEntity(companyKey,
-        passwordEncoder.encode(form.getPassword()));
+    CompanyEntity companyEntity = request.toEntity(companyKey,
+        passwordEncoder.encode(request.getPassword()));
 
     CompanyEntity saved = companyRepository.save(companyEntity);
 
@@ -46,7 +51,7 @@ public class CompanyService {
   }
 
   // 비밀번호 변경
-  public void changePassword(String companyKey, ChangePasswordDto.Request form) {
+  public void changePassword(String companyKey, ChangePasswordDto.Request request) {
 
     User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -59,17 +64,17 @@ public class CompanyService {
     }
 
     // 입력한 비밀번호가 맞는 지 확인
-    if (!passwordEncoder.matches(form.getOldPassword(), companyEntity.getPassword())) {
+    if (!passwordEncoder.matches(request.getOldPassword(), companyEntity.getPassword())) {
       throw new CustomException(PASSWORD_NOT_MATCH);
     }
 
-    companyEntity.setPassword(passwordEncoder.encode(form.getNewPassword()));
+    companyEntity.setPassword(passwordEncoder.encode(request.getNewPassword()));
 
     companyRepository.save(companyEntity);
   }
 
   // 회원 탈퇴
-  public void withdraw(String companyKey, WithdrawDto.Request form) {
+  public void withdraw(String companyKey, WithdrawDto.Request request) {
 
     User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -82,7 +87,7 @@ public class CompanyService {
     }
 
     // 입력한 비밀번호가 맞는 지 확인
-    if (!passwordEncoder.matches(form.getPassword(), companyEntity.getPassword())) {
+    if (!passwordEncoder.matches(request.getPassword(), companyEntity.getPassword())) {
       throw new CustomException(PASSWORD_NOT_MATCH);
     }
 
