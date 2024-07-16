@@ -17,8 +17,6 @@ public class TechStackDeserializer extends JsonDeserializer<TechStack> {
 
     String value = jsonParser.getText();
 
-    System.out.println("value = " + value);
-
     return TechStack.fromString(value);
   }
 }
