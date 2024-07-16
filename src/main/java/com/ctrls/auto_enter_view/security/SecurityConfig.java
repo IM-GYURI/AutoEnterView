@@ -52,19 +52,22 @@ public class SecurityConfig {
         )
         .authorizeHttpRequests(authHttpRequest -> authHttpRequest
 
+            // 권한 없이 접근 가능
             .requestMatchers("/companies/signup", "/candidates/signup").permitAll()
-            .requestMatchers("/candidates/**").hasRole(UserRole.ROLE_CANDIDATE.name().substring(5))
-            .requestMatchers("/common/signout").authenticated()
+            .requestMatchers("/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**").permitAll()
+            .requestMatchers("/candidates/find-email").permitAll()
             .requestMatchers("/common/**").permitAll()
-            .requestMatchers("/error").permitAll()
-
-            // company 설정
             .requestMatchers(HttpMethod.GET, "/companies/*/information").permitAll()
+
+            // 권한 필요
+            .requestMatchers("/common/signout").authenticated()
+
+            // candidate 권한 필요
+            .requestMatchers("/candidates/**").hasRole(UserRole.ROLE_CANDIDATE.name().substring(5))
+
+            // company 권한 필요
             .requestMatchers("/companies/**").hasRole(UserRole.ROLE_COMPANY.name().substring(5))
 
-            // else
-            .requestMatchers("/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**")
-            .permitAll()
             .anyRequest().authenticated())
 
         // JWT 필터 추가
