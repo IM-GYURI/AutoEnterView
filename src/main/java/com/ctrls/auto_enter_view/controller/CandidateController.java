@@ -4,7 +4,6 @@ import com.ctrls.auto_enter_view.dto.candidate.CandidateApplyDto;
 import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto;
 import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto.Response;
 import com.ctrls.auto_enter_view.dto.candidate.SignUpDto;
-import com.ctrls.auto_enter_view.dto.candidate.WithdrawDto;
 import com.ctrls.auto_enter_view.enums.ResponseMessage;
 import com.ctrls.auto_enter_view.service.CandidateService;
 import lombok.RequiredArgsConstructor;
@@ -36,11 +35,9 @@ public class CandidateController {
 
   // 회원 탈퇴
   @DeleteMapping("/candidates/withdraw/{candidateKey}")
-  public ResponseEntity<String> withdraw(
-      @PathVariable String candidateKey,
-      @RequestBody @Validated WithdrawDto.Request request) {
+  public ResponseEntity<String> withdraw(@PathVariable String candidateKey) {
 
-    candidateService.withdraw(request, candidateKey);
+    candidateService.withdraw(candidateKey);
 
     return ResponseEntity.ok(ResponseMessage.WITHDRAW.getMessage());
   }
