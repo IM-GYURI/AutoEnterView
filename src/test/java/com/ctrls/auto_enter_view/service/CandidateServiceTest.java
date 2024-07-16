@@ -9,7 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.ctrls.auto_enter_view.dto.candidate.CandidateApplyDto;
-import com.ctrls.auto_enter_view.dto.candidate.ChangePasswordDto;
+import com.ctrls.auto_enter_view.dto.common.ChangePasswordDto;
 import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto.Request;
 import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto.Response;
 import com.ctrls.auto_enter_view.dto.candidate.SignUpDto;
@@ -174,67 +174,6 @@ public class CandidateServiceTest {
 
     // 테스트 실행 및 검증
     assertThrows(RuntimeException.class, () -> candidateService.withdraw(request, "candidateKey"));
-  }
-
-  @Test
-  @DisplayName("비밀번호 변경 성공 테스트")
-  void changePasswordSuccessTest() {
-    // DTO 객체 생성
-    ChangePasswordDto.Request request = ChangePasswordDto.Request.builder()
-        .oldPassword("oldPassword")
-        .newPassword("newPassword")
-        .build();
-
-    // CandidateEntity 생성
-    CandidateEntity candidate = CandidateEntity.builder()
-        .name("name")
-        .email("email@example.com")
-        .password("encodedOldPassword")
-        .role(UserRole.ROLE_CANDIDATE)
-        .candidateKey("candidateKey")
-        .phoneNumber("010-1111-1111")
-        .build();
-
-    // 목 설정
-    given(candidateRepository.findByEmail("email@example.com")).willReturn(Optional.of(candidate));
-    given(passwordEncoder.matches("oldPassword", candidate.getPassword())).willReturn(true);
-    given(passwordEncoder.encode("newPassword")).willReturn("encodedNewPassword");
-
-    // 테스트 실행
-    candidateService.changePassword("candidateKey", request);
-
-    // 검증
-    verify(candidateRepository, times(1)).save(candidate);
-    verify(candidateRepository).save(candidate);
-    assertEquals("encodedNewPassword", candidate.getPassword());
-  }
-
-  @Test
-  @DisplayName("비밀번호 변경 실패 테스트 - 비밀번호 불일치")
-  void changePasswordFailPasswordMismatchTest() {
-    // DTO 객체 생성
-    ChangePasswordDto.Request request = ChangePasswordDto.Request.builder()
-        .oldPassword("oldPassword")
-        .newPassword("newPassword")
-        .build();
-
-    // CandidateEntity 생성
-    CandidateEntity candidate = CandidateEntity.builder()
-        .name("name")
-        .email("email@example.com")
-        .password("encodedOldPassword")
-        .role(UserRole.ROLE_CANDIDATE)
-        .candidateKey("candidateKey")
-        .phoneNumber("010-1111-1111")
-        .build();
-
-    // 목 설정
-    given(candidateRepository.findByEmail("email@example.com")).willReturn(Optional.of(candidate));
-    given(passwordEncoder.matches("wrongOldPassword", candidate.getPassword())).willReturn(false);
-
-    // 테스트 실행 및 검증
-    assertThrows(RuntimeException.class,
-        () -> candidateService.changePassword("candidateKey", request));
   }
 
   @Test

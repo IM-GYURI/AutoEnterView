@@ -1,7 +1,6 @@
 package com.ctrls.auto_enter_view.controller;
 
 import com.ctrls.auto_enter_view.dto.candidate.CandidateApplyDto;
-import com.ctrls.auto_enter_view.dto.candidate.ChangePasswordDto;
 import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto;
 import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto.Response;
 import com.ctrls.auto_enter_view.dto.candidate.SignUpDto;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,17 +32,6 @@ public class CandidateController {
     SignUpDto.Response response = candidateService.signUp(signUpDto);
 
     return ResponseEntity.ok().body(response);
-  }
-
-  // 비밀번호 변경
-  @PutMapping("/candidates/{candidateKey}/password")
-  public ResponseEntity<String> changePassword(
-      @PathVariable String candidateKey,
-      @RequestBody @Validated ChangePasswordDto.Request request) {
-
-    candidateService.changePassword(candidateKey, request);
-
-    return ResponseEntity.ok(ResponseMessage.CHANGE_PASSWORD.getMessage());
   }
 
   // 회원 탈퇴
@@ -75,7 +62,8 @@ public class CandidateController {
       @RequestParam(defaultValue = "1") int page,
       @RequestParam(defaultValue = "20") int size) {
 
-    CandidateApplyDto.Response response = candidateService.getApplyJobPostings(candidateKey, page, size);
+    CandidateApplyDto.Response response = candidateService.getApplyJobPostings(candidateKey, page,
+        size);
 
     return ResponseEntity.ok(response);
   }

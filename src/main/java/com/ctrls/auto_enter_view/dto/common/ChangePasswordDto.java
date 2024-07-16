@@ -1,4 +1,4 @@
-package com.ctrls.auto_enter_view.dto.candidate;
+package com.ctrls.auto_enter_view.dto.common;
 
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
