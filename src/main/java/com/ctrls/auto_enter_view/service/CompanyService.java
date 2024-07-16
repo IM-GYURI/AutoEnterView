@@ -4,7 +4,6 @@ import static com.ctrls.auto_enter_view.enums.ErrorCode.EMAIL_DUPLICATION;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.PASSWORD_NOT_MATCH;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 
-import com.ctrls.auto_enter_view.dto.company.ChangePasswordDto;
 import com.ctrls.auto_enter_view.dto.company.SignUpDto;
 import com.ctrls.auto_enter_view.dto.company.WithdrawDto;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
@@ -48,29 +47,6 @@ public class CompanyService {
         .name(saved.getCompanyName())
         .message(ResponseMessage.SIGNUP.getMessage())
         .build();
-  }
-
-  // 비밀번호 변경
-  public void changePassword(String companyKey, ChangePasswordDto.Request request) {
-
-    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-    CompanyEntity companyEntity = companyRepository.findByEmail(principal.getUsername())
-        .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
-
-    // 회사 정보의 회사키와 URL 회사키 일치 확인
-    if (!companyEntity.getCompanyKey().equals(companyKey)) {
-      throw new CustomException(USER_NOT_FOUND);
-    }
-
-    // 입력한 비밀번호가 맞는 지 확인
-    if (!passwordEncoder.matches(request.getOldPassword(), companyEntity.getPassword())) {
-      throw new CustomException(PASSWORD_NOT_MATCH);
-    }
-
-    companyEntity.setPassword(passwordEncoder.encode(request.getNewPassword()));
-
-    companyRepository.save(companyEntity);
   }
 
   // 회원 탈퇴
