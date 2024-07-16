@@ -59,7 +59,7 @@ public class CandidateController {
   }
 
   // 이메일 찾기
-  @GetMapping("/candidates/find-email")
+  @PostMapping("/candidates/find-email")
   public ResponseEntity<FindEmailDto.Response> findEmail(
       @RequestBody @Validated FindEmailDto.Request request) {
 

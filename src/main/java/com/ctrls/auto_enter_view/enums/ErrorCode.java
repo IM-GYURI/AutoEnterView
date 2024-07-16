@@ -13,11 +13,12 @@ public enum ErrorCode {
   EMAIL_DUPLICATION(400, "이메일이 중복됩니다."),
   EMAIL_NOT_FOUND(404, "가입된 사용자 이메일이 없습니다."),
   EMAIL_SEND_FAILURE(500, "이메일 전송에 실패했습니다."),
-  INTERNAL_SERVER_ERROR(500, "내부 서버 오류."),
+  INTERNAL_SERVER_ERROR(500, "내부 서버 오류입니다."),
   INVALID_TOKEN(401, "유효하지 않은 토큰입니다."),
   INVALID_VERIFICATION_CODE(400, "유효하지 않은 인증 코드입니다."),
-  JOB_POSTING_NOT_FOUND(404, "채용 공고를 찾을 수 없습니다"),
-  JOB_POSTING_STEP_NOT_FOUND(404, "채용 공고의 해당 단계를 찾을 수 없습니다"),
+  JOB_POSTING_NOT_FOUND(404, "채용 공고를 찾을 수 없습니다."),
+  JOB_POSTING_STEP_NOT_FOUND(404, "채용 공고의 해당 단계를 찾을 수 없습니다."),
+  JOB_POSTING_HAS_CANDIDATES(400, "채용 공고에 이미 지원한 지원자가 존재합니다."),
   NOT_FOUND(404, "페이지를 찾을 수 없습니다."),
   NO_AUTHORITY(401, "권한이 없습니다."),
   PASSWORD_NOT_MATCH(400, "비밀번호가 일치하지 않습니다."),
@@ -31,7 +32,9 @@ public enum ErrorCode {
   FILE_SIZE_EXCEEDED(400, "파일 크기가 너무 큽니다."),
   INVALID_FILE_FORMAT(400, "지원하지 않는 파일 형식입니다."),
   FAILED_TO_DELETE_IMAGE(500, "이미지 삭제에 실패했습니다."),
-  INVALID_IMAGE_URL(400, "잘못된 이미지 URL 입니다.");
+  INVALID_IMAGE_URL(400, "잘못된 이미지 URL 입니다."),
+  ALREADY_EXISTS(409, "이미 존재합니다."),
+  CANDIDATE_INADEQUATE_ERROR(404, "일정 생성 수 보다 지원자가 부족합니다.");
 
   private final int status;
   private final String message;

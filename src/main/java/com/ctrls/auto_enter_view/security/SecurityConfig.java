@@ -57,7 +57,7 @@ public class SecurityConfig {
             .requestMatchers("/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**").permitAll()
             .requestMatchers("/candidates/find-email").permitAll()
             .requestMatchers("/common/**").permitAll()
-            .requestMatchers(HttpMethod.GET, "/companies/*/information").permitAll()
+            .requestMatchers(HttpMethod.GET, "/companies/*/information").permitAll() 
 
             // 권한 필요
             .requestMatchers("/common/signout").authenticated()
@@ -78,6 +78,7 @@ public class SecurityConfig {
 
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
+
     CorsConfiguration configuration = new CorsConfiguration();
 
     // 모든 출처 허용
@@ -88,6 +89,9 @@ public class SecurityConfig {
 
     // 모든 헤더 허용
     configuration.setAllowedHeaders(List.of("*"));
+
+    // 서버가 보내는 헤더 허용
+    configuration.setExposedHeaders(List.of("Authorization"));
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);

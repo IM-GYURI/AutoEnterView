@@ -94,7 +94,7 @@ public class CandidateServiceTest {
     SignUpDto.Response expectedResponse = SignUpDto.Response.builder()
         .email("email@example.com")
         .name("name")
-        .message("name님 회원가입을 환영합니다")
+        .message("회원가입을 축하드립니다.")
         .build();
 
     // 목 설정
