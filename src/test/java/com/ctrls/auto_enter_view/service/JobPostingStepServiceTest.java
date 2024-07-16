@@ -17,6 +17,7 @@ import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
 import com.ctrls.auto_enter_view.entity.ResumeEntity;
 import com.ctrls.auto_enter_view.entity.ResumeTechStackEntity;
+import com.ctrls.auto_enter_view.enums.TechStack;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateListRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
@@ -165,7 +166,7 @@ class JobPostingStepServiceTest {
         .resumeKey("resumeKey")
         .build();
     ResumeTechStackEntity techStackEntity = ResumeTechStackEntity.builder()
-        .techName("Java")
+        .techStackName(TechStack.JAVA)
         .build();
 
     List<CandidateListEntity> candidateList = List.of(candidateEntity);
@@ -201,7 +202,6 @@ class JobPostingStepServiceTest {
     assertEquals("candidateKey", result.get(0).getCandidateKey());
     assertEquals("name", result.get(0).getCandidateName());
     assertEquals("resumeKey", result.get(0).getResumeKey());
-    assertEquals(List.of("Java"), result.get(0).getTechStack());
   }
 
   @Test

@@ -27,6 +27,7 @@ import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
+import com.ctrls.auto_enter_view.enums.TechStack;
 import com.ctrls.auto_enter_view.enums.UserRole;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateListRepository;
@@ -162,6 +163,7 @@ class JobPostingServiceTest {
     int size = 24;
     Pageable pageable = PageRequest.of(page - 1, size);
     List<JobPostingEntity> jobPostingEntities = new ArrayList<>();
+    List<TechStack> techStack = Arrays.asList(TechStack.JAVA, TechStack.SPRING_BOOT);
 
     for (int i = 0; i < size; i++) {
       jobPostingEntities.add(new JobPostingEntity());
@@ -174,7 +176,7 @@ class JobPostingServiceTest {
         .thenReturn(Optional.of(new CompanyEntity()));
     when(jobPostingTechStackService.getTechStackByJobPostingKey(
         jobPostingEntities.get(0).getJobPostingKey()))
-        .thenReturn(Arrays.asList("Java", "Spring"));
+        .thenReturn(techStack);
 
     MainJobPostingDto.Response response = jobPostingService.getAllJobPosting(page, size);
 
@@ -199,7 +201,7 @@ class JobPostingServiceTest {
     JobPostingEntity jobPostingEntity = JobPostingEntity.builder()
         .jobPostingKey(jobPostingKey)
         .build();
-    List<String> techStack = Arrays.asList("Java", "Spring");
+    List<TechStack> techStack = Arrays.asList(TechStack.JAVA, TechStack.SPRING_BOOT);
     List<String> step = Arrays.asList("서류 전형", "면접");
 
     when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(

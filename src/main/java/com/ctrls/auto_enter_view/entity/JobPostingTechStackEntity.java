@@ -1,7 +1,10 @@
 package com.ctrls.auto_enter_view.entity;
 
+import com.ctrls.auto_enter_view.enums.TechStack;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -26,10 +29,11 @@ public class JobPostingTechStackEntity extends BaseEntity {
   @Column(nullable = false)
   private String jobPostingKey;
 
+  @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private String techName;
+  private TechStack techName;
 
-  public void updateEntity(String techName) {
+  public void updateEntity(TechStack techName) {
 
     this.techName = techName;
   }

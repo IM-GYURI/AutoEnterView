@@ -4,6 +4,7 @@ import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto.Request;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingTechStackEntity;
+import com.ctrls.auto_enter_view.enums.TechStack;
 import com.ctrls.auto_enter_view.repository.JobPostingTechStackRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,7 @@ public class JobPostingTechStackService {
   public void createJobPostingTechStack(JobPostingEntity jobPostingEntity,
       JobPostingDto.Request request) {
 
-    List<String> techStack = request.getTechStack();
+    List<TechStack> techStack = request.getTechStack();
 
     List<JobPostingTechStackEntity> entities = techStack.stream()
         .map(e -> Request.toTechStackEntity(jobPostingEntity, e))
@@ -32,11 +33,11 @@ public class JobPostingTechStackService {
   }
 
   // 채용 공고 key -> 기술 스택 조회
-  public List<String> getTechStackByJobPostingKey(String jobPostingKey) {
+  public List<TechStack> getTechStackByJobPostingKey(String jobPostingKey) {
 
     List<JobPostingTechStackEntity> entities = jobPostingTechStackRepository.findByJobPostingKey(
         jobPostingKey);
-    List<String> techStack = new ArrayList<>();
+    List<TechStack> techStack = new ArrayList<>();
 
     for (JobPostingTechStackEntity entity : entities) {
       techStack.add(entity.getTechName());
@@ -53,7 +54,7 @@ public class JobPostingTechStackService {
 
     jobPostingTechStackRepository.deleteAll(entities);
 
-    List<String> techStack = request.getTechStack();
+    List<TechStack> techStack = request.getTechStack();
 
     List<JobPostingTechStackEntity> techStackEntities = techStack.stream()
         .map(e -> Request.toTechStackEntity(jobPostingKey, e))
