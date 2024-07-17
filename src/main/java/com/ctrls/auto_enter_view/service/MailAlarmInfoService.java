@@ -157,7 +157,7 @@ public class MailAlarmInfoService {
   }
 
   // 기존의 Quartz 스케줄링된 작업 삭제
-  private void unscheduleMailJob(MailAlarmInfoEntity mailAlarmInfo) {
+  public void unscheduleMailJob(MailAlarmInfoEntity mailAlarmInfo) {
     try {
       TriggerKey triggerKey = TriggerKey.triggerKey("mailTrigger" + mailAlarmInfo.getId(),
           "mailGroup");
@@ -169,7 +169,7 @@ public class MailAlarmInfoService {
   }
 
   // 예약 메일 스케쥴링
-  private void scheduleMailJob(MailAlarmInfoEntity mailAlarmInfo) throws SchedulerException {
+  public void scheduleMailJob(MailAlarmInfoEntity mailAlarmInfo) throws SchedulerException {
     JobDetail jobDetail = JobBuilder.newJob(MailJob.class)
         .withIdentity("mailJob" + mailAlarmInfo.getId(), "mailGroup")
         .usingJobData("mailId", mailAlarmInfo.getId())
