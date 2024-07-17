@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Slf4j
@@ -48,12 +49,14 @@ public class S3ImageUploadService {
       throw new CustomException(ErrorCode.FILE_SIZE_EXCEEDED);
     }
 
-    String fileName = UUID.randomUUID().toString();
+    String fileName = UUID.randomUUID() + "." + extension;
     String key = directory + "/" + fileName;
 
     PutObjectRequest putObjectRequest = PutObjectRequest.builder()
         .bucket(bucketName)
         .key(key)
+        .contentType(file.getContentType()) // Content-Type 설정
+        .acl(ObjectCannedACL.PUBLIC_READ) // 퍼블릭 읽기 권한 설정
         .build();
 
     try {
