@@ -58,6 +58,9 @@ public class JobPostingDto {
 
     private String jobPostingContent;
 
+    @NotNull(message = "서류 통과 인원은 필수 입력 항목입니다.")
+    private Integer passingNumber;
+
     public static JobPostingEntity toEntity(String companyKey, Request request) {
 
       return JobPostingEntity.builder()
@@ -74,6 +77,7 @@ public class JobPostingDto {
           .endDate(request.getEndDate())
           .workTime(request.getWorkTime())
           .jobPostingContent(request.getJobPostingContent())
+          .passingNumber(request.getPassingNumber())
           .build();
     }
 
