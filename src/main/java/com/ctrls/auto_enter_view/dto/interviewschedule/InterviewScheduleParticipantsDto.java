@@ -20,6 +20,8 @@ public class InterviewScheduleParticipantsDto {
 
     private String candidateKey;
 
+    private String candidateName;
+
     private LocalDateTime interviewStartDateTime;
 
     private LocalDateTime interviewEndDateTime;
@@ -30,6 +32,7 @@ public class InterviewScheduleParticipantsDto {
       return Response.builder()
           .interviewScheduleKey(entity.getInterviewScheduleKey())
           .candidateKey(entity.getCandidateKey())
+          .candidateName(entity.getCandidateName())
           .interviewStartDateTime(entity.getInterviewStartDatetime())
           .interviewEndDateTime(entity.getInterviewEndDatetime())
           .build();
