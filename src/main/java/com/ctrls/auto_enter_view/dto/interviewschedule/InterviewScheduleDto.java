@@ -49,11 +49,13 @@ public class InterviewScheduleDto {
     }
 
     public static InterviewScheduleParticipantsEntity toParticipantsEntity(String jobPostingKey,
-        Long stepId, LocalDateTime startDateTime, LocalDateTime endDateTime, String candidateKey) {
+        Long stepId, LocalDateTime startDateTime, LocalDateTime endDateTime, String candidateKey,
+        String candidateName) {
 
       return InterviewScheduleParticipantsEntity.builder()
           .interviewScheduleKey(interviewScheduleKey)
           .candidateKey(candidateKey)
+          .candidateName(candidateName)
           .jobPostingKey(jobPostingKey)
           .jobPostingStepId(stepId)
           .interviewStartDatetime(startDateTime)
