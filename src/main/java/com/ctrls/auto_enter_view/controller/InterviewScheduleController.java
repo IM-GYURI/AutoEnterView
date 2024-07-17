@@ -17,6 +17,7 @@ public class InterviewScheduleController {
 
   private final InterviewScheduleService interviewScheduleService;
 
+  // 면접 일정 생성
   @PostMapping("/job-postings/{jobPostingKey}/steps/{stepId}/interview-schedule")
   public ResponseEntity<Response> createInterviewSchedule(@PathVariable String jobPostingKey,
       @PathVariable Long stepId, @RequestBody List<Request> request) {
