@@ -26,9 +26,9 @@ public class ResumeImageEntity extends BaseEntity {
   @Column(nullable = false, unique = true)
   private String resumeKey;
 
-  private String fileName;
+  private String resumeImageUrl;
 
-  private String originalFileName;
-
-  private String filePath;
+  public void updateResumeImageUrl(String resumeImageUrl) {
+    this.resumeImageUrl = resumeImageUrl;
+  }
 }

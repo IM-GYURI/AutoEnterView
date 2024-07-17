@@ -53,7 +53,6 @@ public class ResumeDto {
     private List<CareerDto> career;
     private List<CertificateDto> certificates;
     private String portfolio;
-    private ImageDto image;
 
     public ResumeEntity toEntity(String resumeKey, String candidateKey) {
 
@@ -81,5 +80,6 @@ public class ResumeDto {
   public static class Response {
 
     private String resumeKey;
+    private String resumeImageUrl;
   }
 }
