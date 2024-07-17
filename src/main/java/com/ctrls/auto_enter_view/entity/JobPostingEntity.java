@@ -70,5 +70,6 @@ public class JobPostingEntity extends BaseEntity {
     this.startDate = request.getStartDate();
     this.endDate = request.getEndDate();
     this.jobPostingContent = request.getJobPostingContent();
+    this.passingNumber = request.getPassingNumber();
   }
 }
