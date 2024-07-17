@@ -258,4 +258,43 @@ public class CommonUserService {
       }
     }
   }
+
+  // 회원 탈퇴
+  public void withdraw(String key) {
+    UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+
+    Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+
+    for (GrantedAuthority authority : authorities) {
+      String role = authority.getAuthority();
+
+      if (role.equals(UserRole.ROLE_CANDIDATE.name())) {
+
+        CandidateEntity candidateEntity = candidateRepository.findByCandidateKey(key)
+            .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
+        // 응시자 정보의 응시자키와 URL 응시자키 일치 확인
+        if (!candidateEntity.getCandidateKey().equals(key)) {
+          throw new CustomException(USER_NOT_FOUND);
+        }
+
+        candidateRepository.delete(candidateEntity);
+
+      } else {
+
+        CompanyEntity companyEntity = companyRepository.findByCompanyKey(key)
+            .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
+        // 회사 정보의 회사키와 URL 회사키 일치 확인
+        if (!companyEntity.getCompanyKey().equals(key)) {
+          throw new CustomException(USER_NOT_FOUND);
+        }
+
+        companyRepository.delete(companyEntity);
+
+      }
+    }
+
+  }
 }

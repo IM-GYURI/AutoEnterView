@@ -11,4 +11,7 @@ public interface InterviewScheduleParticipantsRepository extends
 
   List<InterviewScheduleParticipantsEntity> findAllByInterviewScheduleKey(
       String interviewScheduleKey);
+
+  List<InterviewScheduleParticipantsEntity> findAllByJobPostingKeyAndJobPostingStepId(
+      String jobPostingKey, Long stepId);
 }

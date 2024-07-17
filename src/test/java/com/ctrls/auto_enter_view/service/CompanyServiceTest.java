@@ -9,11 +9,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ctrls.auto_enter_view.dto.common.ChangePasswordDto;
 import com.ctrls.auto_enter_view.dto.company.SignUpDto;
 import com.ctrls.auto_enter_view.dto.company.SignUpDto.Request;
 import com.ctrls.auto_enter_view.dto.company.SignUpDto.Response;
-import com.ctrls.auto_enter_view.dto.company.WithdrawDto;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.CustomException;
@@ -144,7 +142,7 @@ class CompanyServiceTest {
         && actualWrongFormats.containsAll(expectedWrongFormats));
     verify(companyRepository, times(0)).save(any());
   }
-  
+
   @Test
   @DisplayName("회사 회원탈퇴_성공")
   void withdraw_Success() {
@@ -152,10 +150,6 @@ class CompanyServiceTest {
     String companyKey = "companyKey";
     String email = "company@naver.com";
     String password = "password";
-
-    WithdrawDto.Request request = WithdrawDto.Request.builder()
-        .password(password)
-        .build();
 
     CompanyEntity companyEntity = CompanyEntity.builder()
         .companyKey(companyKey)
@@ -173,11 +167,9 @@ class CompanyServiceTest {
             userDetails.getAuthorities()));
     when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
         Optional.of(companyEntity));
-    when(passwordEncoder.matches(request.getPassword(), companyEntity.getPassword())).thenReturn(
-        true);
 
     // execute
-    companyService.withdraw(companyKey, request);
+    companyService.withdraw(companyKey);
 
     // then
     verify(companyRepository, times(1)).delete(companyEntity);
@@ -190,10 +182,6 @@ class CompanyServiceTest {
     String companyKey = "companyKey";
     String email = "company@naver.com";
     String password = "password";
-
-    WithdrawDto.Request request = WithdrawDto.Request.builder()
-        .password("wrongPassword")
-        .build();
 
     CompanyEntity companyEntity = CompanyEntity.builder()
         .companyKey(companyKey)
@@ -213,7 +201,7 @@ class CompanyServiceTest {
 
     // execute
     CustomException exception = assertThrows(CustomException.class,
-        () -> companyService.withdraw(companyKey, request));
+        () -> companyService.withdraw(companyKey));
 
     // then
     assertEquals(ErrorCode.PASSWORD_NOT_MATCH, exception.getErrorCode());

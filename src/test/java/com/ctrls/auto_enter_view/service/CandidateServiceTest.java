@@ -9,11 +9,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.ctrls.auto_enter_view.dto.candidate.CandidateApplyDto;
-import com.ctrls.auto_enter_view.dto.common.ChangePasswordDto;
 import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto.Request;
 import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto.Response;
 import com.ctrls.auto_enter_view.dto.candidate.SignUpDto;
-import com.ctrls.auto_enter_view.dto.candidate.WithdrawDto;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CandidateListEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
@@ -123,10 +121,6 @@ public class CandidateServiceTest {
   @Test
   @DisplayName("회원 탈퇴 성공 테스트")
   void withdrawSuccessTest() {
-    // DTO 객체 생성
-    WithdrawDto.Request request = WithdrawDto.Request.builder()
-        .password("password")
-        .build();
 
     // CandidateEntity 생성
     CandidateEntity candidate = CandidateEntity.builder()
@@ -140,10 +134,9 @@ public class CandidateServiceTest {
 
     // 목 설정
     given(candidateRepository.findByEmail("email@example.com")).willReturn(Optional.of(candidate));
-    given(passwordEncoder.matches(request.getPassword(), candidate.getPassword())).willReturn(true);
 
     // 테스트 실행
-    candidateService.withdraw(request, "candidateKey");
+    candidateService.withdraw("candidateKey");
 
     // 검증
     verify(candidateRepository, times(1)).delete(candidate);
@@ -152,10 +145,6 @@ public class CandidateServiceTest {
   @Test
   @DisplayName("회원 탈퇴 실패 테스트 - 비밀번호 불일치")
   void withdrawFailPasswordMismatchTest() {
-    // DTO 객체 생성
-    WithdrawDto.Request request = WithdrawDto.Request.builder()
-        .password("wrongPassword")
-        .build();
 
     // CandidateEntity 생성
     CandidateEntity candidate = CandidateEntity.builder()
@@ -169,11 +158,9 @@ public class CandidateServiceTest {
 
     // 목 설정
     given(candidateRepository.findByEmail("email@example.com")).willReturn(Optional.of(candidate));
-    given(passwordEncoder.matches(request.getPassword(), candidate.getPassword())).willReturn(
-        false);
 
     // 테스트 실행 및 검증
-    assertThrows(RuntimeException.class, () -> candidateService.withdraw(request, "candidateKey"));
+    assertThrows(RuntimeException.class, () -> candidateService.withdraw("candidateKey"));
   }
 
   @Test
