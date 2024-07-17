@@ -8,8 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@RequestMapping("/job-postings/{jobPostingKey}")
 @RequiredArgsConstructor
 @RestController
 public class JobPostingStepController {
@@ -22,7 +24,7 @@ public class JobPostingStepController {
    * @param jobPostingKey
    * @return
    */
-  @GetMapping("/job-postings/{jobPostingKey}/steps")
+  @GetMapping("/steps")
   public ResponseEntity<JobPostingStepsDto> getJobPostingSteps(@PathVariable String jobPostingKey) {
 
     return ResponseEntity.ok(jobPostingStepService.getJobPostingSteps(jobPostingKey));
@@ -35,7 +37,7 @@ public class JobPostingStepController {
    * @param stepId
    * @return
    */
-  @GetMapping("/job-postings/{jobPostingKey}/steps/{stepId}/candidates-list")
+  @GetMapping("/steps/{stepId}/candidates-list")
   public ResponseEntity<List<CandidateTechStackListDto>> getCandidatesListByStepId(
       @PathVariable String jobPostingKey,
       @PathVariable Long stepId) {

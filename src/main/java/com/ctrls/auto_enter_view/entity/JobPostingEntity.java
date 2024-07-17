@@ -52,6 +52,9 @@ public class JobPostingEntity extends BaseEntity {
   @Column(nullable = false)
   private LocalDate endDate;
 
+  @Column(nullable = false)
+  private int passingNumber;
+
   private String jobPostingContent;
 
   public void updateEntity(Request request) {
