@@ -2,9 +2,8 @@ package com.ctrls.auto_enter_view.service;
 
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto;
 import com.ctrls.auto_enter_view.entity.JobPostingImageEntity;
-import com.ctrls.auto_enter_view.enums.ErrorCode;
-import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.JobPostingImageRepository;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,9 +38,9 @@ public class JobPostingImageService {
 
   // 이미지 파일 조회 -> URL 반환
   public String getImageUrl(String jobPostingKey) {
-    return jobPostingImageRepository.findByJobPostingKey(jobPostingKey)
-        .map(JobPostingImageEntity::getCompanyImageUrl)
-        .orElseThrow(() -> new CustomException(ErrorCode.IMAGE_NOT_FOUND));
+    Optional<JobPostingImageEntity> imageEntityOpt = jobPostingImageRepository.findByJobPostingKey(jobPostingKey);
+
+    return imageEntityOpt.map(JobPostingImageEntity::getCompanyImageUrl).orElse(null);
   }
 
   // 이미지 파일 조회 -> Response 반환
