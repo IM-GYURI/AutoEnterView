@@ -57,11 +57,9 @@ public class SecurityConfig {
             .requestMatchers("/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**")
             .permitAll()
             .requestMatchers("/candidates/find-email").permitAll()
+            .requestMatchers("/common/signout", "common/{key}/password").authenticated()
             .requestMatchers("/common/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/companies/*/information").permitAll()
-
-            // 권한 필요
-            .requestMatchers("/common/signout", "common/{key}/password").authenticated()
 
             // candidate 권한 필요
             .requestMatchers("/candidates/**").hasRole(UserRole.ROLE_CANDIDATE.name().substring(5))
