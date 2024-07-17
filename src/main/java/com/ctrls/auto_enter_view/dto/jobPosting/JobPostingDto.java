@@ -14,7 +14,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
 public class JobPostingDto {
 
@@ -58,8 +57,6 @@ public class JobPostingDto {
     private LocalDate endDate;
 
     private String jobPostingContent;
-
-    private MultipartFile image;
 
     public static JobPostingEntity toEntity(String companyKey, Request request) {
 
@@ -120,7 +117,7 @@ public class JobPostingDto {
   public static class Response {
 
     private String jobPostingKey;
-    private String imageUrl;
+    private String jobPostingImageUrl;
   }
 
 }
