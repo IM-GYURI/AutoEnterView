@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/companies")
+@RequestMapping("/companies/{companyKey}/interview-schedules/{interviewScheduleKey}/steps/{stepId}/mail")
 public class MailAlarmInfoController {
 
   private final MailAlarmInfoService mailAlarmInfoService;
@@ -31,7 +31,7 @@ public class MailAlarmInfoController {
    * @param mailAlarmInfoDto
    * @return
    */
-  @PostMapping("/{companyKey}/interview-schedules/{interviewScheduleKey}/steps/{stepId}/mail")
+  @PostMapping
   public ResponseEntity<String> createMailAlarmInfo(@PathVariable String companyKey,
       @PathVariable String interviewScheduleKey, @PathVariable Long stepId,
       @Validated @RequestBody MailAlarmInfoDto mailAlarmInfoDto) {
@@ -50,7 +50,7 @@ public class MailAlarmInfoController {
    * @param mailAlarmInfoDto
    * @return
    */
-  @PutMapping("/{companyKey}/interview-schedules/{interviewScheduleKey}/steps/{stepId}/mail")
+  @PutMapping
   public ResponseEntity<String> editMailAlarmInfo(@PathVariable String companyKey,
       @PathVariable String interviewScheduleKey, @PathVariable Long stepId,
       @Validated @RequestBody MailAlarmInfoDto mailAlarmInfoDto) {
