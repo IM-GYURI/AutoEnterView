@@ -28,6 +28,7 @@ import com.ctrls.auto_enter_view.repository.ResumeTechStackRepository;
 import com.ctrls.auto_enter_view.util.KeyGenerator;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
@@ -191,36 +192,35 @@ public class ResumeService {
   private void saveElse(String resumeKey, Request request) {
     // 경력 저장
     if (request.getCareer() != null) {
-      request.getCareer().forEach(e -> {
-        ResumeCareerEntity resumeCareerEntity = e.toEntity(resumeKey);
-        resumeCareerRepository.save(resumeCareerEntity);
-      });
+      List<ResumeCareerEntity> list = request.getCareer().stream()
+          .map(career -> career.toEntity(resumeKey))
+          .collect(Collectors.toList());
+      resumeCareerRepository.saveAll(list);
     }
 
     // 경험 저장
     if (request.getExperience() != null) {
-      request.getExperience().forEach(e -> {
-        ResumeExperienceEntity resumeExperienceEntity = e.toEntity(resumeKey);
-        resumeExperienceRepository.save(resumeExperienceEntity);
-      });
+      List<ResumeExperienceEntity> list = request.getExperience().stream()
+          .map(experience -> experience.toEntity(resumeKey))
+          .collect(Collectors.toList());
+      resumeExperienceRepository.saveAll(list);
     }
 
     // 기술스택 저장
     if (request.getTechStack() != null) {
-      request.getTechStack().forEach(e -> {
-        ResumeTechStackEntity resumeTechStackEntity = e.toEntity(resumeKey);
-        resumeTechStackRepository.save(resumeTechStackEntity);
-      });
+      List<ResumeTechStackEntity> list = request.getTechStack().stream()
+          .map(techStack -> techStack.toEntity(resumeKey))
+          .collect(Collectors.toList());
+      resumeTechStackRepository.saveAll(list);
     }
 
     // 자격 저장
     if (request.getCertificates() != null) {
-      request.getCertificates().forEach(e -> {
-        ResumeCertificateEntity resumeCertificateEntity = e.toEntity(resumeKey);
-        resumeCertificateRepository.save(resumeCertificateEntity);
-      });
+      List<ResumeCertificateEntity> list = request.getCertificates().stream()
+          .map(certificate -> certificate.toEntity(resumeKey))
+          .collect(Collectors.toList());
+      resumeCertificateRepository.saveAll(list);
     }
-
   }
 
   // 이력서 추가 정보를 수정하는 메서드
@@ -269,5 +269,4 @@ public class ResumeService {
         .image(resumeImageUrl)
         .build();
   }
-
 }
