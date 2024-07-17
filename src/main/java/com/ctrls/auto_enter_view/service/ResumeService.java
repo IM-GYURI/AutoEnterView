@@ -1,7 +1,6 @@
 package com.ctrls.auto_enter_view.service;
 
 import com.ctrls.auto_enter_view.dto.resume.ResumeDto.Request;
-import com.ctrls.auto_enter_view.dto.resume.ResumeDto.Response;
 import com.ctrls.auto_enter_view.dto.resume.ResumeReadDto;
 import com.ctrls.auto_enter_view.entity.ApplicantEntity;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
@@ -55,7 +54,7 @@ public class ResumeService {
 
   // 이력서 생성
   @Transactional
-  public Response createResume(UserDetails userDetails, String candidateKey, Request request) {
+  public String createResume(UserDetails userDetails, String candidateKey, Request request) {
 
     // 지원자
     CandidateEntity candidateEntity = candidateRepository.findByEmail(userDetails.getUsername())
@@ -72,20 +71,19 @@ public class ResumeService {
       throw new CustomException(ErrorCode.ALREADY_EXISTS);
     }
 
-    String key = KeyGenerator.generateKey();
+    String resumeKey = KeyGenerator.generateKey();
 
-    ResumeEntity resumeEntity = request.toEntity(key, candidateKey);
+    ResumeEntity resumeEntity = request.toEntity(resumeKey, candidateKey);
 
     // 경험, 경력, 기술스택, 증명사진, 자격 저장
-    saveElse(key, request);
+    saveElse(resumeKey, request);
 
     resumeRepository.save(resumeEntity);
 
-    return Response.builder()
-        .resumeKey(key)
-        .build();
+    return resumeKey;
   }
 
+  // 이력서 조회
   @Transactional(readOnly = true)
   public ResumeReadDto.Response readResume(UserDetails userDetails, String candidateKey) {
 
@@ -147,8 +145,9 @@ public class ResumeService {
     return null;
   }
 
+  // 이력서 수정
   @Transactional
-  public void updateResume(UserDetails userDetails, String candidateKey, Request request) {
+  public String updateResume(UserDetails userDetails, String candidateKey, Request request) {
 
     CandidateEntity candidateEntity = candidateRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new CustomException(ErrorCode.CANDIDATE_NOT_FOUND));
@@ -164,8 +163,12 @@ public class ResumeService {
     resumeEntity.updateEntity(request);
 
     updateElse(resumeEntity.getResumeKey(), request);
+
+    return resumeEntity.getResumeKey();
+
   }
 
+  // 이력서 삭제
   @Transactional
   public void deleteResume(UserDetails userDetails, String candidateKey) {
 
@@ -233,7 +236,6 @@ public class ResumeService {
     resumeTechStackRepository.deleteAllByResumeKey(resumeKey);
     resumeCareerRepository.deleteAllByResumeKey(resumeKey);
     resumeExperienceRepository.deleteAllByResumeKey(resumeKey);
-    resumeImageRepository.deleteAllByResumeKey(resumeKey);
     resumeCertificateRepository.deleteAllByResumeKey(resumeKey);
   }
 
@@ -254,8 +256,9 @@ public class ResumeService {
     List<ResumeTechStackEntity> resumeTechStackEntities = resumeTechStackRepository.findAllByResumeKey(
         resumeKey);
 
-    ResumeImageEntity resumeImageEntity = resumeImageRepository.findByResumeKey(
-        resumeKey).orElseGet(ResumeImageEntity::new);
+    String resumeImageUrl = resumeImageRepository.findByResumeKey(resumeKey)
+        .map(ResumeImageEntity::getResumeImageUrl)
+        .orElse(null);
 
     return ResumeReadDto.Response.builder()
         .entity(resumeEntity)
@@ -263,7 +266,7 @@ public class ResumeService {
         .certificates(resumeCertificateEntities)
         .experience(resumeExperienceEntities)
         .techStack(resumeTechStackEntities)
-        .image(resumeImageEntity)
+        .image(resumeImageUrl)
         .build();
   }
 }

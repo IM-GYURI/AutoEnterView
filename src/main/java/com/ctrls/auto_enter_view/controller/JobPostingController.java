@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -76,7 +75,7 @@ public class JobPostingController {
   @PutMapping("/job-postings/{jobPostingKey}")
   public ResponseEntity<JobPostingDto.Response> editJobPosting(@PathVariable String jobPostingKey,
       @RequestPart(value = "jobPostingInfo") @Validated JobPostingDto.Request request,
-      @RequestParam(value = "image", required = false) MultipartFile image) {
+      @RequestPart(value = "image", required = false) MultipartFile image) {
 
     jobPostingService.editJobPosting(jobPostingKey, request);
     jobPostingTechStackService.editJobPostingTechStack(jobPostingKey, request);
