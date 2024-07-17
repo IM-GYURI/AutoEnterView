@@ -1,6 +1,8 @@
 package com.ctrls.auto_enter_view.service;
 
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto.Request;
+import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleParticipantsDto.Response;
+import com.ctrls.auto_enter_view.entity.InterviewScheduleParticipantsEntity;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateListRepository;
@@ -46,5 +48,14 @@ public class InterviewScheduleParticipantsService {
       }
 
     }
+  }
+
+  public List<Response> getAllInterviewSchedule(String jobPostingKey, Long stepId) {
+
+    List<InterviewScheduleParticipantsEntity> entities = interviewScheduleParticipantsRepository.findAllByJobPostingKeyAndJobPostingStepId(
+        jobPostingKey,
+        stepId);
+
+    return entities.stream().map(Response::fromEntity).toList();
   }
 }
