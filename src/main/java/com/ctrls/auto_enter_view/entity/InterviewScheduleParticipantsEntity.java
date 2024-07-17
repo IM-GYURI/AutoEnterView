@@ -31,6 +31,9 @@ public class InterviewScheduleParticipantsEntity extends BaseEntity {
   private String candidateKey;
 
   @Column(nullable = false)
+  private String candidateName;
+
+  @Column(nullable = false)
   private String jobPostingKey;
 
   @Column(nullable = false)
