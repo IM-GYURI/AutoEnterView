@@ -4,7 +4,6 @@ import com.ctrls.auto_enter_view.entity.ResumeCareerEntity;
 import com.ctrls.auto_enter_view.entity.ResumeCertificateEntity;
 import com.ctrls.auto_enter_view.entity.ResumeEntity;
 import com.ctrls.auto_enter_view.entity.ResumeExperienceEntity;
-import com.ctrls.auto_enter_view.entity.ResumeImageEntity;
 import com.ctrls.auto_enter_view.entity.ResumeTechStackEntity;
 import com.ctrls.auto_enter_view.enums.TechStack;
 import java.time.LocalDate;
@@ -36,7 +35,7 @@ public class ResumeReadDto {
     private List<CertificateDto> certificates;
     private List<ExperienceDto> experience;
     private List<TechStack> techStack;
-    private ImageDto image;
+    private String resumeImageUrl;
 
     public static ResponseBuilder builder() {
 
@@ -62,7 +61,7 @@ public class ResumeReadDto {
       private List<CertificateDto> certificates;
       private List<ExperienceDto> experience;
       private List<TechStack> techStack;
-      private ImageDto image;
+      private String resumeImageUrl;
 
       ResponseBuilder() {
 
@@ -215,14 +214,8 @@ public class ResumeReadDto {
         return this;
       }
 
-      public ResponseBuilder image(ResumeImageEntity image) {
-
-        this.image = ImageDto.builder()
-            .fileName(image.getFileName())
-            .originalFileName(image.getOriginalFileName())
-            .filePath(image.getFilePath())
-            .build();
-
+      public ResponseBuilder image(String resumeImageUrl) {
+        this.resumeImageUrl = resumeImageUrl;
         return this;
       }
 
@@ -231,7 +224,7 @@ public class ResumeReadDto {
         return new Response(this.resumeKey, this.candidateKey, this.title, this.jobWant, this.name,
             this.gender, this.birthDate, this.email, this.phoneNumber, this.address,
             this.scholarship, this.schoolName, this.portfolio, this.career, this.certificates,
-            this.experience, this.techStack, this.image);
+            this.experience, this.techStack, this.resumeImageUrl);
       }
 
       public String toString() {
@@ -243,8 +236,9 @@ public class ResumeReadDto {
             + ", address=" + this.address + ", scholarship=" + this.scholarship + ", schoolName="
             + this.schoolName + ", portfolio=" + this.portfolio + ", career=" + this.career
             + ", certificates=" + this.certificates + ", experience=" + this.experience
-            + ", techStack=" + this.techStack + ", image=" + this.image + ")";
+            + ", techStack=" + this.techStack + ", image=" + this.resumeImageUrl + ")";
       }
+
     }
   }
 }
