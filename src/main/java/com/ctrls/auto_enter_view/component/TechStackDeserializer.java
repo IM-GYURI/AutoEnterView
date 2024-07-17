@@ -15,7 +15,7 @@ public class TechStackDeserializer extends JsonDeserializer<TechStack> {
   public TechStack deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)
       throws IOException, JacksonException {
 
-    String value = jsonParser.getText();
+    String value = jsonParser.getText().replaceAll("[. ]", "_");
 
     return TechStack.fromString(value);
   }
