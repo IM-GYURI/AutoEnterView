@@ -1,11 +1,13 @@
 package com.ctrls.auto_enter_view.controller;
 
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto.Request;
+import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleParticipantsDto.Response;
 import com.ctrls.auto_enter_view.enums.ResponseMessage;
 import com.ctrls.auto_enter_view.service.InterviewScheduleParticipantsService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,6 +26,16 @@ public class InterviewScheduleParticipantsController {
     interviewScheduleParticipantsService.createInterviewSchedule(jobPostingKey, stepId, request);
 
     return ResponseEntity.ok(ResponseMessage.SUCCESS_PERSONAL_INTERVIEW_SCHEDULE.getMessage());
+  }
+
+  @GetMapping("/job-postings/{jobPostingKey}/steps/{stepId}/interview-schedule-participants")
+  public ResponseEntity<List<Response>> getAllInterviewSchedule(@PathVariable String jobPostingKey,
+      @PathVariable Long stepId) {
+    List<Response> responseList = interviewScheduleParticipantsService.getAllInterviewSchedule(
+        jobPostingKey, stepId);
+
+    return ResponseEntity.ok().body(responseList);
+
   }
 
 

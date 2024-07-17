@@ -3,23 +3,30 @@ package com.ctrls.auto_enter_view.service;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.EMAIL_DUPLICATION;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.EMAIL_SEND_FAILURE;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.INVALID_VERIFICATION_CODE;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.PASSWORD_NOT_MATCH;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ResponseMessage.USABLE_EMAIL;
 
 import com.ctrls.auto_enter_view.component.MailComponent;
+import com.ctrls.auto_enter_view.dto.common.ChangePasswordDto.Request;
 import com.ctrls.auto_enter_view.dto.common.SignInDto;
+import com.ctrls.auto_enter_view.dto.common.SignInDto.Response;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
-import com.ctrls.auto_enter_view.enums.ErrorCode;
+import com.ctrls.auto_enter_view.enums.UserRole;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.util.RandomGenerator;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -165,7 +172,7 @@ public class CommonUserService {
   }
 
   // 로그인 : 이메일 조회 + 비밀번호 일치 확인
-  public SignInDto.Response loginUser(String email, String password) {
+  public Response loginUser(String email, String password) {
 
     log.info("로그인 요청 - 이메일 : {}", email);
 
@@ -183,7 +190,7 @@ public class CommonUserService {
       if (passwordEncoder.matches(password, company.getPassword())) {
         return SignInDto.fromCompany(company);
       } else {
-        throw new CustomException(ErrorCode.PASSWORD_NOT_MATCH);
+        throw new CustomException(PASSWORD_NOT_MATCH);
       }
     }
 
@@ -195,7 +202,7 @@ public class CommonUserService {
       if (passwordEncoder.matches(password, candidate.getPassword())) {
         return SignInDto.fromCandidate(candidate);
       } else {
-        throw new CustomException(ErrorCode.PASSWORD_NOT_MATCH);
+        throw new CustomException(PASSWORD_NOT_MATCH);
       }
     }
 
@@ -207,5 +214,87 @@ public class CommonUserService {
   public void logoutUser(String token) {
 
     blacklistTokenService.addToBlacklist(token);
+  }
+
+  // 비밀번호 수정
+  public void changePassword(String key, Request request) {
+
+    UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+
+    Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+
+    for (GrantedAuthority authority : authorities) {
+      String role = authority.getAuthority();
+
+      if (role.equals(UserRole.ROLE_CANDIDATE.name())) {
+
+        CandidateEntity candidateEntity = candidateRepository.findByCandidateKey(key)
+            .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
+        // 입력한 비밀번호가 맞는 지 확인
+        if (!passwordEncoder.matches(request.getOldPassword(), candidateEntity.getPassword())) {
+          throw new CustomException(PASSWORD_NOT_MATCH);
+        }
+
+        candidateEntity.setPassword(passwordEncoder.encode(request.getNewPassword()));
+
+        candidateRepository.save(candidateEntity);
+
+      } else {
+
+        CompanyEntity companyEntity = companyRepository.findByCompanyKey(key)
+            .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
+        // 입력한 비밀번호가 맞는 지 확인
+        if (!passwordEncoder.matches(request.getOldPassword(), companyEntity.getPassword())) {
+          throw new CustomException(PASSWORD_NOT_MATCH);
+        }
+
+        companyEntity.setPassword(passwordEncoder.encode(request.getNewPassword()));
+
+        companyRepository.save(companyEntity);
+
+      }
+    }
+  }
+
+  // 회원 탈퇴
+  public void withdraw(String key) {
+    UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+
+    Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+
+    for (GrantedAuthority authority : authorities) {
+      String role = authority.getAuthority();
+
+      if (role.equals(UserRole.ROLE_CANDIDATE.name())) {
+
+        CandidateEntity candidateEntity = candidateRepository.findByCandidateKey(key)
+            .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
+        // 응시자 정보의 응시자키와 URL 응시자키 일치 확인
+        if (!candidateEntity.getCandidateKey().equals(key)) {
+          throw new CustomException(USER_NOT_FOUND);
+        }
+
+        candidateRepository.delete(candidateEntity);
+
+      } else {
+
+        CompanyEntity companyEntity = companyRepository.findByCompanyKey(key)
+            .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
+        // 회사 정보의 회사키와 URL 회사키 일치 확인
+        if (!companyEntity.getCompanyKey().equals(key)) {
+          throw new CustomException(USER_NOT_FOUND);
+        }
+
+        companyRepository.delete(companyEntity);
+
+      }
+    }
+
   }
 }

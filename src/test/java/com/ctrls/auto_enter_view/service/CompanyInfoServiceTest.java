@@ -3,7 +3,6 @@ package com.ctrls.auto_enter_view.service;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,7 +26,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -101,15 +99,14 @@ class CompanyInfoServiceTest {
 
     // when
     when(companyRepository.findByEmail("company@naver.com")).thenReturn(Optional.of(companyEntity));
-    when(companyInfoRepository.save(argThat(e -> e.getBoss().equals(request.getBoss())))).thenThrow(
-        DataIntegrityViolationException.class);
+    when(companyInfoRepository.existsByCompanyKey(companyKey)).thenReturn(true);
 
     // then
     CustomException exception = assertThrows(CustomException.class,
         // execute
         () -> companyInfoService.createInfo(companyKey, request));
 
-    assertEquals(ErrorCode.INTERNAL_SERVER_ERROR, exception.getErrorCode());
+    assertEquals(ErrorCode.ALREADY_EXISTS, exception.getErrorCode());
   }
 
   @Test

@@ -4,7 +4,6 @@ import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_HAS_CANDIDAT
 import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_STEP_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -524,15 +523,10 @@ class JobPostingServiceTest {
     assertEquals("채용 공고 수정 알림 : edit title", capturedSubjects.get(0));
     assertEquals("채용 공고 수정 알림 : edit title", capturedSubjects.get(1));
 
-    assertFalse(capturedTexts.get(0).contains("지원해주신 [edit title]의 공고 내용이 수정되었습니다. 확인 부탁드립니다."));
-    assertFalse(capturedTexts.get(1).contains("지원해주신 [edit title]의 공고 내용이 수정되었습니다. 확인 부탁드립니다."));
-
     assertTrue(capturedTexts.get(0).contains(
-        "<a href=\"http://localhost:8080/common/job-postings/" + jobPostingKey
-            + "\">수정된 채용 공고 확인하기</a>"));
+        "지원해주신 <strong>[edit title]</strong>의 공고 내용이 수정되었습니다. 확인 부탁드립니다.<br><br><a href=\"http://localhost:8080/common/job-postings/JobPostingKey\">수정된 채용 공고 확인하기</a>"));
     assertTrue(capturedTexts.get(1).contains(
-        "<a href=\"http://localhost:8080/common/job-postings/" + jobPostingKey
-            + "\">수정된 채용 공고 확인하기</a>"));
+        "지원해주신 <strong>[edit title]</strong>의 공고 내용이 수정되었습니다. 확인 부탁드립니다.<br><br><a href=\"http://localhost:8080/common/job-postings/JobPostingKey\">수정된 채용 공고 확인하기</a>"));
   }
 
   @Test

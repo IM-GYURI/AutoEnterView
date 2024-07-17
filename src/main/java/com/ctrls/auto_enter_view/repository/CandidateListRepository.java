@@ -2,6 +2,8 @@ package com.ctrls.auto_enter_view.repository;
 
 import com.ctrls.auto_enter_view.entity.CandidateListEntity;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,5 +25,7 @@ public interface CandidateListRepository extends JpaRepository<CandidateListEnti
   @Query("SELECT c.candidateKey FROM CandidateListEntity c WHERE c.jobPostingKey = :jobPostingKey AND c.jobPostingStepId = :stepId")
   List<String> findCandidateKeyByJobPostingKeyAndJobPostingStepId(String jobPostingKey,
       Long stepId);
-
+  
+  @Query("SELECT c.candidateName FROM CandidateListEntity c WHERE c.candidateKey = :candidateKey")
+  String findCandidateNameByCandidateKey(String candidateKey);
 }

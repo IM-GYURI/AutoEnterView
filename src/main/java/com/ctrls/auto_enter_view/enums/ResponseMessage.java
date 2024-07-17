@@ -20,6 +20,8 @@ public enum ResponseMessage {
   SUCCESS_JOB_POSTING_APPLY("지원이 완료되었습니다."),
   SUCCESS_DELETE_JOB_POSTING("채용 공고 삭제 완료."),
   SUCCESS_PERSONAL_INTERVIEW_SCHEDULE("개인 면접 일정 생성 완료."),
+  SUCCESS_CREATE_MAIL_ALARM("메일 전송 예약 완료."),
+  SUCCESS_EDIT_MAIL_ALARM("메일 예약 수정 완료."),
   SUCCESS_INTERVIEW_SCHEDULE("면접 일정 생성 완료.");
 
   private final String message;
