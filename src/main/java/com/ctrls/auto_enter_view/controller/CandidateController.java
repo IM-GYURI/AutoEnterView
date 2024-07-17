@@ -33,15 +33,6 @@ public class CandidateController {
     return ResponseEntity.ok().body(response);
   }
 
-  // 회원 탈퇴
-  @DeleteMapping("/candidates/withdraw/{candidateKey}")
-  public ResponseEntity<String> withdraw(@PathVariable String candidateKey) {
-
-    candidateService.withdraw(candidateKey);
-
-    return ResponseEntity.ok(ResponseMessage.WITHDRAW.getMessage());
-  }
-
   // 이메일 찾기
   @PostMapping("/candidates/find-email")
   public ResponseEntity<FindEmailDto.Response> findEmail(
