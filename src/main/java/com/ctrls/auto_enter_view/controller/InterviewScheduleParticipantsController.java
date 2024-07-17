@@ -22,6 +22,7 @@ public class InterviewScheduleParticipantsController {
 
   private final InterviewScheduleParticipantsService interviewScheduleParticipantsService;
 
+  // 개인 면접 일정 생성
   @PostMapping("/job-postings/{jobPostingKey}/steps/{stepId}/interview-schedule-participants")
   public ResponseEntity<String> createInterviewSchedule(@PathVariable String jobPostingKey,
       @PathVariable Long stepId, @RequestBody List<Request> request) {
@@ -31,7 +32,9 @@ public class InterviewScheduleParticipantsController {
     return ResponseEntity.ok(ResponseMessage.SUCCESS_PERSONAL_INTERVIEW_SCHEDULE.getMessage());
   }
 
+  // 면접 일정 조회
   @GetMapping("/job-postings/{jobPostingKey}/steps/{stepId}/interview-schedule-participants")
+
   public ResponseEntity<List<Response>> getAllInterviewSchedule(@PathVariable String jobPostingKey,
       @PathVariable Long stepId) {
     List<Response> responseList = interviewScheduleParticipantsService.getAllInterviewSchedule(
