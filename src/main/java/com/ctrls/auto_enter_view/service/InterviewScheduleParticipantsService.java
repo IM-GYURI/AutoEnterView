@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.service;
 
+import com.ctrls.auto_enter_view.dto.candidateList.CandidateListDto;
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto.Request;
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleParticipantsDto.Response;
 import com.ctrls.auto_enter_view.entity.InterviewScheduleParticipantsEntity;
@@ -9,6 +10,7 @@ import com.ctrls.auto_enter_view.repository.CandidateListRepository;
 import com.ctrls.auto_enter_view.repository.InterviewScheduleParticipantsRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,10 +26,17 @@ public class InterviewScheduleParticipantsService {
 
   public void createInterviewSchedule(String jobPostingKey, Long stepId, List<Request> request) {
 
-    List<String> candidatesKey = candidateListRepository.findCandidateKeyByJobPostingKeyAndJobPostingStepId(
+    List<String> candidateKeyList = candidateListRepository.findCandidateKeyByJobPostingKeyAndJobPostingStepId(
         jobPostingKey, stepId);
 
-    int candidateIndex = candidatesKey.size() - 1;
+    List<CandidateListDto> candidateListDtoList = candidateKeyList.stream()
+        .map(e -> CandidateListDto.builder()
+            .candidateKey(e)
+            .candidateName(candidateListRepository.findCandidateNameByCandidateKey(e))
+            .build())
+        .toList();
+
+    int candidateListIndex = candidateListDtoList.size() - 1;
 
     for (Request requested : request) {
       LocalDateTime start = LocalDateTime.of(requested.getStartDate(), requested.getStartTime());
@@ -37,14 +46,16 @@ public class InterviewScheduleParticipantsService {
         start = start.plusMinutes(requested.getTerm());
         LocalDateTime endDatetime = start;
 
-        if (candidateIndex < 0) {
+        if (candidateListIndex < 0) {
           throw new CustomException(ErrorCode.CANDIDATE_INADEQUATE_ERROR);
         }
 
         interviewScheduleParticipantsRepository.save(Request.toParticipantsEntity(
-            jobPostingKey, stepId, startDateTime, endDatetime, candidatesKey.get(candidateIndex)));
+            jobPostingKey, stepId, startDateTime, endDatetime,
+            candidateListDtoList.get(candidateListIndex).getCandidateKey(),
+            candidateListDtoList.get(candidateListIndex).getCandidateName()));
 
-        candidateIndex--;
+        candidateListIndex--;
       }
 
     }
