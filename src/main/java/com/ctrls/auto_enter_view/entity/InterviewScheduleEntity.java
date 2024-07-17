@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.entity;
 
+import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleParticipantsDto.Request;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -31,4 +32,14 @@ public class InterviewScheduleEntity extends BaseEntity {
 
   @Column(nullable = false)
   private LocalDate lastInterviewDate;
+
+  public void updateFirstInterviewDate(LocalDate firstDate) {
+
+    this.firstInterviewDate = firstDate;
+  }
+
+  public void updateLastInterviewDate(LocalDate lastDate) {
+
+    this.lastInterviewDate = lastDate;
+  }
 }
