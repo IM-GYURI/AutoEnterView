@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -133,5 +134,14 @@ public class CommonUserController {
   ChangePasswordDto.Request request) {
     commonUserService.changePassword(key, request);
     return ResponseEntity.ok(ResponseMessage.CHANGE_PASSWORD.getMessage());
+  }
+
+  // 회원 탈퇴
+  @DeleteMapping("/{key}/withdraw")
+  public ResponseEntity<String> withdraw(@PathVariable String key) {
+
+    commonUserService.withdraw(key);
+
+    return ResponseEntity.ok(ResponseMessage.WITHDRAW.getMessage());
   }
 }

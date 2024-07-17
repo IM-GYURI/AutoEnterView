@@ -28,13 +28,4 @@ public class CompanyController {
 
     return ResponseEntity.ok(response);
   }
-
-  // 회원 탈퇴
-  @DeleteMapping("/companies/withdraw/{companyKey}")
-  public ResponseEntity<String> withdraw(@PathVariable String companyKey) {
-
-    companyService.withdraw(companyKey);
-
-    return ResponseEntity.ok(ResponseMessage.WITHDRAW.getMessage());
-  }
 }
