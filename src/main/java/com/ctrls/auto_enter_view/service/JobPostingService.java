@@ -67,6 +67,9 @@ public class JobPostingService {
    */
   public JobPostingEntity createJobPosting(String companyKey, Request request) {
 
+    companyRepository.findByCompanyKey(companyKey).orElseThrow(() -> new CustomException(
+        COMPANY_NOT_FOUND));
+
     JobPostingEntity entity = Request.toEntity(companyKey, request);
     return jobPostingRepository.save(entity);
   }

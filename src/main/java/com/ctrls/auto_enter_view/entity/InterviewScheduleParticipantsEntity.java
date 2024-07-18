@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.entity;
 
+import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleParticipantsDto.Request;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -42,4 +43,10 @@ public class InterviewScheduleParticipantsEntity extends BaseEntity {
   private LocalDateTime interviewStartDatetime;
 
   private LocalDateTime interviewEndDatetime;
+
+  public void updateEntity(Request request) {
+
+    this.interviewStartDatetime = request.getInterviewStartDatetime();
+    this.interviewEndDatetime = request.getInterviewEndDatetime();
+  }
 }

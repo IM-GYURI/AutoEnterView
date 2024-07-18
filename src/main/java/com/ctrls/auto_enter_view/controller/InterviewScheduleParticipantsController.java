@@ -1,15 +1,18 @@
 package com.ctrls.auto_enter_view.controller;
 
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto.Request;
+import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleParticipantsDto;
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleParticipantsDto.Response;
 import com.ctrls.auto_enter_view.enums.ResponseMessage;
 import com.ctrls.auto_enter_view.service.InterviewScheduleParticipantsService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -39,6 +42,27 @@ public class InterviewScheduleParticipantsController {
 
     return ResponseEntity.ok().body(responseList);
 
+  }
+
+  @PutMapping("/interview-schedule-participants/{interviewScheduleKey}/candidates/{candidateKey}")
+  public ResponseEntity<String> updatePersonalInterviewSchedule(
+      @PathVariable String interviewScheduleKey,
+      @PathVariable String candidateKey,
+      @RequestBody InterviewScheduleParticipantsDto.Request request) {
+
+    interviewScheduleParticipantsService.updatePersonalInterviewSchedule(interviewScheduleKey,
+        candidateKey, request);
+
+    return ResponseEntity.ok(ResponseMessage.SUCCESS_UPDATE_INTERVIEW_SCHEDULE.getMessage());
+  }
+
+  @DeleteMapping("/interview-schedule-participants/{interviewScheduleKey}")
+  public ResponseEntity<String> deleteAllInterviewSchedule(
+      @PathVariable String interviewScheduleKey) {
+
+    interviewScheduleParticipantsService.deleteAllInterviewSchedule(interviewScheduleKey);
+
+    return ResponseEntity.ok(ResponseMessage.SUCCESS_DELETE_INTERVIEW_SCHEDULE.getMessage());
   }
 
 

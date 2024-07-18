@@ -22,7 +22,9 @@ public enum ResponseMessage {
   SUCCESS_PERSONAL_INTERVIEW_SCHEDULE("개인 면접 일정 생성 완료."),
   SUCCESS_CREATE_MAIL_ALARM("메일 전송 예약 완료."),
   SUCCESS_EDIT_MAIL_ALARM("메일 예약 수정 완료."),
-  SUCCESS_INTERVIEW_SCHEDULE("면접 일정 생성 완료.");
+  SUCCESS_INTERVIEW_SCHEDULE("면접 일정 생성 완료."),
+  SUCCESS_UPDATE_INTERVIEW_SCHEDULE("면접 일정 수정 완료."),
+  SUCCESS_DELETE_INTERVIEW_SCHEDULE("면접 일정 삭제 완료.");
 
   private final String message;
 }
