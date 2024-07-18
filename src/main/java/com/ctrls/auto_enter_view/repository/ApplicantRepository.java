@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 public interface ApplicantRepository extends JpaRepository<ApplicantEntity, Long> {
 
   List<ApplicantEntity> findAllByJobPostingKey(String jobPostingKey);
+
+  boolean existsByCandidateKeyAndJobPostingKey(String candidateKey, String jobPostingKey);
 }
