@@ -57,7 +57,7 @@ public class InterviewScheduleParticipantsController {
   }
 
   @DeleteMapping("/interview-schedule-participants/{interviewScheduleKey}")
-  public ResponseEntity<String> deletePersonalInterviewSchedule(
+  public ResponseEntity<String> deleteAllInterviewSchedule(
       @PathVariable String interviewScheduleKey) {
 
     interviewScheduleParticipantsService.deleteAllInterviewSchedule(interviewScheduleKey);
