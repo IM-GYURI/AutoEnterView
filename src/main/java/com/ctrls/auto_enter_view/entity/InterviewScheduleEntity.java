@@ -1,6 +1,5 @@
 package com.ctrls.auto_enter_view.entity;
 
-import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleParticipantsDto.Request;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
