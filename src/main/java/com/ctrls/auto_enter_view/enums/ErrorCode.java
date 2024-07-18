@@ -37,7 +37,8 @@ public enum ErrorCode {
   FAILED_TO_DELETE_IMAGE(500, "이미지 삭제에 실패했습니다."),
   INVALID_IMAGE_URL(400, "잘못된 이미지 URL 입니다."),
   ALREADY_EXISTS(409, "이미 존재합니다."),
-  CANDIDATE_INADEQUATE_ERROR(404, "일정 생성 수 보다 지원자가 부족합니다.");
+  CANDIDATE_INADEQUATE_ERROR(404, "일정 생성 수 보다 지원자가 부족합니다."),
+  JOB_POSTING_KEY_NOT_FOUND(404, "채용 공고 KEY 를 찾지 못했습니다.");
 
   private final int status;
   private final String message;
