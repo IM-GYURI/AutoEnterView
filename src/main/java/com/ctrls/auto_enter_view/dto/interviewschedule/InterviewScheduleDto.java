@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.dto.interviewschedule;
 
+import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleParticipantsDto.Request;
 import com.ctrls.auto_enter_view.entity.InterviewScheduleEntity;
 import com.ctrls.auto_enter_view.entity.InterviewScheduleParticipantsEntity;
 import com.ctrls.auto_enter_view.util.KeyGenerator;
@@ -71,6 +72,27 @@ public class InterviewScheduleDto {
 
     private String interviewScheduleKey;
     private String message;
+
+  }
+
+  @Getter
+  @Builder
+  @AllArgsConstructor
+  @NoArgsConstructor
+  public static class TaskRequest {
+
+    private LocalDate endDate;
+
+    public static InterviewScheduleEntity toEntity(String jobPostingKey, Long stepId,
+        TaskRequest taskRequest) {
+
+      return InterviewScheduleEntity.builder()
+          .interviewScheduleKey(KeyGenerator.generateKey())
+          .jobPostingStepId(stepId)
+          .jobPostingKey(jobPostingKey)
+          .lastInterviewDate(taskRequest.getEndDate())
+          .build();
+    }
 
   }
 
