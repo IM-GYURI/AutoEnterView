@@ -106,12 +106,17 @@ public class InterviewScheduleParticipantsService {
 
   // 개인 면접 일정 삭제
   @Transactional
-  public void deletePersonalInterviewSchedule(String interviewScheduleKey, String candidateKey) {
+  public void deletePersonalInterviewSchedule(String interviewScheduleKey) {
 
-    InterviewScheduleParticipantsEntity entity = interviewScheduleParticipantsRepository.findByInterviewScheduleKeyAndCandidateKey(
-        interviewScheduleKey, candidateKey);
+    InterviewScheduleEntity interviewScheduleEntity = interviewScheduleRepository.findByInterviewScheduleKey(
+            interviewScheduleKey)
+        .orElseThrow(() -> new CustomException(ErrorCode.INTERVIEW_SCHEDULE_NOT_FOUND));
 
-    interviewScheduleParticipantsRepository.delete(entity);
+    List<InterviewScheduleParticipantsEntity> entity = interviewScheduleParticipantsRepository.findAllByInterviewScheduleKey(
+        interviewScheduleKey);
+
+    interviewScheduleParticipantsRepository.deleteAll(entity);
+    interviewScheduleRepository.delete(interviewScheduleEntity);
   }
 
   // 첫번째 인터뷰 날짜인지 확인
