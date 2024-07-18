@@ -28,4 +28,6 @@ public class ApplicantEntity extends BaseEntity {
 
   @Column(nullable = false)
   private String candidateKey;
+
+  private int score;
 }
