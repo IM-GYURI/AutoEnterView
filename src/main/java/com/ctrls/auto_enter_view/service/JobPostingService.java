@@ -27,7 +27,6 @@ import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
-import com.ctrls.auto_enter_view.util.KeyGenerator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -218,38 +217,22 @@ public class JobPostingService {
       throw new CustomException(JOB_POSTING_NOT_FOUND);
     }
 
-    // 이름 가져오기
-    String candidateName = candidateService.getCandidateNameByKey(candidateKey);
-
-    // 해당 채용 공고의 첫 번째 단계 가져오기
-    JobPostingStepEntity firstStep = getJobPostingStepEntity(jobPostingKey);
-
     // 채용 지원 중복 체크
-    boolean isApplied = candidateListRepository.existsByCandidateKeyAndJobPostingKey(candidateKey,
+    boolean isApplied = applicantRepository.existsByCandidateKeyAndJobPostingKey(candidateKey,
         jobPostingKey);
     if (isApplied) {
       throw new CustomException(ErrorCode.ALREADY_APPLIED);
     }
 
-    CandidateListEntity candidateList = CandidateListEntity.builder()
-        .candidateListKey(KeyGenerator.generateKey())
-        .jobPostingStepId(firstStep.getId())
-        .jobPostingKey(jobPostingKey)
-        .candidateKey(candidateKey)
-        .candidateName(candidateName)
-        .build();
-
-    candidateListRepository.save(candidateList);
-    log.info("지원 완료 - jobPostingKey: {}, candidateKey: {}", jobPostingKey, candidateKey);
-
     // 응시자 추가하기
     ApplicantEntity applicantEntity = ApplicantEntity.builder()
         .jobPostingKey(jobPostingKey)
         .candidateKey(candidateKey)
+        .score(0)
         .build();
 
     applicantRepository.save(applicantEntity);
-    log.info("Applicant 추가 완료");
+    log.info("지원 완료 - jobPostingKey: {}, candidateKey: {}", jobPostingKey, candidateKey);
   }
 
   private JobPostingStepEntity getJobPostingStepEntity(String jobPostingKey) {
