@@ -1,6 +1,6 @@
 package com.ctrls.auto_enter_view.controller;
 
-import com.ctrls.auto_enter_view.dto.candidateList.CandidateTechStackListDto;
+import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingEveryInfoDto;
 import com.ctrls.auto_enter_view.dto.jobPostingStep.JobPostingStepsDto;
 import com.ctrls.auto_enter_view.service.JobPostingStepService;
 import java.util.List;
@@ -31,18 +31,16 @@ public class JobPostingStepController {
   }
 
   /**
-   * 해당 채용 단계의 지원자 리스트 조회 : 지원자 key, 지원자 이름, 이력서 key, 기술 스택 리스트
+   * 전체 채용 단계의 지원자 리스트 조회 : 채용단계 ID - 지원자 key, 지원자 이름, 이력서 key, 기술 스택 리스트, 면접 일시
    *
    * @param jobPostingKey
-   * @param stepId
    * @return
    */
-  @GetMapping("/steps/{stepId}/candidates-list")
-  public ResponseEntity<List<CandidateTechStackListDto>> getCandidatesListByStepId(
-      @PathVariable String jobPostingKey,
-      @PathVariable Long stepId) {
+  @GetMapping("/candidates-list")
+  public ResponseEntity<List<JobPostingEveryInfoDto>> getCandidatesList(
+      @PathVariable String jobPostingKey) {
 
     return ResponseEntity.ok(
-        jobPostingStepService.getCandidatesListByStepId(jobPostingKey, stepId));
+        jobPostingStepService.getCandidatesListByStepId(jobPostingKey));
   }
 }
