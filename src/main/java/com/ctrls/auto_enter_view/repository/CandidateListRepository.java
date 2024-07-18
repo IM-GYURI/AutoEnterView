@@ -16,8 +16,6 @@ public interface CandidateListRepository extends JpaRepository<CandidateListEnti
 
   boolean existsByJobPostingKeyAndJobPostingStepId(String jobPostingKey, Long jobPostingStepId);
 
-  boolean existsByCandidateKeyAndJobPostingKey(String candidateKey, String jobPostingKey);
-
   Page<CandidateListEntity> findAllByCandidateKey(String candidateKey, Pageable pageable);
 
   @Query("SELECT c.candidateKey FROM CandidateListEntity c WHERE c.jobPostingKey = :jobPostingKey AND c.jobPostingStepId = :stepId")
