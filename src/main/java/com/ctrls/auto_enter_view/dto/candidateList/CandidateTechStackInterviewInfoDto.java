@@ -1,6 +1,7 @@
 package com.ctrls.auto_enter_view.dto.candidateList;
 
 import com.ctrls.auto_enter_view.enums.TechStack;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CandidateTechStackListDto {
+public class CandidateTechStackInterviewInfoDto {
 
   private String candidateKey;
 
@@ -20,4 +21,6 @@ public class CandidateTechStackListDto {
   private String resumeKey;
 
   private List<TechStack> techStack;
+
+  private LocalDateTime startDateTime;
 }
