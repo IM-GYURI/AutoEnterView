@@ -107,14 +107,14 @@ public class InterviewScheduleParticipantsService {
 
   // 개인 면접 일정 전체 삭제
   @Transactional
-  public void deleteAllInterviewSchedule(String interviewScheduleKey) {
+  public void deleteAllInterviewSchedule(String jobPostingKey, Long stepId) {
 
-    InterviewScheduleEntity interviewScheduleEntity = interviewScheduleRepository.findByInterviewScheduleKey(
-            interviewScheduleKey)
+    InterviewScheduleEntity interviewScheduleEntity = interviewScheduleRepository.findByJobPostingKeyAndJobPostingStepId(
+            jobPostingKey, stepId)
         .orElseThrow(() -> new CustomException(ErrorCode.INTERVIEW_SCHEDULE_NOT_FOUND));
 
-    List<InterviewScheduleParticipantsEntity> entity = interviewScheduleParticipantsRepository.findAllByInterviewScheduleKey(
-        interviewScheduleKey);
+    List<InterviewScheduleParticipantsEntity> entity = interviewScheduleParticipantsRepository.findAllByJobPostingKeyAndJobPostingStepId(
+        jobPostingKey, stepId);
 
     interviewScheduleParticipantsRepository.deleteAll(entity);
     interviewScheduleRepository.delete(interviewScheduleEntity);
