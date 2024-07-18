@@ -19,6 +19,7 @@ import com.ctrls.auto_enter_view.repository.CandidateListRepository;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
+import com.ctrls.auto_enter_view.repository.ResumeRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +42,7 @@ public class CandidateService {
   private final CompanyRepository companyRepository;
   private final CandidateListRepository candidateListRepository;
   private final JobPostingRepository jobPostingRepository;
+  private final ResumeRepository resumeRepository;
   private final PasswordEncoder passwordEncoder;
 
   // 회원 가입
@@ -96,6 +98,11 @@ public class CandidateService {
     return candidateRepository.findByEmail(candidateEmail)
         .map(CandidateEntity::getCandidateKey)
         .orElseThrow(() -> new CustomException(EMAIL_NOT_FOUND));
+  }
+
+  // 이력서 존재 여부 확인하기
+  public boolean hasResume(String candidateKey) {
+    return resumeRepository.existsByCandidateKey(candidateKey);
   }
 
   // candidateKey -> 지원자 정보 조회 : 이름
