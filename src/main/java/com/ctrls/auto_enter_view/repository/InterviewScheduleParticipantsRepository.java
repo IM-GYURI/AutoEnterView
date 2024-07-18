@@ -1,8 +1,8 @@
 package com.ctrls.auto_enter_view.repository;
 
-import com.ctrls.auto_enter_view.entity.InterviewScheduleEntity;
 import com.ctrls.auto_enter_view.entity.InterviewScheduleParticipantsEntity;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -18,4 +18,7 @@ public interface InterviewScheduleParticipantsRepository extends
 
   InterviewScheduleParticipantsEntity findByInterviewScheduleKeyAndCandidateKey(
       String interviewScheduleKey, String candidateKey);
+
+  Optional<InterviewScheduleParticipantsEntity> findByJobPostingStepIdAndCandidateKey(Long stepId,
+      String candidateKey);
 }
