@@ -28,4 +28,9 @@ public class ApplicantEntity extends BaseEntity {
 
   @Column(nullable = false)
   private String candidateKey;
+
+  @Column(nullable = false)
+  @Builder.Default
+  private int score = 0;
+
 }
