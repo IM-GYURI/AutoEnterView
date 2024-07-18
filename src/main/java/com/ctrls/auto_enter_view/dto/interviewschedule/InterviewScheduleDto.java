@@ -15,9 +15,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 public class InterviewScheduleDto {
 
-  public static String interviewScheduleKey = KeyGenerator.generateKey();
-
-
   @Getter
   @Builder
   @AllArgsConstructor
@@ -40,7 +37,7 @@ public class InterviewScheduleDto {
       LocalDate lastDate = request.get(request.size() - 1).getStartDate();
 
       return InterviewScheduleEntity.builder()
-          .interviewScheduleKey(interviewScheduleKey)
+          .interviewScheduleKey(KeyGenerator.generateKey())
           .jobPostingStepId(stepId)
           .jobPostingKey(jobPostingKey)
           .firstInterviewDate(firstDate)
@@ -49,6 +46,7 @@ public class InterviewScheduleDto {
     }
 
     public static InterviewScheduleParticipantsEntity toParticipantsEntity(String jobPostingKey,
+        String interviewScheduleKey,
         Long stepId, LocalDateTime startDateTime, LocalDateTime endDateTime, String candidateKey,
         String candidateName) {
 
