@@ -104,9 +104,9 @@ public class InterviewScheduleParticipantsService {
 
   }
 
-  // 개인 면접 일정 삭제
+  // 개인 면접 일정 전체 삭제
   @Transactional
-  public void deletePersonalInterviewSchedule(String interviewScheduleKey) {
+  public void deleteAllInterviewSchedule(String interviewScheduleKey) {
 
     InterviewScheduleEntity interviewScheduleEntity = interviewScheduleRepository.findByInterviewScheduleKey(
             interviewScheduleKey)

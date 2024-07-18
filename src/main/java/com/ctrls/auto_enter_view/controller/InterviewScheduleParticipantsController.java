@@ -60,7 +60,7 @@ public class InterviewScheduleParticipantsController {
   public ResponseEntity<String> deletePersonalInterviewSchedule(
       @PathVariable String interviewScheduleKey) {
 
-    interviewScheduleParticipantsService.deletePersonalInterviewSchedule(interviewScheduleKey);
+    interviewScheduleParticipantsService.deleteAllInterviewSchedule(interviewScheduleKey);
 
     return ResponseEntity.ok(ResponseMessage.SUCCESS_DELETE_INTERVIEW_SCHEDULE.getMessage());
   }
