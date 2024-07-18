@@ -4,7 +4,6 @@ import com.ctrls.auto_enter_view.dto.candidateList.CandidateListDto;
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto.Request;
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleParticipantsDto;
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleParticipantsDto.Response;
-import com.ctrls.auto_enter_view.entity.CandidateListEntity;
 import com.ctrls.auto_enter_view.entity.InterviewScheduleEntity;
 import com.ctrls.auto_enter_view.entity.InterviewScheduleParticipantsEntity;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
@@ -14,7 +13,6 @@ import com.ctrls.auto_enter_view.repository.InterviewScheduleParticipantsReposit
 import com.ctrls.auto_enter_view.repository.InterviewScheduleRepository;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,6 +30,9 @@ public class InterviewScheduleParticipantsService {
   private final InterviewScheduleRepository interviewScheduleRepository;
 
   public void createInterviewSchedule(String jobPostingKey, Long stepId, List<Request> request) {
+
+    String interviewScheduleKey = interviewScheduleRepository.findInterviewScheduleKeyByJobPostingKey(
+        jobPostingKey).orElseThrow(() -> new CustomException(ErrorCode.JOB_POSTING_KEY_NOT_FOUND));
 
     List<String> candidateKeyList = candidateListRepository.findCandidateKeyByJobPostingKeyAndJobPostingStepId(
         jobPostingKey, stepId);
@@ -58,7 +59,7 @@ public class InterviewScheduleParticipantsService {
         }
 
         interviewScheduleParticipantsRepository.save(Request.toParticipantsEntity(
-            jobPostingKey, stepId, startDateTime, endDatetime,
+            jobPostingKey, interviewScheduleKey, stepId, startDateTime, endDatetime,
             candidateListDtoList.get(candidateListIndex).getCandidateKey(),
             candidateListDtoList.get(candidateListIndex).getCandidateName()));
 
