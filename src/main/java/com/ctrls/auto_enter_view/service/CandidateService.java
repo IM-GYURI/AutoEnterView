@@ -5,17 +5,16 @@ import static com.ctrls.auto_enter_view.enums.ErrorCode.EMAIL_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 
 import com.ctrls.auto_enter_view.dto.candidate.CandidateApplyDto;
+import com.ctrls.auto_enter_view.dto.candidate.CandidateApplyDto.ApplyInfo;
 import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto;
 import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto.Response;
 import com.ctrls.auto_enter_view.dto.candidate.SignUpDto;
+import com.ctrls.auto_enter_view.entity.AppliedJobPostingEntity;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
-import com.ctrls.auto_enter_view.entity.CandidateListEntity;
-import com.ctrls.auto_enter_view.entity.CompanyEntity;
-import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.enums.ResponseMessage;
 import com.ctrls.auto_enter_view.exception.CustomException;
-import com.ctrls.auto_enter_view.repository.CandidateListRepository;
+import com.ctrls.auto_enter_view.repository.AppliedJobPostingRepository;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
@@ -23,6 +22,7 @@ import com.ctrls.auto_enter_view.repository.ResumeRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,6 +30,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +44,7 @@ public class CandidateService {
   private final CandidateListRepository candidateListRepository;
   private final JobPostingRepository jobPostingRepository;
   private final ResumeRepository resumeRepository;
+  private final AppliedJobPostingRepository appliedJobPostingRepository;
   private final PasswordEncoder passwordEncoder;
 
   // 회원 가입
@@ -95,6 +97,7 @@ public class CandidateService {
 
   // 로그인 한 지원자 email -> candidateKey 추출
   public String findCandidateKeyByEmail(String candidateEmail) {
+
     return candidateRepository.findByEmail(candidateEmail)
         .map(CandidateEntity::getCandidateKey)
         .orElseThrow(() -> new CustomException(EMAIL_NOT_FOUND));
@@ -107,47 +110,38 @@ public class CandidateService {
 
   // candidateKey -> 지원자 정보 조회 : 이름
   public String getCandidateNameByKey(String candidateKey) {
+
     return candidateRepository.findByCandidateKey(candidateKey)
         .map(CandidateEntity::getName)
         .orElseThrow(() -> new CustomException(ErrorCode.CANDIDATE_NOT_FOUND));
   }
 
   // 지원자가 지원한 채용 공고 조회
-  public CandidateApplyDto.Response getApplyJobPostings(String candidateKey, int page, int size) {
-    Pageable pageable = PageRequest.of(page - 1, size);
-    Page<CandidateListEntity> candidateListPage = candidateListRepository.findAllByCandidateKey(
-        candidateKey, pageable);
+  public CandidateApplyDto.Response getApplyJobPostings(UserDetails userDetails,
+      String candidateKey, int page, int size) {
 
-    List<CandidateApplyDto.ApplyInfo> applyInfoList = new ArrayList<>();
+    CandidateEntity candidateEntity = candidateRepository.findByEmail(userDetails.getUsername())
+        .orElseThrow(() -> new CustomException(ErrorCode.CANDIDATE_NOT_FOUND));
 
-    for (CandidateListEntity candidateListEntity : candidateListPage.getContent()) {
-      JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(
-              candidateListEntity.getJobPostingKey())
-          .orElseThrow(() -> new CustomException(ErrorCode.JOB_POSTING_NOT_FOUND));
-
-      String companyName = getCompanyName(jobPostingEntity.getCompanyKey());
-      LocalDateTime applyDate = candidateListEntity.getCreatedAt();
-
-      CandidateApplyDto.ApplyInfo applyInfo = CandidateApplyDto.ApplyInfo.from(jobPostingEntity,
-          companyName, applyDate);
-      applyInfoList.add(applyInfo);
+    // 본인 확인
+    if (!candidateEntity.getCandidateKey().equals(candidateKey)) {
+      throw new CustomException(ErrorCode.NO_AUTHORITY);
     }
 
+    Pageable pageable = PageRequest.of(page - 1, size);
+
+    Page<AppliedJobPostingEntity> appliedJobPostingEntityPage = appliedJobPostingRepository.findAllByCandidateKey(
+        candidateKey, pageable);
+
+    List<CandidateApplyDto.ApplyInfo> applyInfoList = appliedJobPostingEntityPage.stream()
+        .map(ApplyInfo::from).collect(Collectors.toList());
+
     log.info("{}개의 지원한 채용 공고 조회 완료", applyInfoList.size());
+
     return CandidateApplyDto.Response.builder()
-        .applyJobPostingsList(applyInfoList)
-        .totalPages(candidateListPage.getTotalPages())
-        .totalElements(candidateListPage.getTotalElements())
+        .appliedJobPostingsList(applyInfoList)
+        .totalPages(appliedJobPostingEntityPage.getTotalPages())
+        .totalElements(appliedJobPostingEntityPage.getTotalElements())
         .build();
-  }
-
-  // 회사 이름 가져오기
-  private String getCompanyName(String companyKey) {
-    CompanyEntity companyEntity = companyRepository.findByCompanyKey(companyKey)
-        .orElseThrow(() -> new CustomException(ErrorCode.COMPANY_NOT_FOUND));
-
-    String companyName = companyEntity.getCompanyName();
-    log.info("회사명 조회 완료 : {}", companyName);
-    return companyName;
   }
 }

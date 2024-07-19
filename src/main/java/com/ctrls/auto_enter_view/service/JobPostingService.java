@@ -14,6 +14,7 @@ import com.ctrls.auto_enter_view.dto.common.MainJobPostingDto.JobPostingMainInfo
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto.Request;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingInfoDto;
 import com.ctrls.auto_enter_view.entity.ApplicantEntity;
+import com.ctrls.auto_enter_view.entity.AppliedJobPostingEntity;
 import com.ctrls.auto_enter_view.entity.CandidateListEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
@@ -22,11 +23,14 @@ import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.enums.TechStack;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.ApplicantRepository;
+import com.ctrls.auto_enter_view.repository.AppliedJobPostingRepository;
 import com.ctrls.auto_enter_view.repository.CandidateListRepository;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
+import com.ctrls.auto_enter_view.util.KeyGenerator;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,6 +57,7 @@ public class JobPostingService {
   private final JobPostingTechStackService jobPostingTechStackService;
   private final CandidateService candidateService;
   private final JobPostingStepRepository jobPostingStepRepository;
+  private final AppliedJobPostingRepository appliedJobPostingRepository;
   private final JobPostingStepService jobPostingStepService;
   private final JobPostingImageService jobPostingImageService;
   private final MailComponent mailComponent;
@@ -199,6 +204,7 @@ public class JobPostingService {
 
   // 이미지 URL 가져오기
   private String getImageUrl(String jobPostingKey) {
+
     String imageUrl = jobPostingImageService.getImageUrl(jobPostingKey);
     log.info("이미지 URL 조회 완료 : {}", imageUrl);
     return imageUrl;
@@ -213,9 +219,9 @@ public class JobPostingService {
   @Transactional
   public void applyJobPosting(String jobPostingKey, String candidateKey) {
 
-    if (!jobPostingRepository.existsByJobPostingKey(jobPostingKey)) {
-      throw new CustomException(JOB_POSTING_NOT_FOUND);
-    }
+    JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(jobPostingKey)
+        .orElseThrow(() -> new CustomException(
+            JOB_POSTING_NOT_FOUND));
 
     // 채용 지원 중복 체크
     boolean isApplied = applicantRepository.existsByCandidateKeyAndJobPostingKey(candidateKey,
@@ -232,7 +238,21 @@ public class JobPostingService {
         .build();
 
     applicantRepository.save(applicantEntity);
+
     log.info("지원 완료 - jobPostingKey: {}, candidateKey: {}", jobPostingKey, candidateKey);
+
+    // 지원한 공고 목록 추가하기
+    AppliedJobPostingEntity appliedJobPostingEntity = AppliedJobPostingEntity.builder()
+        .jobPostingKey(jobPostingKey)
+        .candidateKey(candidateKey)
+        .startDate(LocalDate.now())
+        .stepName("지원 완료")
+        .title(jobPostingEntity.getTitle())
+        .build();
+
+    appliedJobPostingRepository.save(appliedJobPostingEntity);
+    log.info("AppliedJobPosting 추가 완료");
+
   }
 
   private JobPostingStepEntity getJobPostingStepEntity(String jobPostingKey) {

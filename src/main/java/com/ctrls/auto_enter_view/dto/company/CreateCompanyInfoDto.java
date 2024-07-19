@@ -33,11 +33,12 @@ public class CreateCompanyInfoDto {
     @NotBlank(message = "주소는 필수 입력값 입니다.")
     private String address;
 
-    public CompanyInfoEntity toEntity(String key, String companyKey) {
+    public CompanyInfoEntity toEntity(String key, String companyKey, String companyName) {
 
       return CompanyInfoEntity.builder()
           .companyInfoKey(key)
           .companyKey(companyKey)
+          .companyName(companyName)
           .employees(employees)
           .companyAge(companyAge)
           .companyUrl(companyUrl)

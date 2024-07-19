@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,21 +17,20 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-@Table(name = "applicant")
-public class ApplicantEntity extends BaseEntity {
+@Table(name = "applied_job_posting")
+public class AppliedJobPostingEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(nullable = false)
+  @Column(nullable = false, unique = true)
   private String jobPostingKey;
 
   @Column(nullable = false)
   private String candidateKey;
 
-  @Column(nullable = false)
-  @Builder.Default
-  private int score = 0;
-  
+  private LocalDate startDate;
+  private String stepName;
+  private String title;
 }
