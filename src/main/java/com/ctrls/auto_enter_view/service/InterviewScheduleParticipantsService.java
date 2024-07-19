@@ -35,6 +35,13 @@ public class InterviewScheduleParticipantsService {
 
   private final MailAlarmInfoService mailAlarmInfoService;
 
+  /**
+   * 개인 면접 일정 생성
+   *
+   * @param jobPostingKey
+   * @param stepId
+   * @param request
+   */
   public void createInterviewSchedule(String jobPostingKey, Long stepId, List<Request> request) {
 
     String interviewScheduleKey = interviewScheduleRepository.findInterviewScheduleKeyByJobPostingKey(
@@ -71,10 +78,16 @@ public class InterviewScheduleParticipantsService {
 
         candidateListIndex--;
       }
-
     }
   }
 
+  /**
+   * 개인 면접 일정 전체 조회
+   *
+   * @param jobPostingKey
+   * @param stepId
+   * @return
+   */
   public List<Response> getAllInterviewSchedule(String jobPostingKey, Long stepId) {
 
     List<InterviewScheduleParticipantsEntity> entities = interviewScheduleParticipantsRepository.findAllByJobPostingKeyAndJobPostingStepId(
@@ -84,7 +97,13 @@ public class InterviewScheduleParticipantsService {
     return entities.stream().map(Response::fromEntity).toList();
   }
 
-  // 개인 면접 일정 수정
+  /**
+   * 개인 면접 일정 수정
+   *
+   * @param interviewScheduleKey
+   * @param candidateKey
+   * @param request
+   */
   @Transactional
   public void updatePersonalInterviewSchedule(String interviewScheduleKey, String candidateKey,
       InterviewScheduleParticipantsDto.Request request) {
@@ -111,19 +130,23 @@ public class InterviewScheduleParticipantsService {
 
   }
 
-  // 개인 면접 일정 전체 삭제
+  /**
+   * 개인 면접 일정 전체 삭제
+   *
+   * @param jobPostingKey
+   * @param stepId
+   */
   @Transactional
   public void deleteAllInterviewSchedule(String jobPostingKey, Long stepId) {
-
     InterviewScheduleEntity interviewScheduleEntity = interviewScheduleRepository.findByJobPostingKeyAndJobPostingStepId(
             jobPostingKey, stepId)
         .orElseThrow(() -> new CustomException(ErrorCode.INTERVIEW_SCHEDULE_NOT_FOUND));
 
-    List<InterviewScheduleParticipantsEntity> entity = interviewScheduleParticipantsRepository.findAllByJobPostingKeyAndJobPostingStepId(
+    List<InterviewScheduleParticipantsEntity> participants = interviewScheduleParticipantsRepository.findAllByJobPostingKeyAndJobPostingStepId(
         jobPostingKey, stepId);
 
     MailAlarmInfoEntity mailAlarmInfoEntity = mailAlarmInfoRepository.findByInterviewScheduleKey(
-            interviewScheduleKey)
+            interviewScheduleEntity.getInterviewScheduleKey())
         .orElseThrow(() -> new CustomException(ErrorCode.MAIL_ALARM_INFO_NOT_FOUND));
 
     // 예약된 메일의 시간이 현재 시간보다 이전이면 이미 발송된 것으로 간주하고 취소 메일 발송
