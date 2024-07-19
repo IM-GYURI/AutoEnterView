@@ -10,6 +10,8 @@ import org.springframework.stereotype.Repository;
 public interface InterviewScheduleRepository extends
     JpaRepository<InterviewScheduleEntity, String> {
 
+  Optional<InterviewScheduleEntity> findByJobPostingStepId(Long stepId);
+
   Optional<InterviewScheduleEntity> findByInterviewScheduleKey(String interviewScheduleKey);
 
   @Query("SELECT i.interviewScheduleKey FROM InterviewScheduleEntity i WHERE i.jobPostingKey = :jobPostingKey")
