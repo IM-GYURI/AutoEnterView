@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.dto.interviewschedule;
 
+import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleParticipantsDto.Request;
 import com.ctrls.auto_enter_view.entity.InterviewScheduleEntity;
 import com.ctrls.auto_enter_view.entity.InterviewScheduleParticipantsEntity;
 import com.ctrls.auto_enter_view.util.KeyGenerator;
@@ -14,9 +15,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 public class InterviewScheduleDto {
-
-  public static String interviewScheduleKey = KeyGenerator.generateKey();
-
 
   @Getter
   @Builder
@@ -40,7 +38,7 @@ public class InterviewScheduleDto {
       LocalDate lastDate = request.get(request.size() - 1).getStartDate();
 
       return InterviewScheduleEntity.builder()
-          .interviewScheduleKey(interviewScheduleKey)
+          .interviewScheduleKey(KeyGenerator.generateKey())
           .jobPostingStepId(stepId)
           .jobPostingKey(jobPostingKey)
           .firstInterviewDate(firstDate)
@@ -49,6 +47,7 @@ public class InterviewScheduleDto {
     }
 
     public static InterviewScheduleParticipantsEntity toParticipantsEntity(String jobPostingKey,
+        String interviewScheduleKey,
         Long stepId, LocalDateTime startDateTime, LocalDateTime endDateTime, String candidateKey,
         String candidateName) {
 
@@ -73,6 +72,27 @@ public class InterviewScheduleDto {
 
     private String interviewScheduleKey;
     private String message;
+
+  }
+
+  @Getter
+  @Builder
+  @AllArgsConstructor
+  @NoArgsConstructor
+  public static class TaskRequest {
+
+    private LocalDate endDate;
+
+    public static InterviewScheduleEntity toEntity(String jobPostingKey, Long stepId,
+        TaskRequest taskRequest) {
+
+      return InterviewScheduleEntity.builder()
+          .interviewScheduleKey(KeyGenerator.generateKey())
+          .jobPostingStepId(stepId)
+          .jobPostingKey(jobPostingKey)
+          .lastInterviewDate(taskRequest.getEndDate())
+          .build();
+    }
 
   }
 
