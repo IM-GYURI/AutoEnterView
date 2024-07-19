@@ -2,6 +2,7 @@ package com.ctrls.auto_enter_view.service;
 
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto.Request;
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto.Response;
+import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto.TaskRequest;
 import com.ctrls.auto_enter_view.entity.InterviewScheduleEntity;
 import com.ctrls.auto_enter_view.enums.ResponseMessage;
 import com.ctrls.auto_enter_view.repository.InterviewScheduleRepository;
@@ -26,6 +27,17 @@ public class InterviewScheduleService {
     return Response.builder()
         .interviewScheduleKey(saved.getInterviewScheduleKey())
         .message(ResponseMessage.SUCCESS_INTERVIEW_SCHEDULE.getMessage())
+        .build();
+  }
+
+  public Response createTaskSchedule(String jobPostingKey, Long stepId, TaskRequest taskRequest) {
+
+    InterviewScheduleEntity saved = interviewScheduleRepository.save(
+        TaskRequest.toEntity(jobPostingKey, stepId, taskRequest));
+
+    return Response.builder()
+        .interviewScheduleKey(saved.getInterviewScheduleKey())
+        .message(ResponseMessage.SUCCESS_CREATE_TASK_SCHEDULE.getMessage())
         .build();
   }
 }

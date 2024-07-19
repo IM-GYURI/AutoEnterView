@@ -37,6 +37,9 @@ public class InterviewScheduleParticipantsService {
 
   public void createInterviewSchedule(String jobPostingKey, Long stepId, List<Request> request) {
 
+    String interviewScheduleKey = interviewScheduleRepository.findInterviewScheduleKeyByJobPostingKey(
+        jobPostingKey).orElseThrow(() -> new CustomException(ErrorCode.JOB_POSTING_KEY_NOT_FOUND));
+
     List<String> candidateKeyList = candidateListRepository.findCandidateKeyByJobPostingKeyAndJobPostingStepId(
         jobPostingKey, stepId);
 
@@ -62,7 +65,7 @@ public class InterviewScheduleParticipantsService {
         }
 
         interviewScheduleParticipantsRepository.save(Request.toParticipantsEntity(
-            jobPostingKey, stepId, startDateTime, endDatetime,
+            jobPostingKey, interviewScheduleKey, stepId, startDateTime, endDatetime,
             candidateListDtoList.get(candidateListIndex).getCandidateKey(),
             candidateListDtoList.get(candidateListIndex).getCandidateName()));
 
@@ -110,14 +113,14 @@ public class InterviewScheduleParticipantsService {
 
   // 개인 면접 일정 전체 삭제
   @Transactional
-  public void deleteAllInterviewSchedule(String interviewScheduleKey) {
+  public void deleteAllInterviewSchedule(String jobPostingKey, Long stepId) {
 
-    InterviewScheduleEntity interviewScheduleEntity = interviewScheduleRepository.findByInterviewScheduleKey(
-            interviewScheduleKey)
+    InterviewScheduleEntity interviewScheduleEntity = interviewScheduleRepository.findByJobPostingKeyAndJobPostingStepId(
+            jobPostingKey, stepId)
         .orElseThrow(() -> new CustomException(ErrorCode.INTERVIEW_SCHEDULE_NOT_FOUND));
 
-    List<InterviewScheduleParticipantsEntity> participants = interviewScheduleParticipantsRepository.findAllByInterviewScheduleKey(
-        interviewScheduleKey);
+    List<InterviewScheduleParticipantsEntity> entity = interviewScheduleParticipantsRepository.findAllByJobPostingKeyAndJobPostingStepId(
+        jobPostingKey, stepId);
 
     MailAlarmInfoEntity mailAlarmInfoEntity = mailAlarmInfoRepository.findByInterviewScheduleKey(
             interviewScheduleKey)

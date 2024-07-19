@@ -26,6 +26,9 @@ public class CompanyInfoEntity extends BaseEntity {
   private String companyKey;
 
   @Column(nullable = false)
+  private String companyName;
+
+  @Column(nullable = false)
   private int employees;
 
   @Column(nullable = false)

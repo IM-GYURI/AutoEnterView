@@ -83,11 +83,10 @@ public class InterviewScheduleParticipantsController {
    * @param interviewScheduleKey
    * @return
    */
-  @DeleteMapping("/interview-schedule-participants/{interviewScheduleKey}")
-  public ResponseEntity<String> deleteAllInterviewSchedule(
-      @PathVariable String interviewScheduleKey) {
-
-    interviewScheduleParticipantsService.deleteAllInterviewSchedule(interviewScheduleKey);
+  @DeleteMapping("/job-postings/{jobPostingKey}/steps/{stepId}/interview-schedule")
+  public ResponseEntity<String> deleteAllInterviewSchedule(@PathVariable String jobPostingKey,
+      @PathVariable Long stepId) {
+    interviewScheduleParticipantsService.deleteAllInterviewSchedule(jobPostingKey, stepId);
 
     return ResponseEntity.ok(ResponseMessage.SUCCESS_DELETE_INTERVIEW_SCHEDULE.getMessage());
   }
