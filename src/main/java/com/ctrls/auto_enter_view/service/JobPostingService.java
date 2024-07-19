@@ -55,7 +55,6 @@ public class JobPostingService {
   private final CandidateListRepository candidateListRepository;
   private final CandidateRepository candidateRepository;
   private final JobPostingTechStackService jobPostingTechStackService;
-  private final CandidateService candidateService;
   private final JobPostingStepRepository jobPostingStepRepository;
   private final AppliedJobPostingRepository appliedJobPostingRepository;
   private final JobPostingStepService jobPostingStepService;

@@ -40,9 +40,6 @@ import org.springframework.stereotype.Service;
 public class CandidateService {
 
   private final CandidateRepository candidateRepository;
-  private final CompanyRepository companyRepository;
-  private final CandidateListRepository candidateListRepository;
-  private final JobPostingRepository jobPostingRepository;
   private final ResumeRepository resumeRepository;
   private final AppliedJobPostingRepository appliedJobPostingRepository;
   private final PasswordEncoder passwordEncoder;
