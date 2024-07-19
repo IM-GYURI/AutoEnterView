@@ -7,6 +7,8 @@ import com.ctrls.auto_enter_view.dto.candidate.SignUpDto;
 import com.ctrls.auto_enter_view.service.CandidateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,14 +48,15 @@ public class CandidateController {
   // (지원자) 지원한 채용 공고 조회하기
   @GetMapping("/{candidateKey}/applied-job-postings")
   public ResponseEntity<CandidateApplyDto.Response> getApplyJobPosting(
+      @AuthenticationPrincipal UserDetails userDetails,
       @PathVariable String candidateKey,
       @RequestParam(defaultValue = "1") int page,
-      @RequestParam(defaultValue = "20") int size) {
+      @RequestParam(defaultValue = "20") int size
+  ) {
 
-    CandidateApplyDto.Response response = candidateService.getApplyJobPostings(candidateKey, page,
-        size);
+    CandidateApplyDto.Response response = candidateService.getApplyJobPostings(userDetails,
+        candidateKey, page, size);
 
     return ResponseEntity.ok(response);
   }
-
 }
