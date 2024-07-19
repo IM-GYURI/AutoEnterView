@@ -27,7 +27,7 @@ public class CompanyInfoService {
   @Transactional
   public void createInfo(String companyKey, Request request) {
 
-    authCheck(companyKey);
+    String companyName = authCheck(companyKey);
 
     if (companyInfoRepository.existsByCompanyKey(companyKey)) {
       throw new CustomException(ErrorCode.ALREADY_EXISTS);
@@ -35,7 +35,7 @@ public class CompanyInfoService {
 
     String key = KeyGenerator.generateKey();
 
-    CompanyInfoEntity companyInfoEntity = request.toEntity(key, companyKey);
+    CompanyInfoEntity companyInfoEntity = request.toEntity(key, companyKey, companyName);
 
     companyInfoRepository.save(companyInfoEntity);
   }
@@ -70,7 +70,7 @@ public class CompanyInfoService {
     companyInfoRepository.deleteByCompanyKey(companyKey);
   }
 
-  private void authCheck(String companyKey) {
+  private String authCheck(String companyKey) {
 
     UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
@@ -81,5 +81,7 @@ public class CompanyInfoService {
     if (!companyEntity.getCompanyKey().equals(companyKey)) {
       throw new CustomException(ErrorCode.NO_AUTHORITY);
     }
+
+    return companyEntity.getCompanyName();
   }
 }
