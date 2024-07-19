@@ -16,6 +16,11 @@ import com.ctrls.auto_enter_view.enums.ResponseMessage;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.AppliedJobPostingRepository;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
+import com.ctrls.auto_enter_view.repository.CompanyRepository;
+import com.ctrls.auto_enter_view.repository.JobPostingRepository;
+import com.ctrls.auto_enter_view.repository.ResumeRepository;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +40,10 @@ import org.springframework.stereotype.Service;
 public class CandidateService {
 
   private final CandidateRepository candidateRepository;
+  private final CompanyRepository companyRepository;
+  private final CandidateListRepository candidateListRepository;
+  private final JobPostingRepository jobPostingRepository;
+  private final ResumeRepository resumeRepository;
   private final AppliedJobPostingRepository appliedJobPostingRepository;
   private final PasswordEncoder passwordEncoder;
 
@@ -92,6 +101,11 @@ public class CandidateService {
     return candidateRepository.findByEmail(candidateEmail)
         .map(CandidateEntity::getCandidateKey)
         .orElseThrow(() -> new CustomException(EMAIL_NOT_FOUND));
+  }
+
+  // 이력서 존재 여부 확인하기
+  public boolean hasResume(String candidateKey) {
+    return resumeRepository.existsByCandidateKey(candidateKey);
   }
 
   // candidateKey -> 지원자 정보 조회 : 이름

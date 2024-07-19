@@ -3,7 +3,9 @@ package com.ctrls.auto_enter_view.controller;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingInfoDto;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
+import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.enums.ResponseMessage;
+import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.service.CandidateService;
 import com.ctrls.auto_enter_view.service.JobPostingImageService;
 import com.ctrls.auto_enter_view.service.JobPostingService;
@@ -111,6 +113,10 @@ public class JobPostingController {
 
     String candidateEmail = userDetails.getUsername();
     String candidateKey = candidateService.findCandidateKeyByEmail(candidateEmail);
+
+    if (!candidateService.hasResume(candidateKey)) {
+      throw new CustomException(ErrorCode.RESUME_NOT_FOUND);
+    }
 
     jobPostingService.applyJobPosting(jobPostingKey, candidateKey);
 
