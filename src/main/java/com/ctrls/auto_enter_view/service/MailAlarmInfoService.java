@@ -101,21 +101,6 @@ public class MailAlarmInfoService {
     }
   }
 
-  // 사용자 인증 정보로 회사 entity 찾기
-  private CompanyEntity findCompanyByPrincipal(User principal) {
-
-    return companyRepository.findByEmail(principal.getUsername())
-        .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
-  }
-
-  // 회사 본인인지 확인
-  private void verifyCompanyOwnership(CompanyEntity company, String companyKey) {
-
-    if (!company.getCompanyKey().equals(companyKey)) {
-      throw new CustomException(USER_NOT_FOUND);
-    }
-  }
-
   /**
    * 예약된 메일 수정
    *
@@ -211,7 +196,7 @@ public class MailAlarmInfoService {
           "면접 일정 알림 : " + jobPostingEntity.getTitle() + " - " + jobPostingStep.getStep();
       String text = "지원해주신 " + jobPostingEntity.getTitle() + "의 " + jobPostingStep.getStep()
           + " 면접 일정 안내드립니다.<br><br>" + "<strong>면접 일시 : " + participant.getInterviewStartDatetime()
-          .format(DateTimeFormatter.ofPattern("HH:mm")) + "</strong><br><br>"
+          .format(DateTimeFormatter.ofPattern("yyyy-MM-dd EEEE HH:mm")) + "</strong><br><br>"
           + "면접 시간 : " + minutes + "분<br><br>"
           + mailAlarmInfoEntity.getMailContent();
 
@@ -220,6 +205,46 @@ public class MailAlarmInfoService {
 
       // HTML 형식으로 메일 발송
       mailComponent.sendHtmlMail(to, subject, text, true);
+    }
+  }
+
+  // 취소 메일 발송
+  public void sendCancellationMailToParticipants(InterviewScheduleEntity interviewScheduleEntity,
+      List<InterviewScheduleParticipantsEntity> participants) {
+    JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(
+            interviewScheduleEntity.getJobPostingKey())
+        .orElseThrow(() -> new CustomException(JOB_POSTING_NOT_FOUND));
+
+    JobPostingStepEntity jobPostingStep = jobPostingStepRepository.findById(
+            participants.get(0).getJobPostingStepId())
+        .orElseThrow(() -> new CustomException(JOB_POSTING_STEP_NOT_FOUND));
+
+    for (InterviewScheduleParticipantsEntity participant : participants) {
+      String to = candidateRepository.findByCandidateKey(participant.getCandidateKey())
+          .orElseThrow(() -> new CustomException(USER_NOT_FOUND)).getEmail();
+
+      String subject = "면접 일정 취소 안내 : " + jobPostingEntity.getTitle();
+      String text = "예정되었던 면접 일정이 <strong>취소</strong>되었음을 안내드립니다.<br><br>"
+          + "취소된 면접 정보<br>" + jobPostingEntity.getTitle() + " - " + jobPostingStep.getStep()
+          + "<br> 취소된 면접 일시 : " + participant.getInterviewStartDatetime()
+          .format(DateTimeFormatter.ofPattern("yyyy-MM-dd EEEE HH:mm"));
+
+      mailComponent.sendHtmlMail(to, subject, text, true);
+    }
+  }
+
+  // 사용자 인증 정보로 회사 entity 찾기
+  private CompanyEntity findCompanyByPrincipal(User principal) {
+
+    return companyRepository.findByEmail(principal.getUsername())
+        .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+  }
+
+  // 회사 본인인지 확인
+  private void verifyCompanyOwnership(CompanyEntity company, String companyKey) {
+
+    if (!company.getCompanyKey().equals(companyKey)) {
+      throw new CustomException(USER_NOT_FOUND);
     }
   }
 }

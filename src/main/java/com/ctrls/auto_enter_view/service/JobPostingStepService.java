@@ -1,17 +1,18 @@
 package com.ctrls.auto_enter_view.service;
 
 import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_NOT_FOUND;
-import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_STEP_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.RESUME_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 
-import com.ctrls.auto_enter_view.dto.candidateList.CandidateTechStackListDto;
+import com.ctrls.auto_enter_view.dto.candidateList.CandidateTechStackInterviewInfoDto;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto.Request;
+import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingEveryInfoDto;
 import com.ctrls.auto_enter_view.dto.jobPostingStep.JobPostingStepDto;
 import com.ctrls.auto_enter_view.dto.jobPostingStep.JobPostingStepsDto;
 import com.ctrls.auto_enter_view.entity.CandidateListEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
+import com.ctrls.auto_enter_view.entity.InterviewScheduleParticipantsEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
 import com.ctrls.auto_enter_view.entity.ResumeEntity;
@@ -20,6 +21,7 @@ import com.ctrls.auto_enter_view.enums.TechStack;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateListRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
+import com.ctrls.auto_enter_view.repository.InterviewScheduleParticipantsRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
 import com.ctrls.auto_enter_view.repository.ResumeRepository;
@@ -45,6 +47,7 @@ public class JobPostingStepService {
   private final CandidateListRepository candidateListRepository;
   private final ResumeRepository resumeRepository;
   private final ResumeTechStackRepository resumeTechStackRepository;
+  private final InterviewScheduleParticipantsRepository interviewScheduleParticipantsRepository;
 
   public void createJobPostingStep(JobPostingEntity entity, JobPostingDto.Request request) {
 
@@ -87,15 +90,14 @@ public class JobPostingStepService {
   }
 
   /**
-   * 해당 채용 단계의 지원자 리스트 조회 : 지원자 key, 지원자 이름, 이력서 key, 기술 스택 리스트
+   * 전체 채용 단계의 지원자 리스트 조회 : 채용단계 ID - 지원자 key, 지원자 이름, 이력서 key, 기술 스택 리스트, 면접 일시?
    *
    * @param jobPostingKey
-   * @param stepId
    * @return
    */
   @Transactional(readOnly = true)
-  public List<CandidateTechStackListDto> getCandidatesListByStepId(String jobPostingKey,
-      Long stepId) {
+  public List<JobPostingEveryInfoDto> getCandidatesListByStepId(String jobPostingKey) {
+    List<JobPostingEveryInfoDto> jobPostingEveryInfoDtoList = new ArrayList<>();
 
     JobPostingEntity jobPosting = findJobPostingEntityByJobPostingKey(jobPostingKey);
 
@@ -104,13 +106,35 @@ public class JobPostingStepService {
 
     verifyCompanyOwnership(company, jobPosting);
 
-    verifyJobPostingStepExists(jobPostingKey, stepId);
+    // 해당 채용 공고의 단계를 전부 가져오기
+    List<JobPostingStepEntity> jobPostingStepEntityList = jobPostingStepRepository.findAllByJobPostingKey(
+        jobPostingKey);
 
-    List<CandidateListEntity> candidateList = getCandidateList(jobPostingKey, stepId);
+    // 단계마다 지원자 리스트를 가져오기 : candidates_list에서 지원자Key, 지원자 이름
+    // -> 이력서 Key 찾기 -> 이력서 Key로 기술 스택 리스트 가져오기
+    // -> interview_schedule_participants에 해당 채용 단계 ID & 지원자 Key가 존재하는지 확인
+    // -> 있다면 시작일자시간을 가져와서 조합해주기
+    for (JobPostingStepEntity jobPostingStepEntity : jobPostingStepEntityList) {
+      List<CandidateListEntity> candidateList = getCandidateList(jobPostingKey,
+          jobPostingStepEntity.getId());
 
-    return candidateList.stream()
-        .map(this::mapToCandidateTechStackListDto)
-        .collect(Collectors.toList());
+      List<CandidateTechStackInterviewInfoDto> candidateTechStackInterviewInfoDtoList = new ArrayList<>();
+
+      for (CandidateListEntity candidate : candidateList) {
+        CandidateTechStackInterviewInfoDto candidateTechStackInterviewInfoDto = mapToCandidateTechStackListDto(
+            candidate, jobPostingStepEntity.getId());
+
+        candidateTechStackInterviewInfoDtoList.add(candidateTechStackInterviewInfoDto);
+      }
+
+      jobPostingEveryInfoDtoList.add(JobPostingEveryInfoDto.builder()
+          .stepId(jobPostingStepEntity.getId())
+          .candidateTechStackInterviewInfoDtoList(candidateTechStackInterviewInfoDtoList)
+          .build()
+      );
+    }
+
+    return jobPostingEveryInfoDtoList;
   }
 
   // 채용공고 key로 채용공고 entity 찾기
@@ -132,14 +156,6 @@ public class JobPostingStepService {
 
     if (!company.getCompanyKey().equals(jobPosting.getCompanyKey())) {
       throw new CustomException(USER_NOT_FOUND);
-    }
-  }
-
-  // 채용공고에 해당 step이 존재하는지 확인
-  private void verifyJobPostingStepExists(String jobPostingKey, Long stepId) {
-
-    if (!jobPostingStepRepository.existsByIdAndJobPostingKey(stepId, jobPostingKey)) {
-      throw new CustomException(JOB_POSTING_STEP_NOT_FOUND);
     }
   }
 
@@ -165,19 +181,25 @@ public class JobPostingStepService {
         .collect(Collectors.toList());
   }
 
-  // CadndiateEntity -> CandidateTechStackListDto 매핑
-  private CandidateTechStackListDto mapToCandidateTechStackListDto(
-      CandidateListEntity candidateListEntity) {
+  // CandidateListEntity & stepId -> CandidateTechStackInterviewInfoDto 매핑
+  private CandidateTechStackInterviewInfoDto mapToCandidateTechStackListDto(
+      CandidateListEntity candidateListEntity, Long stepId) {
 
     ResumeEntity resumeEntity = findResumeEntityByCandidateKey(
         candidateListEntity.getCandidateKey());
+
     List<TechStack> techStack = findTechStackByResumeKey(resumeEntity.getResumeKey());
 
-    return CandidateTechStackListDto.builder()
+    InterviewScheduleParticipantsEntity interviewScheduleParticipantsEntity = interviewScheduleParticipantsRepository.findByJobPostingStepIdAndCandidateKey(
+            stepId, candidateListEntity.getCandidateKey())
+        .orElseGet(InterviewScheduleParticipantsEntity::new);
+
+    return CandidateTechStackInterviewInfoDto.builder()
         .candidateKey(candidateListEntity.getCandidateKey())
         .candidateName(candidateListEntity.getCandidateName())
         .resumeKey(resumeEntity.getResumeKey())
         .techStack(techStack)
+        .startDateTime(interviewScheduleParticipantsEntity.getInterviewStartDatetime())
         .build();
   }
 

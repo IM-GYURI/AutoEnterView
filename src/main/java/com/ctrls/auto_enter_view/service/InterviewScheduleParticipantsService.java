@@ -6,11 +6,13 @@ import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleParticip
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleParticipantsDto.Response;
 import com.ctrls.auto_enter_view.entity.InterviewScheduleEntity;
 import com.ctrls.auto_enter_view.entity.InterviewScheduleParticipantsEntity;
+import com.ctrls.auto_enter_view.entity.MailAlarmInfoEntity;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateListRepository;
 import com.ctrls.auto_enter_view.repository.InterviewScheduleParticipantsRepository;
 import com.ctrls.auto_enter_view.repository.InterviewScheduleRepository;
+import com.ctrls.auto_enter_view.repository.MailAlarmInfoRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,10 @@ public class InterviewScheduleParticipantsService {
   private final CandidateListRepository candidateListRepository;
 
   private final InterviewScheduleRepository interviewScheduleRepository;
+
+  private final MailAlarmInfoRepository mailAlarmInfoRepository;
+
+  private final MailAlarmInfoService mailAlarmInfoService;
 
   public void createInterviewSchedule(String jobPostingKey, Long stepId, List<Request> request) {
 
@@ -116,7 +122,21 @@ public class InterviewScheduleParticipantsService {
     List<InterviewScheduleParticipantsEntity> entity = interviewScheduleParticipantsRepository.findAllByJobPostingKeyAndJobPostingStepId(
         jobPostingKey, stepId);
 
-    interviewScheduleParticipantsRepository.deleteAll(entity);
+    MailAlarmInfoEntity mailAlarmInfoEntity = mailAlarmInfoRepository.findByInterviewScheduleKey(
+            interviewScheduleKey)
+        .orElseThrow(() -> new CustomException(ErrorCode.MAIL_ALARM_INFO_NOT_FOUND));
+
+    // 예약된 메일의 시간이 현재 시간보다 이전이면 이미 발송된 것으로 간주하고 취소 메일 발송
+    if (mailAlarmInfoEntity.getMailSendDateTime().isBefore(LocalDateTime.now())) {
+      mailAlarmInfoService.sendCancellationMailToParticipants(interviewScheduleEntity,
+          participants);
+    } else {
+      // 예약된 메일 시간이 현재 시간 이후이면 예약 취소
+      mailAlarmInfoService.unscheduleMailJob(mailAlarmInfoEntity);
+    }
+    mailAlarmInfoRepository.delete(mailAlarmInfoEntity);
+
+    interviewScheduleParticipantsRepository.deleteAll(participants);
     interviewScheduleRepository.delete(interviewScheduleEntity);
   }
 
