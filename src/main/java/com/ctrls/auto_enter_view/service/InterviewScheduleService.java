@@ -18,6 +18,14 @@ public class InterviewScheduleService {
 
   private final InterviewScheduleRepository interviewScheduleRepository;
 
+  /**
+   * 면접 일정 생성
+   *
+   * @param jobPostingKey
+   * @param stepId
+   * @param request
+   * @return
+   */
   public Response createInterviewSchedule(String jobPostingKey, Long stepId,
       List<Request> request) {
 
@@ -30,6 +38,14 @@ public class InterviewScheduleService {
         .build();
   }
 
+  /**
+   * 과제 일정 생성
+   *
+   * @param jobPostingKey
+   * @param stepId
+   * @param taskRequest
+   * @return
+   */
   public Response createTaskSchedule(String jobPostingKey, Long stepId, TaskRequest taskRequest) {
 
     InterviewScheduleEntity saved = interviewScheduleRepository.save(
