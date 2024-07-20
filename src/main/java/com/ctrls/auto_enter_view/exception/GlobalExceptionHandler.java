@@ -39,4 +39,11 @@ public class GlobalExceptionHandler {
     });
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
   }
+
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<String> handleException(Exception e) {
+
+    log.error("exceptionHandler", e);
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+  }
 }

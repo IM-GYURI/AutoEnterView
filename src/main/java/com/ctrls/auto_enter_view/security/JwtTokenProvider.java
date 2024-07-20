@@ -2,7 +2,9 @@ package com.ctrls.auto_enter_view.security;
 
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
+import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.enums.UserRole;
+import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import io.jsonwebtoken.Claims;
@@ -144,15 +146,15 @@ public class JwtTokenProvider {
     if (role == UserRole.ROLE_COMPANY) {
       CompanyEntity company = companyRepository.findByEmail(email)
           .orElseThrow(
-              () -> new UsernameNotFoundException("Company not found for email: " + email));
+              () -> new CustomException(ErrorCode.COMPANY_NOT_FOUND));
       return buildUserDetails(company.getEmail(), company.getPassword(), role);
     } else if (role == UserRole.ROLE_CANDIDATE) {
       CandidateEntity candidate = candidateRepository.findByEmail(email)
           .orElseThrow(
-              () -> new UsernameNotFoundException("Candidate not found for email: " + email));
+              () -> new CustomException(ErrorCode.CANDIDATE_NOT_FOUND));
       return buildUserDetails(candidate.getEmail(), candidate.getPassword(), role);
     }
-    throw new IllegalArgumentException("Unsupported role: " + role);
+    throw new CustomException(ErrorCode.NO_AUTHORITY);
   }
 
   /**
