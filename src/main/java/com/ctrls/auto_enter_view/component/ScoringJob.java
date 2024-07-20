@@ -4,16 +4,18 @@ import com.ctrls.auto_enter_view.entity.ApplicantEntity;
 import com.ctrls.auto_enter_view.repository.ApplicantRepository;
 import com.ctrls.auto_enter_view.service.FilteringService;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class ScoringJob implements Job {
 
-  private FilteringService filteringService;
-  private ApplicantRepository applicantRepository;
+  private final FilteringService filteringService;
+  private final ApplicantRepository applicantRepository;
 
   @Override
   public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
