@@ -28,7 +28,7 @@ public class ResumeReadDto {
     private String email;
     private String phoneNumber;
     private String address;
-    private String scholarship;
+    private String education;
     private String schoolName;
     private String portfolio;
     private List<CareerDto> career;
@@ -54,7 +54,7 @@ public class ResumeReadDto {
       private String email;
       private String phoneNumber;
       private String address;
-      private String scholarship;
+      private String education;
       private String schoolName;
       private String portfolio;
       private List<CareerDto> career;
@@ -72,14 +72,14 @@ public class ResumeReadDto {
         resumeKey = resumeEntity.getResumeKey();
         candidateKey = resumeEntity.getCandidateKey();
         title = resumeEntity.getTitle();
-        jobWant = resumeEntity.getJobWant();
+        jobWant = resumeEntity.getJobWant().getValue();
         name = resumeEntity.getName();
         gender = resumeEntity.getGender();
         birthDate = resumeEntity.getBirthDate();
         email = resumeEntity.getEmail();
         phoneNumber = resumeEntity.getPhoneNumber();
         address = resumeEntity.getAddress();
-        scholarship = resumeEntity.getScholarship();
+        education = resumeEntity.getEducation().getValue();
         schoolName = resumeEntity.getSchoolName();
         portfolio = resumeEntity.getPortfolio();
 
@@ -146,9 +146,9 @@ public class ResumeReadDto {
         return this;
       }
 
-      public ResponseBuilder scholarship(String scholarship) {
+      public ResponseBuilder education(String education) {
 
-        this.scholarship = scholarship;
+        this.education = education;
         return this;
       }
 
@@ -215,6 +215,7 @@ public class ResumeReadDto {
       }
 
       public ResponseBuilder image(String resumeImageUrl) {
+
         this.resumeImageUrl = resumeImageUrl;
         return this;
       }
@@ -223,7 +224,7 @@ public class ResumeReadDto {
 
         return new Response(this.resumeKey, this.candidateKey, this.title, this.jobWant, this.name,
             this.gender, this.birthDate, this.email, this.phoneNumber, this.address,
-            this.scholarship, this.schoolName, this.portfolio, this.career, this.certificates,
+            this.education, this.schoolName, this.portfolio, this.career, this.certificates,
             this.experience, this.techStack, this.resumeImageUrl);
       }
 
@@ -233,12 +234,11 @@ public class ResumeReadDto {
             + ", candidateKey=" + this.candidateKey + ", title=" + this.title + ", jobWant="
             + this.jobWant + ", name=" + this.name + ", gender=" + this.gender + ", birthDate="
             + this.birthDate + ", email=" + this.email + ", phoneNumber=" + this.phoneNumber
-            + ", address=" + this.address + ", scholarship=" + this.scholarship + ", schoolName="
+            + ", address=" + this.address + ", education=" + this.education + ", schoolName="
             + this.schoolName + ", portfolio=" + this.portfolio + ", career=" + this.career
             + ", certificates=" + this.certificates + ", experience=" + this.experience
             + ", techStack=" + this.techStack + ", image=" + this.resumeImageUrl + ")";
       }
-
     }
   }
 }

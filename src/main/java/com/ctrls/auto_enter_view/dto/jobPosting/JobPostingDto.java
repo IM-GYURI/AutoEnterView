@@ -3,6 +3,8 @@ package com.ctrls.auto_enter_view.dto.jobPosting;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingTechStackEntity;
+import com.ctrls.auto_enter_view.enums.Education;
+import com.ctrls.auto_enter_view.enums.JobCategory;
 import com.ctrls.auto_enter_view.enums.TechStack;
 import com.ctrls.auto_enter_view.util.KeyGenerator;
 import jakarta.validation.constraints.NotBlank;
@@ -26,7 +28,7 @@ public class JobPostingDto {
     @NotBlank(message = "제목은 필수 항목입니다.")
     private String title;
 
-    private String jobCategory;
+    private JobCategory jobCategory;
 
     private Integer career;
 
@@ -39,7 +41,7 @@ public class JobPostingDto {
     @NotBlank(message = "근무 위치는 필수 입력 항목입니다.")
     private String workLocation;
 
-    private String education;
+    private Education education;
 
     @NotBlank(message = "고용 형태는 필수 항목입니다.")
     private String employmentType;
@@ -106,14 +108,6 @@ public class JobPostingDto {
           .step(stepName)
           .build();
     }
-
-    public static JobPostingStepEntity toStepEntity(String jobPostingKey, String stepName) {
-
-      return JobPostingStepEntity.builder()
-          .jobPostingKey(jobPostingKey)
-          .step(stepName)
-          .build();
-    }
   }
 
   @Getter
@@ -123,5 +117,4 @@ public class JobPostingDto {
     private String jobPostingKey;
     private String jobPostingImageUrl;
   }
-
 }
