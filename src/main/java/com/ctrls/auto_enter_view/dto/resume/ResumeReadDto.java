@@ -34,7 +34,7 @@ public class ResumeReadDto {
     private List<CareerDto> career;
     private List<CertificateDto> certificates;
     private List<ExperienceDto> experience;
-    private List<TechStack> techStack;
+    private List<String> techStack;
     private String resumeImageUrl;
 
     public static ResponseBuilder builder() {
@@ -60,7 +60,7 @@ public class ResumeReadDto {
       private List<CareerDto> career;
       private List<CertificateDto> certificates;
       private List<ExperienceDto> experience;
-      private List<TechStack> techStack;
+      private List<String> techStack;
       private String resumeImageUrl;
 
       ResponseBuilder() {
@@ -208,13 +208,16 @@ public class ResumeReadDto {
 
       public ResponseBuilder techStack(List<ResumeTechStackEntity> techStack) {
 
-        this.techStack = techStack.stream().map(ResumeTechStackEntity::getTechStackName)
+        this.techStack = techStack.stream()
+            .map(ResumeTechStackEntity::getTechStackName)
+            .map(TechStack::getValue)
             .collect(Collectors.toList());
 
         return this;
       }
 
       public ResponseBuilder image(String resumeImageUrl) {
+
         this.resumeImageUrl = resumeImageUrl;
         return this;
       }
@@ -238,7 +241,6 @@ public class ResumeReadDto {
             + ", certificates=" + this.certificates + ", experience=" + this.experience
             + ", techStack=" + this.techStack + ", image=" + this.resumeImageUrl + ")";
       }
-
     }
   }
 }
