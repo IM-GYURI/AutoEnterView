@@ -1,6 +1,7 @@
 package com.ctrls.auto_enter_view.dto.resume;
 
 import com.ctrls.auto_enter_view.entity.ResumeEntity;
+import com.ctrls.auto_enter_view.enums.Education;
 import com.ctrls.auto_enter_view.enums.TechStack;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -67,7 +68,7 @@ public class ResumeDto {
           .email(email)
           .phoneNumber(phoneNumber)
           .address(address)
-          .scholarship(scholarship)
+          .scholarship(Education.valueOf(scholarship))
           .schoolName(schoolName)
           .portfolio(portfolio)
           .build();
