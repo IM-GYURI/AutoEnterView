@@ -79,7 +79,7 @@ public class ResumeReadDto {
         email = resumeEntity.getEmail();
         phoneNumber = resumeEntity.getPhoneNumber();
         address = resumeEntity.getAddress();
-        scholarship = resumeEntity.getScholarship();
+        scholarship = String.valueOf(resumeEntity.getScholarship());
         schoolName = resumeEntity.getSchoolName();
         portfolio = resumeEntity.getPortfolio();
 
