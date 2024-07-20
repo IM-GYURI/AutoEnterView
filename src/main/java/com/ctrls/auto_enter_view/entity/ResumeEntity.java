@@ -1,6 +1,7 @@
 package com.ctrls.auto_enter_view.entity;
 
 import com.ctrls.auto_enter_view.dto.resume.ResumeDto.Request;
+import com.ctrls.auto_enter_view.enums.Education;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -41,7 +42,7 @@ public class ResumeEntity extends BaseEntity {
 
   private String address;
 
-  private String scholarship;
+  private Education scholarship;
 
   private String schoolName;
 
@@ -57,7 +58,7 @@ public class ResumeEntity extends BaseEntity {
     email = request.getEmail();
     phoneNumber = request.getPhoneNumber();
     address = request.getAddress();
-    scholarship = request.getScholarship();
+    scholarship = Education.valueOf(request.getScholarship());
     schoolName = request.getSchoolName();
     portfolio = request.getPortfolio();
   }
