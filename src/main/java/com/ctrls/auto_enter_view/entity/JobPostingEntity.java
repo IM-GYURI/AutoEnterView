@@ -1,6 +1,8 @@
 package com.ctrls.auto_enter_view.entity;
 
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto.Request;
+import com.ctrls.auto_enter_view.enums.Education;
+import com.ctrls.auto_enter_view.enums.JobCategory;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -28,14 +30,14 @@ public class JobPostingEntity extends BaseEntity {
   @Column(nullable = false)
   private String title;
 
-  private String jobCategory;
+  private JobCategory jobCategory;
 
   private Integer career;
 
   @Column(nullable = false)
   private String workLocation;
 
-  private String education;
+  private Education education;
 
   @Column(nullable = false)
   private String employmentType;
@@ -60,10 +62,10 @@ public class JobPostingEntity extends BaseEntity {
   public void updateEntity(Request request) {
 
     this.title = request.getTitle();
-    this.jobCategory = request.getJobCategory();
+    this.jobCategory = JobCategory.valueOf(request.getJobCategory());
     this.career = request.getCareer();
     this.workLocation = request.getWorkLocation();
-    this.education = request.getEducation();
+    this.education = Education.valueOf(request.getEducation());
     this.employmentType = request.getEmploymentType();
     this.salary = request.getSalary();
     this.workTime = request.getWorkTime();
