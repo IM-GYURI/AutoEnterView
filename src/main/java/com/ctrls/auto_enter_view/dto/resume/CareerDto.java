@@ -1,6 +1,7 @@
 package com.ctrls.auto_enter_view.dto.resume;
 
 import com.ctrls.auto_enter_view.entity.ResumeCareerEntity;
+import com.ctrls.auto_enter_view.enums.JobCategory;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import lombok.AllArgsConstructor;
@@ -13,7 +14,7 @@ import lombok.Getter;
 public class CareerDto {
 
   private String companyName;
-  private String jobCategory;
+  private JobCategory jobCategory;
   private LocalDate startDate;
   private LocalDate endDate;
   private int calculatedCareer;

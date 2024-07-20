@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.entity;
 
+import com.ctrls.auto_enter_view.enums.JobCategory;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,7 +30,7 @@ public class ResumeCareerEntity {
 
   private String companyName;
 
-  private String jobCategory;
+  private JobCategory jobCategory;
 
   private LocalDate startDate;
 
