@@ -18,4 +18,6 @@ public interface JobPostingStepRepository extends JpaRepository<JobPostingStepEn
   Optional<JobPostingStepEntity> findFirstByJobPostingKeyOrderByIdAsc(String jobPostingKey);
 
   List<JobPostingStepEntity> findByJobPostingKey(String jobPostingKey);
+
+  Optional<JobPostingStepEntity> findByJobPostingKeyAndId(String jobPostingKey, Long nextStepId);
 }
