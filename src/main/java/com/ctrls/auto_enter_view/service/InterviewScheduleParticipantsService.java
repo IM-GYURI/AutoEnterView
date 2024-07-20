@@ -114,16 +114,15 @@ public class InterviewScheduleParticipantsService {
   // 개인 면접 일정 전체 삭제
   @Transactional
   public void deleteAllInterviewSchedule(String jobPostingKey, Long stepId) {
-
     InterviewScheduleEntity interviewScheduleEntity = interviewScheduleRepository.findByJobPostingKeyAndJobPostingStepId(
             jobPostingKey, stepId)
         .orElseThrow(() -> new CustomException(ErrorCode.INTERVIEW_SCHEDULE_NOT_FOUND));
 
-    List<InterviewScheduleParticipantsEntity> entity = interviewScheduleParticipantsRepository.findAllByJobPostingKeyAndJobPostingStepId(
+    List<InterviewScheduleParticipantsEntity> participants = interviewScheduleParticipantsRepository.findAllByJobPostingKeyAndJobPostingStepId(
         jobPostingKey, stepId);
 
     MailAlarmInfoEntity mailAlarmInfoEntity = mailAlarmInfoRepository.findByInterviewScheduleKey(
-            interviewScheduleKey)
+            interviewScheduleEntity.getInterviewScheduleKey())
         .orElseThrow(() -> new CustomException(ErrorCode.MAIL_ALARM_INFO_NOT_FOUND));
 
     // 예약된 메일의 시간이 현재 시간보다 이전이면 이미 발송된 것으로 간주하고 취소 메일 발송

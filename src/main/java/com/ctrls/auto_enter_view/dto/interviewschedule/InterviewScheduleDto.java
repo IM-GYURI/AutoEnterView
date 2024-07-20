@@ -1,6 +1,5 @@
 package com.ctrls.auto_enter_view.dto.interviewschedule;
 
-import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleParticipantsDto.Request;
 import com.ctrls.auto_enter_view.entity.InterviewScheduleEntity;
 import com.ctrls.auto_enter_view.entity.InterviewScheduleParticipantsEntity;
 import com.ctrls.auto_enter_view.util.KeyGenerator;
