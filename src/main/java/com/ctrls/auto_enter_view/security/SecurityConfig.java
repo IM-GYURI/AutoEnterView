@@ -53,6 +53,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(authHttpRequest -> authHttpRequest
 
             // 권한 없이 접근 가능
+            .requestMatchers("/api-test").permitAll()
             .requestMatchers("/companies/signup", "/candidates/signup").permitAll()
             .requestMatchers("/candidates/find-email").permitAll()
             .requestMatchers("/common/**").permitAll()
@@ -64,8 +65,8 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.GET, "/candidates/{candidateKey}/resume").authenticated()
 
             // candidate 권한 필요
-            .requestMatchers("/candidates/**").hasRole(UserRole.ROLE_CANDIDATE.name().substring(5))
             .requestMatchers(HttpMethod.POST, "/job-postings/{jobPostingKey}/apply").hasRole(UserRole.ROLE_CANDIDATE.name().substring(5))
+            .requestMatchers("/candidates/**").hasRole(UserRole.ROLE_CANDIDATE.name().substring(5))
 
             // company 권한 필요
             .requestMatchers("/companies/**").hasRole(UserRole.ROLE_COMPANY.name().substring(5))
