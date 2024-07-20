@@ -1,7 +1,7 @@
 package com.ctrls.auto_enter_view.controller;
 
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingEveryInfoDto;
-import com.ctrls.auto_enter_view.dto.jobPostingStep.EditJobPostingStepRequest;
+import com.ctrls.auto_enter_view.dto.jobPostingStep.EditJobPostingStepDto;
 import com.ctrls.auto_enter_view.dto.jobPostingStep.JobPostingStepsDto;
 import com.ctrls.auto_enter_view.enums.ResponseMessage;
 import com.ctrls.auto_enter_view.service.JobPostingStepService;
@@ -53,7 +53,7 @@ public class JobPostingStepController {
   // 단계 이동 시키기
   @PutMapping("/edit-step")
   public ResponseEntity<String> editStepId(
-      @RequestBody EditJobPostingStepRequest request,
+      @RequestBody EditJobPostingStepDto request,
       @PathVariable String jobPostingKey,
       @AuthenticationPrincipal UserDetails userDetails) {
 
