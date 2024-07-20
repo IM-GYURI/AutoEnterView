@@ -35,6 +35,7 @@ import org.quartz.SchedulerException;
 import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
+import org.quartz.TriggerKey;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -210,6 +211,17 @@ public class FilteringService {
       scheduler.scheduleJob(jobDetail, trigger);
     } catch (SchedulerException e) {
       throw new RuntimeException("Failed to schedule resume scoring job", e);
+    }
+  }
+
+  // 스케줄링 취소
+  public void unscheduleResumeScoringJob(String jobPostingKey) {
+    try {
+      TriggerKey triggerKey = TriggerKey.triggerKey("resumeScoringTrigger-" + jobPostingKey,
+          "resumeScoringGroup");
+      scheduler.unscheduleJob(triggerKey);
+    } catch (SchedulerException e) {
+      throw new RuntimeException("Failed to unschedule resume scoring job", e);
     }
   }
 }
