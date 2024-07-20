@@ -53,11 +53,13 @@ public class SecurityConfig {
         .authorizeHttpRequests(authHttpRequest -> authHttpRequest
 
             // 권한 없이 접근 가능
+            .requestMatchers("/api-test/**").permitAll()
             .requestMatchers("/companies/signup", "/candidates/signup").permitAll()
             .requestMatchers("/candidates/find-email").permitAll()
             .requestMatchers("/common/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/companies/{companyKey}/information").permitAll()
-            .requestMatchers("/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**").permitAll()
+            .requestMatchers("/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**")
+            .permitAll()
 
             // 권한 필요 (candidate, company 둘 중 하나)
             .requestMatchers("/common/signout", "common/{key}/password").authenticated()
@@ -65,12 +67,14 @@ public class SecurityConfig {
 
             // candidate 권한 필요
             .requestMatchers("/candidates/**").hasRole(UserRole.ROLE_CANDIDATE.name().substring(5))
-            .requestMatchers(HttpMethod.POST, "/job-postings/{jobPostingKey}/apply").hasRole(UserRole.ROLE_CANDIDATE.name().substring(5))
+            .requestMatchers(HttpMethod.POST, "/job-postings/{jobPostingKey}/apply")
+            .hasRole(UserRole.ROLE_CANDIDATE.name().substring(5))
 
             // company 권한 필요
             .requestMatchers("/companies/**").hasRole(UserRole.ROLE_COMPANY.name().substring(5))
             .requestMatchers("/job-postings/**").hasRole(UserRole.ROLE_COMPANY.name().substring(5))
-            .requestMatchers("/interview-schedule-participants/**").hasRole(UserRole.ROLE_COMPANY.name().substring(5))
+            .requestMatchers("/interview-schedule-participants/**")
+            .hasRole(UserRole.ROLE_COMPANY.name().substring(5))
 
             .anyRequest().authenticated())
 
