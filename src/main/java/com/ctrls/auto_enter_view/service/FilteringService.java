@@ -1,8 +1,16 @@
 package com.ctrls.auto_enter_view.service;
 
+import static com.ctrls.auto_enter_view.enums.ErrorCode.CANDIDATE_NOT_FOUND;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_NOT_FOUND;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_STEP_NOT_FOUND;
+
+import com.ctrls.auto_enter_view.component.FilteringJob;
 import com.ctrls.auto_enter_view.component.ScoringJob;
 import com.ctrls.auto_enter_view.entity.ApplicantEntity;
+import com.ctrls.auto_enter_view.entity.CandidateEntity;
+import com.ctrls.auto_enter_view.entity.CandidateListEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
+import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingTechStackEntity;
 import com.ctrls.auto_enter_view.entity.ResumeCareerEntity;
 import com.ctrls.auto_enter_view.entity.ResumeEntity;
@@ -13,27 +21,33 @@ import com.ctrls.auto_enter_view.enums.JobCategory;
 import com.ctrls.auto_enter_view.enums.TechStack;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.ApplicantRepository;
+import com.ctrls.auto_enter_view.repository.CandidateListRepository;
+import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
+import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingTechStackRepository;
 import com.ctrls.auto_enter_view.repository.ResumeCareerRepository;
 import com.ctrls.auto_enter_view.repository.ResumeCertificateRepository;
 import com.ctrls.auto_enter_view.repository.ResumeExperienceRepository;
 import com.ctrls.auto_enter_view.repository.ResumeRepository;
 import com.ctrls.auto_enter_view.repository.ResumeTechStackRepository;
+import com.ctrls.auto_enter_view.util.KeyGenerator;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.quartz.JobBuilder;
+import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SimpleScheduleBuilder;
-import org.quartz.Trigger;
+import org.quartz.SimpleTrigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.springframework.stereotype.Service;
@@ -48,6 +62,9 @@ public class FilteringService {
   private final JobPostingRepository jobPostingRepository;
   private final ApplicantRepository applicantRepository;
   private final ResumeTechStackRepository resumeTechStackRepository;
+  private final CandidateRepository candidateRepository;
+  private final CandidateListRepository candidateListRepository;
+  private final JobPostingStepRepository jobPostingStepRepository;
   private final JobPostingTechStackRepository jobPostingTechStackRepository;
   private final ResumeCareerRepository resumeCareerRepository;
   private final ResumeCertificateRepository resumeCertificateRepository;
@@ -69,7 +86,7 @@ public class FilteringService {
     }
 
     JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(jobPostingKey)
-        .orElseThrow(() -> new CustomException(ErrorCode.JOB_POSTING_NOT_FOUND));
+        .orElseThrow(() -> new CustomException(JOB_POSTING_NOT_FOUND));
 
     int totalScore = calculateTotalScore(resumeEntity, jobPostingEntity);
 
@@ -191,24 +208,49 @@ public class FilteringService {
     return (candidateCareer - requiredCareer + 1) * 5;
   }
 
-  // 스코어링 스케줄링
+  // 스코어링 + 필터링 스케줄링
   public void scheduleResumeScoringJob(String jobPostingKey, LocalDate endDate) {
     try {
       // 마감일 다음 날 자정으로 설정
       LocalDateTime filteringDateTime = LocalDateTime.of(endDate.plusDays(1), LocalTime.MIDNIGHT);
 
-      JobDetail jobDetail = JobBuilder.newJob(ScoringJob.class)
-          .withIdentity("resumeScoringJob-" + jobPostingKey, "resumeScoringGroup")
-          .usingJobData("jobPostingKey", jobPostingKey)
+      // 스코어링 스케줄링
+      JobDataMap jobDataMapA = new JobDataMap();
+      jobDataMapA.put("jobPostingKey", jobPostingKey);
+
+      JobDetail jobDetailA = JobBuilder.newJob(ScoringJob.class)
+          .withIdentity("resumeScoringJob", "group1")
+          .setJobData(jobDataMapA)
           .build();
 
-      Trigger trigger = TriggerBuilder.newTrigger()
-          .withIdentity("resumeScoringTrigger-" + jobPostingKey, "resumeScoringGroup")
+      SimpleTrigger triggerA = TriggerBuilder.newTrigger()
+          .withIdentity("resumeScoringTrigger", "group1")
           .startAt(Date.from(filteringDateTime.atZone(ZoneId.systemDefault()).toInstant()))
-          .withSchedule(SimpleScheduleBuilder.simpleSchedule())
+          .withSchedule(
+              SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow())
           .build();
 
-      scheduler.scheduleJob(jobDetail, trigger);
+      scheduler.scheduleJob(jobDetailA, triggerA);
+
+      // 필터링 스케줄링
+      JobDataMap jobDataMapB = new JobDataMap();
+      jobDataMapB.put("jobPostingKey", jobPostingKey);
+
+      JobDetail jobDetailB = JobBuilder.newJob(FilteringJob.class)
+          .withIdentity("filteringJob", "group1")
+          .setJobData(jobDataMapB)
+          .build();
+
+      // 스코어링 작업이 끝난 후 1분 후에 시작
+      SimpleTrigger triggerB = TriggerBuilder.newTrigger()
+          .withIdentity("filteringTrigger", "group1")
+          .startAt(Date.from(
+              filteringDateTime.plusMinutes(1).atZone(ZoneId.systemDefault()).toInstant()))
+          .withSchedule(
+              SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow())
+          .build();
+
+      scheduler.scheduleJob(jobDetailB, triggerB);
     } catch (SchedulerException e) {
       throw new RuntimeException("Failed to schedule resume scoring job", e);
     }
@@ -217,11 +259,57 @@ public class FilteringService {
   // 스케줄링 취소
   public void unscheduleResumeScoringJob(String jobPostingKey) {
     try {
-      TriggerKey triggerKey = TriggerKey.triggerKey("resumeScoringTrigger-" + jobPostingKey,
-          "resumeScoringGroup");
-      scheduler.unscheduleJob(triggerKey);
+      // 스코어링 작업과 필터링 작업의 트리거 취소
+      TriggerKey scoringTriggerKey = TriggerKey.triggerKey("resumeScoringTrigger-" + jobPostingKey,
+          "group1");
+      TriggerKey filteringTriggerKey = TriggerKey.triggerKey("filteringTrigger-" + jobPostingKey,
+          "group1");
+
+      // 스코어링 트리거 취소
+      scheduler.unscheduleJob(scoringTriggerKey);
+
+      // 필터링 트리거 취소
+      scheduler.unscheduleJob(filteringTriggerKey);
+
     } catch (SchedulerException e) {
-      throw new RuntimeException("Failed to unschedule resume scoring job", e);
+      throw new RuntimeException("Failed to unschedule jobs", e);
+    }
+  }
+
+  // 지원자를 점수가 높은 순서(같다면 지원한 시간이 빠른 순서)로 정렬하여 passingNumber만큼 candidateList에 저장시키기
+  public void filterCandidates(String jobPostingKey) {
+    JobPostingEntity jobPosting = jobPostingRepository.findByJobPostingKey(jobPostingKey)
+        .orElseThrow(() -> new CustomException(JOB_POSTING_NOT_FOUND));
+
+    int passingNumber = jobPosting.getPassingNumber();
+
+    List<ApplicantEntity> applicants = applicantRepository.findAllByJobPostingKey(jobPostingKey);
+
+    // 점수가 높은 순서대로 정렬 -> 점수가 같다면 지원한 시간이 빠른 순서대로 정렬
+    List<ApplicantEntity> toApplicants = applicants.stream()
+        .sorted(Comparator.comparingInt(ApplicantEntity::getScore).reversed()
+            .thenComparing(ApplicantEntity::getCreatedAt))
+        .limit(passingNumber)
+        .toList();
+
+    JobPostingStepEntity jobPostingStepEntity = jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(
+            jobPostingKey)
+        .orElseThrow(() -> new CustomException(JOB_POSTING_STEP_NOT_FOUND));
+
+    for (ApplicantEntity applicant : toApplicants) {
+      CandidateEntity candidate = candidateRepository.findByCandidateKey(
+              applicant.getCandidateKey())
+          .orElseThrow(() -> new CustomException(CANDIDATE_NOT_FOUND));
+
+      CandidateListEntity candidateListEntity = CandidateListEntity.builder()
+          .candidateListKey(KeyGenerator.generateKey())
+          .jobPostingStepId(jobPostingStepEntity.getId())
+          .jobPostingKey(jobPostingKey)
+          .candidateKey(candidate.getCandidateKey())
+          .candidateName(candidate.getName())
+          .build();
+
+      candidateListRepository.save(candidateListEntity);
     }
   }
 }
