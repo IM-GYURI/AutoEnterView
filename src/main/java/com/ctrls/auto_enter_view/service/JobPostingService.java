@@ -58,6 +58,7 @@ public class JobPostingService {
   private final AppliedJobPostingRepository appliedJobPostingRepository;
   private final JobPostingStepService jobPostingStepService;
   private final JobPostingImageService jobPostingImageService;
+  private final FilteringService filteringService;
   private final MailComponent mailComponent;
 
   /**
@@ -73,6 +74,10 @@ public class JobPostingService {
         COMPANY_NOT_FOUND));
 
     JobPostingEntity entity = Request.toEntity(companyKey, request);
+
+    // 스케줄링 코드
+    filteringService.scheduleResumeScoringJob(entity.getJobPostingKey(), entity.getEndDate());
+
     return jobPostingRepository.save(entity);
   }
 
