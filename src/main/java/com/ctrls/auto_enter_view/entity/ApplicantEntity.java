@@ -32,5 +32,9 @@ public class ApplicantEntity extends BaseEntity {
   @Column(nullable = false)
   @Builder.Default
   private int score = 0;
-  
+
+  public void updateScore(int score) {
+
+    this.score = score;
+  }
 }
