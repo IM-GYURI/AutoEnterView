@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/companies/{companyKey}/interview-schedules/{interviewScheduleKey}/steps/{stepId}/mail")
+@RequestMapping("/companies/{companyKey}/job-postings/{jobPostingKey}/steps/{stepId}/mail")
 public class MailAlarmInfoController {
 
   private final MailAlarmInfoService mailAlarmInfoService;
@@ -26,16 +26,16 @@ public class MailAlarmInfoController {
    * 메일 예약 생성
    *
    * @param companyKey
-   * @param interviewScheduleKey
+   * @param jobPostingKey
    * @param stepId
    * @param mailAlarmInfoDto
    * @return
    */
   @PostMapping
   public ResponseEntity<String> createMailAlarmInfo(@PathVariable String companyKey,
-      @PathVariable String interviewScheduleKey, @PathVariable Long stepId,
+      @PathVariable String jobPostingKey, @PathVariable Long stepId,
       @Validated @RequestBody MailAlarmInfoDto mailAlarmInfoDto) {
-    mailAlarmInfoService.createMailAlarmInfo(companyKey, interviewScheduleKey, stepId,
+    mailAlarmInfoService.createMailAlarmInfo(companyKey, jobPostingKey, stepId,
         mailAlarmInfoDto);
 
     return ResponseEntity.ok(SUCCESS_CREATE_MAIL_ALARM.getMessage());
@@ -45,16 +45,17 @@ public class MailAlarmInfoController {
    * 예약된 메일 수정
    *
    * @param companyKey
-   * @param interviewScheduleKey
+   * @param jobPostingKey
    * @param stepId
    * @param mailAlarmInfoDto
    * @return
    */
   @PutMapping
   public ResponseEntity<String> editMailAlarmInfo(@PathVariable String companyKey,
-      @PathVariable String interviewScheduleKey, @PathVariable Long stepId,
+      @PathVariable String jobPostingKey, @PathVariable Long stepId,
       @Validated @RequestBody MailAlarmInfoDto mailAlarmInfoDto) {
-    mailAlarmInfoService.editMailAlarmInfo(companyKey, interviewScheduleKey, stepId,
+    // 여기도 수정해야 함
+    mailAlarmInfoService.editMailAlarmInfo(companyKey, jobPostingKey, stepId,
         mailAlarmInfoDto);
 
     return ResponseEntity.ok(SUCCESS_EDIT_MAIL_ALARM.getMessage());

@@ -3,7 +3,6 @@ package com.ctrls.auto_enter_view.controller;
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto.Request;
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto.Response;
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto.TaskRequest;
-import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleParticipantsDto;
 import com.ctrls.auto_enter_view.service.InterviewScheduleService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

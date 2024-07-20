@@ -62,10 +62,10 @@ public class JobPostingEntity extends BaseEntity {
   public void updateEntity(Request request) {
 
     this.title = request.getTitle();
-    this.jobCategory = request.getJobCategory();
+    this.jobCategory = JobCategory.valueOf(request.getJobCategory());
     this.career = request.getCareer();
     this.workLocation = request.getWorkLocation();
-    this.education = request.getEducation();
+    this.education = Education.valueOf(request.getEducation());
     this.employmentType = request.getEmploymentType();
     this.salary = request.getSalary();
     this.workTime = request.getWorkTime();

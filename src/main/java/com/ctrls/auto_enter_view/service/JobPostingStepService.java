@@ -12,6 +12,7 @@ import com.ctrls.auto_enter_view.dto.jobPostingStep.JobPostingStepDto;
 import com.ctrls.auto_enter_view.dto.jobPostingStep.JobPostingStepsDto;
 import com.ctrls.auto_enter_view.entity.CandidateListEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
+import com.ctrls.auto_enter_view.entity.InterviewScheduleEntity;
 import com.ctrls.auto_enter_view.entity.InterviewScheduleParticipantsEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
@@ -22,12 +23,16 @@ import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateListRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.repository.InterviewScheduleParticipantsRepository;
+import com.ctrls.auto_enter_view.repository.InterviewScheduleRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
 import com.ctrls.auto_enter_view.repository.ResumeRepository;
 import com.ctrls.auto_enter_view.repository.ResumeTechStackRepository;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +52,7 @@ public class JobPostingStepService {
   private final CandidateListRepository candidateListRepository;
   private final ResumeRepository resumeRepository;
   private final ResumeTechStackRepository resumeTechStackRepository;
+  private final InterviewScheduleRepository interviewScheduleRepository;
   private final InterviewScheduleParticipantsRepository interviewScheduleParticipantsRepository;
 
   public void createJobPostingStep(JobPostingEntity entity, JobPostingDto.Request request) {
@@ -115,23 +121,78 @@ public class JobPostingStepService {
     // -> interview_schedule_participants에 해당 채용 단계 ID & 지원자 Key가 존재하는지 확인
     // -> 있다면 시작일자시간을 가져와서 조합해주기
     for (JobPostingStepEntity jobPostingStepEntity : jobPostingStepEntityList) {
-      List<CandidateListEntity> candidateList = getCandidateList(jobPostingKey,
+      // 과제인지 면접인지 확인하기 -> 과제라면 첫번째 면접 컬럼이 null일 것
+      Optional<InterviewScheduleEntity> interviewScheduleEntity = interviewScheduleRepository.findByJobPostingStepId(
           jobPostingStepEntity.getId());
 
-      List<CandidateTechStackInterviewInfoDto> candidateTechStackInterviewInfoDtoList = new ArrayList<>();
+      boolean isTask = interviewScheduleEntity.isPresent()
+          && interviewScheduleEntity.get().getFirstInterviewDate() == null;
+      boolean isInterview = interviewScheduleEntity.isPresent()
+          && interviewScheduleEntity.get().getFirstInterviewDate() != null;
 
-      for (CandidateListEntity candidate : candidateList) {
-        CandidateTechStackInterviewInfoDto candidateTechStackInterviewInfoDto = mapToCandidateTechStackListDto(
-            candidate, jobPostingStepEntity.getId());
+      if (isTask) {
+        // 과제라면
+        // candidateList에서 지원자 목록 불러오기
+        // 지원자 Key, 지원자 이름, 이력서 Key, 기술스택 리스트, 과제 마감일시
+        List<CandidateListEntity> candidateList = getCandidateList(jobPostingKey,
+            jobPostingStepEntity.getId());
 
-        candidateTechStackInterviewInfoDtoList.add(candidateTechStackInterviewInfoDto);
+        List<CandidateTechStackInterviewInfoDto> candidateTechStackInterviewInfoDtoList = new ArrayList<>();
+
+        for (CandidateListEntity candidate : candidateList) {
+          CandidateTechStackInterviewInfoDto candidateTechStackInterviewInfoDto = mapToCandidateTechStackListDtoInterview(
+              candidate, jobPostingStepEntity.getId());
+
+          candidateTechStackInterviewInfoDtoList.add(candidateTechStackInterviewInfoDto);
+        }
+
+        jobPostingEveryInfoDtoList.add(JobPostingEveryInfoDto.builder()
+            .stepId(jobPostingStepEntity.getId())
+            .candidateTechStackInterviewInfoDtoList(candidateTechStackInterviewInfoDtoList)
+            .build()
+        );
+      } else if (isInterview) {
+        // 면접이라면
+        // candidateList에서 지원자 목록 불러오기
+        // 지원자 Key, 지원자 이름, 이력서 Key, 기술스택 리스트, 면접 시작일시
+        List<CandidateListEntity> candidateList = getCandidateList(jobPostingKey,
+            jobPostingStepEntity.getId());
+
+        List<CandidateTechStackInterviewInfoDto> candidateTechStackInterviewInfoDtoList = new ArrayList<>();
+
+        for (CandidateListEntity candidate : candidateList) {
+          CandidateTechStackInterviewInfoDto candidateTechStackInterviewInfoDto = mapToCandidateTechStackListDtoTask(
+              candidate, jobPostingStepEntity.getId());
+
+          candidateTechStackInterviewInfoDtoList.add(candidateTechStackInterviewInfoDto);
+        }
+
+        jobPostingEveryInfoDtoList.add(JobPostingEveryInfoDto.builder()
+            .stepId(jobPostingStepEntity.getId())
+            .candidateTechStackInterviewInfoDtoList(candidateTechStackInterviewInfoDtoList)
+            .build()
+        );
+      } else {
+        // 면접 일정이나 과제 일정을 아직 안 만든 단계
+        // 지원자 Key, 지원자 이름, 이력서 Key, 기술스택 리스트, null
+        List<CandidateListEntity> candidateList = getCandidateList(jobPostingKey,
+            jobPostingStepEntity.getId());
+
+        List<CandidateTechStackInterviewInfoDto> candidateTechStackInterviewInfoDtoList = new ArrayList<>();
+
+        for (CandidateListEntity candidate : candidateList) {
+          CandidateTechStackInterviewInfoDto candidateTechStackInterviewInfoDto = mapToCandidateTechStackListDtoNothing(
+              candidate);
+
+          candidateTechStackInterviewInfoDtoList.add(candidateTechStackInterviewInfoDto);
+        }
+
+        jobPostingEveryInfoDtoList.add(JobPostingEveryInfoDto.builder()
+            .stepId(jobPostingStepEntity.getId())
+            .candidateTechStackInterviewInfoDtoList(candidateTechStackInterviewInfoDtoList)
+            .build()
+        );
       }
-
-      jobPostingEveryInfoDtoList.add(JobPostingEveryInfoDto.builder()
-          .stepId(jobPostingStepEntity.getId())
-          .candidateTechStackInterviewInfoDtoList(candidateTechStackInterviewInfoDtoList)
-          .build()
-      );
     }
 
     return jobPostingEveryInfoDtoList;
@@ -181,8 +242,8 @@ public class JobPostingStepService {
         .collect(Collectors.toList());
   }
 
-  // CandidateListEntity & stepId -> CandidateTechStackInterviewInfoDto 매핑
-  private CandidateTechStackInterviewInfoDto mapToCandidateTechStackListDto(
+  // 면접 : CandidateListEntity & stepId -> CandidateTechStackInterviewInfoDto 매핑
+  private CandidateTechStackInterviewInfoDto mapToCandidateTechStackListDtoTask(
       CandidateListEntity candidateListEntity, Long stepId) {
 
     ResumeEntity resumeEntity = findResumeEntityByCandidateKey(
@@ -199,7 +260,55 @@ public class JobPostingStepService {
         .candidateName(candidateListEntity.getCandidateName())
         .resumeKey(resumeEntity.getResumeKey())
         .techStack(techStack)
-        .startDateTime(interviewScheduleParticipantsEntity.getInterviewStartDatetime())
+        .scheduleDateTime(interviewScheduleParticipantsEntity.getInterviewStartDatetime())
+        .build();
+  }
+
+  // 과제 : CandidateListEntity & stepId -> CandidateTechStackInterviewInfoDto 매핑
+  private CandidateTechStackInterviewInfoDto mapToCandidateTechStackListDtoInterview(
+      CandidateListEntity candidateListEntity, Long stepId) {
+
+    ResumeEntity resumeEntity = findResumeEntityByCandidateKey(
+        candidateListEntity.getCandidateKey());
+
+    List<TechStack> techStack = findTechStackByResumeKey(resumeEntity.getResumeKey());
+
+    InterviewScheduleEntity interviewScheduleEntity = interviewScheduleRepository.findByJobPostingStepId(
+        stepId).orElseGet(InterviewScheduleEntity::new);
+
+    LocalDateTime scheduleDateTime;
+
+    if (interviewScheduleEntity.getLastInterviewDate() != null) {
+      scheduleDateTime = LocalDateTime.of(interviewScheduleEntity.getLastInterviewDate(),
+          LocalTime.of(23, 59, 59));
+    } else {
+      scheduleDateTime = null;
+    }
+
+    return CandidateTechStackInterviewInfoDto.builder()
+        .candidateKey(candidateListEntity.getCandidateKey())
+        .candidateName(candidateListEntity.getCandidateName())
+        .resumeKey(resumeEntity.getResumeKey())
+        .techStack(techStack)
+        .scheduleDateTime(scheduleDateTime)
+        .build();
+  }
+
+  // CandidateListEntity & stepId -> CandidateTechStackInterviewInfoDto 매핑
+  private CandidateTechStackInterviewInfoDto mapToCandidateTechStackListDtoNothing(
+      CandidateListEntity candidateListEntity) {
+
+    ResumeEntity resumeEntity = findResumeEntityByCandidateKey(
+        candidateListEntity.getCandidateKey());
+
+    List<TechStack> techStack = findTechStackByResumeKey(resumeEntity.getResumeKey());
+
+    return CandidateTechStackInterviewInfoDto.builder()
+        .candidateKey(candidateListEntity.getCandidateKey())
+        .candidateName(candidateListEntity.getCandidateName())
+        .resumeKey(resumeEntity.getResumeKey())
+        .techStack(techStack)
+        .scheduleDateTime(null)
         .build();
   }
 

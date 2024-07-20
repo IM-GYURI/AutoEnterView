@@ -1,6 +1,7 @@
 package com.ctrls.auto_enter_view.dto.candidateList;
 
 import com.ctrls.auto_enter_view.enums.TechStack;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -22,5 +23,6 @@ public class CandidateTechStackInterviewInfoDto {
 
   private List<TechStack> techStack;
 
-  private LocalDateTime startDateTime;
+  @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+  private LocalDateTime scheduleDateTime;
 }

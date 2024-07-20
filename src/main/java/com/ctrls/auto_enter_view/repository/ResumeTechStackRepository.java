@@ -15,4 +15,6 @@ public interface ResumeTechStackRepository extends JpaRepository<ResumeTechStack
   @Modifying
   @Query("DELETE FROM ResumeTechStackEntity r WHERE r.resumeKey = :resumeKey")
   void deleteAllByResumeKey(String resumeKey);
+
+  List<ResumeTechStackEntity> findTechStacksByResumeKey(String resumeKey);
 }

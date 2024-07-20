@@ -80,7 +80,8 @@ public class InterviewScheduleParticipantsController {
   /**
    * 전체 면접 일정 삭제
    *
-   * @param interviewScheduleKey
+   * @param jobPostingKey
+   * @param stepId
    * @return
    */
   @DeleteMapping("/job-postings/{jobPostingKey}/steps/{stepId}/interview-schedule")
