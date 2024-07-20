@@ -44,6 +44,7 @@ import lombok.RequiredArgsConstructor;
 import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SimpleScheduleBuilder;
@@ -214,6 +215,12 @@ public class FilteringService {
       // 마감일 다음 날 자정으로 설정
       LocalDateTime filteringDateTime = LocalDateTime.of(endDate.plusDays(1), LocalTime.MIDNIGHT);
 
+      // 기존 작업이 있는지 확인하고 제거
+      JobKey jobKeyA = JobKey.jobKey("resumeScoringJob", "group1");
+      if (scheduler.checkExists(jobKeyA)) {
+        scheduler.deleteJob(jobKeyA);
+      }
+
       // 스코어링 스케줄링
       JobDataMap jobDataMapA = new JobDataMap();
       jobDataMapA.put("jobPostingKey", jobPostingKey);
@@ -233,6 +240,11 @@ public class FilteringService {
       scheduler.scheduleJob(jobDetailA, triggerA);
 
       // 필터링 스케줄링
+      JobKey jobKeyB = JobKey.jobKey("filteringJob", "group1");
+      if (scheduler.checkExists(jobKeyB)) {
+        scheduler.deleteJob(jobKeyB);
+      }
+
       JobDataMap jobDataMapB = new JobDataMap();
       jobDataMapB.put("jobPostingKey", jobPostingKey);
 
