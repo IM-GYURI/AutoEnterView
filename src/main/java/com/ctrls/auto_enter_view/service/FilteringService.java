@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.service;
 
+import com.ctrls.auto_enter_view.component.ScoringJob;
 import com.ctrls.auto_enter_view.entity.ApplicantEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingTechStackEntity;
@@ -19,9 +20,21 @@ import com.ctrls.auto_enter_view.repository.ResumeCertificateRepository;
 import com.ctrls.auto_enter_view.repository.ResumeExperienceRepository;
 import com.ctrls.auto_enter_view.repository.ResumeRepository;
 import com.ctrls.auto_enter_view.repository.ResumeTechStackRepository;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.quartz.JobBuilder;
+import org.quartz.JobDetail;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.SimpleScheduleBuilder;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class FilteringService {
 
+  private final Scheduler scheduler;
   private final ResumeRepository resumeRepository;
   private final JobPostingRepository jobPostingRepository;
   private final ApplicantRepository applicantRepository;
@@ -38,10 +52,10 @@ public class FilteringService {
   private final ResumeCertificateRepository resumeCertificateRepository;
   private final ResumeExperienceRepository resumeExperienceRepository;
 
-
   @Transactional
   public void calculateResumeScore(String candidateKey, String jobPostingKey) {
-    ApplicantEntity applicantEntity = applicantRepository.findByCandidateKeyAndJobPostingKey(candidateKey, jobPostingKey)
+    ApplicantEntity applicantEntity = applicantRepository.findByCandidateKeyAndJobPostingKey(
+            candidateKey, jobPostingKey)
         .orElseThrow(() -> new CustomException(ErrorCode.APPLICANT_NOT_FOUND));
 
     ResumeEntity resumeEntity = resumeRepository.findByCandidateKey(candidateKey)
@@ -60,7 +74,6 @@ public class FilteringService {
 
     // 지원자 점수 수정
     applicantEntity.updateScore(totalScore);
-
   }
 
   private int calculateTotalScore(ResumeEntity resumeEntity, JobPostingEntity jobPostingEntity) {
@@ -69,7 +82,8 @@ public class FilteringService {
     totalScore += calculatePortfolioScore(resumeEntity);
     totalScore += calculateCertificateScore(resumeEntity.getResumeKey());
     totalScore += calculateExperienceScore(resumeEntity.getResumeKey());
-    totalScore += calculateTechStackScore(resumeEntity.getResumeKey(), jobPostingEntity.getJobPostingKey());
+    totalScore += calculateTechStackScore(resumeEntity.getResumeKey(),
+        jobPostingEntity.getJobPostingKey());
     totalScore += calculateEducationScore(resumeEntity, jobPostingEntity);
     totalScore += calculateCareerScore(resumeEntity.getResumeKey(), jobPostingEntity);
 
@@ -101,8 +115,10 @@ public class FilteringService {
 
   // 4. 기술 스택 : 채용공고에 올라온 것과 이력서에 작성한 것 비교해서 점수화
   private int calculateTechStackScore(String resumeKey, String jobPostingKey) {
-    List<ResumeTechStackEntity> resumeTechStackEntities = resumeTechStackRepository.findTechStacksByResumeKey(resumeKey);
-    List<JobPostingTechStackEntity> jobPostingTechStackEntities = jobPostingTechStackRepository.findTechStacksByJobPostingKey(jobPostingKey);
+    List<ResumeTechStackEntity> resumeTechStackEntities = resumeTechStackRepository.findTechStacksByResumeKey(
+        resumeKey);
+    List<JobPostingTechStackEntity> jobPostingTechStackEntities = jobPostingTechStackRepository.findTechStacksByJobPostingKey(
+        jobPostingKey);
 
     List<TechStack> resumeTechStacks = new ArrayList<>();
     for (ResumeTechStackEntity entity : resumeTechStackEntities) {
@@ -128,7 +144,8 @@ public class FilteringService {
 
   // 5. 학력 - 무관일 경우 전부 0점
   // 제약이 있는 경우
-  private int calculateEducationScore(ResumeEntity resumeEntity, JobPostingEntity jobPostingEntity) {
+  private int calculateEducationScore(ResumeEntity resumeEntity,
+      JobPostingEntity jobPostingEntity) {
     Education resumeEducation = resumeEntity.getScholarship();
     Education requiredEducation = jobPostingEntity.getEducation();
 
@@ -146,7 +163,8 @@ public class FilteringService {
   // 6. 경력 (지원자 경력 - 경력 = 값 * 5점) , 카테고리가 일치하는 것만 점수 산정
   private int calculateCareerScore(String resumeKey, JobPostingEntity jobPostingEntity) {
 
-    List<ResumeCareerEntity> candidateCareerList = resumeCareerRepository.findAllByResumeKey(resumeKey);
+    List<ResumeCareerEntity> candidateCareerList = resumeCareerRepository.findAllByResumeKey(
+        resumeKey);
 
     JobCategory requiredJobCategory = jobPostingEntity.getJobCategory();
     int requiredCareer = jobPostingEntity.getCareer();
@@ -171,9 +189,27 @@ public class FilteringService {
 
     return (candidateCareer - requiredCareer + 1) * 5;
   }
+
+  // 스코어링 스케줄링
+  public void scheduleResumeScoringJob(String jobPostingKey, LocalDate endDate) {
+    try {
+      // 마감일 다음 날 자정으로 설정
+      LocalDateTime filteringDateTime = LocalDateTime.of(endDate.plusDays(1), LocalTime.MIDNIGHT);
+
+      JobDetail jobDetail = JobBuilder.newJob(ScoringJob.class)
+          .withIdentity("resumeScoringJob-" + jobPostingKey, "resumeScoringGroup")
+          .usingJobData("jobPostingKey", jobPostingKey)
+          .build();
+
+      Trigger trigger = TriggerBuilder.newTrigger()
+          .withIdentity("resumeScoringTrigger-" + jobPostingKey, "resumeScoringGroup")
+          .startAt(Date.from(filteringDateTime.atZone(ZoneId.systemDefault()).toInstant()))
+          .withSchedule(SimpleScheduleBuilder.simpleSchedule())
+          .build();
+
+      scheduler.scheduleJob(jobDetail, trigger);
+    } catch (SchedulerException e) {
+      throw new RuntimeException("Failed to schedule resume scoring job", e);
+    }
+  }
 }
-
-
-
-
-
