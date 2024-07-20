@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/api-test")
 public class ApiTestController {
 
-  private final ScoringService filteringService;
+  private final ScoringService scoringService;
 
   @PostMapping
   public ResponseEntity<?> scoreApplicants(@RequestBody String jobPostingKey) {
 
-    filteringService.scoreApplicants(jobPostingKey);
+    scoringService.scoreApplicants(jobPostingKey);
 
     return ResponseEntity.ok("OK");
   }
