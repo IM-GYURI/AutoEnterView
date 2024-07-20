@@ -18,6 +18,7 @@ import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
 import com.ctrls.auto_enter_view.entity.ResumeEntity;
 import com.ctrls.auto_enter_view.entity.ResumeTechStackEntity;
+import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.enums.TechStack;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateListRepository;
@@ -38,6 +39,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -329,5 +331,35 @@ public class JobPostingStepService {
     }
     log.info("step 가져오기 성공 {}", step);
     return step;
+  }
+
+  // 채용 단계 올리기
+  @Transactional
+  public void editStepId(Long currentStepId, String candidateKey, String jobPostingKey, UserDetails userDetails) {
+
+    CompanyEntity companyEntity = companyRepository.findByEmail(userDetails.getUsername())
+        .orElseThrow(() -> new CustomException(ErrorCode.COMPANY_NOT_FOUND));
+
+    // 본인 회사의 채용 공고인지 확인
+    JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(jobPostingKey)
+        .orElseThrow(() -> new CustomException(ErrorCode.JOB_POSTING_NOT_FOUND));
+
+    if (!jobPostingEntity.getCompanyKey().equals(companyEntity.getCompanyKey())) {
+      throw new CustomException(ErrorCode.NO_AUTHORITY);
+    }
+
+    // 지원자 정보 조회
+    CandidateListEntity candidateListEntity = candidateListRepository.findByCandidateKeyAndJobPostingKey(candidateKey, jobPostingKey)
+        .orElseThrow(() -> new CustomException(ErrorCode.CANDIDATE_NOT_FOUND));
+
+    // 다음 단계 ID 계산
+    Long nextStepId = currentStepId + 1;
+
+    // 다음 단계가 존재하는지 확인
+    JobPostingStepEntity nextStep = jobPostingStepRepository.findByJobPostingKeyAndId(jobPostingKey, nextStepId)
+        .orElseThrow(() -> new CustomException(ErrorCode.NEXT_STEP_NOT_FOUND));
+
+    // 지원자의 단계 ID 업데이트
+    candidateListEntity.updateJobPostingStepId(nextStepId);
   }
 }
