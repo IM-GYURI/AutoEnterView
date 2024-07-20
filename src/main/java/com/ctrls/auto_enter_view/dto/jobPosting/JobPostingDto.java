@@ -3,6 +3,8 @@ package com.ctrls.auto_enter_view.dto.jobPosting;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingTechStackEntity;
+import com.ctrls.auto_enter_view.enums.Education;
+import com.ctrls.auto_enter_view.enums.JobCategory;
 import com.ctrls.auto_enter_view.enums.TechStack;
 import com.ctrls.auto_enter_view.util.KeyGenerator;
 import jakarta.validation.constraints.NotBlank;
@@ -67,10 +69,10 @@ public class JobPostingDto {
           .companyKey(companyKey)
           .jobPostingKey(KeyGenerator.generateKey())
           .title(request.getTitle())
-          .jobCategory(request.getJobCategory())
+          .jobCategory(JobCategory.valueOf(request.getJobCategory()))
           .career(request.getCareer())
           .workLocation(request.getWorkLocation())
-          .education(request.getEducation())
+          .education(Education.valueOf(request.getEducation()))
           .employmentType(request.getEmploymentType())
           .salary(request.getSalary())
           .startDate(request.getStartDate())
