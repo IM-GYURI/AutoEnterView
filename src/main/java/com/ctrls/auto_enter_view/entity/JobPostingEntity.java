@@ -30,6 +30,7 @@ public class JobPostingEntity extends BaseEntity {
   @Column(nullable = false)
   private String title;
 
+  @Column(nullable = false)
   private JobCategory jobCategory;
 
   private Integer career;
@@ -37,6 +38,7 @@ public class JobPostingEntity extends BaseEntity {
   @Column(nullable = false)
   private String workLocation;
 
+  @Column(nullable = false)
   private Education education;
 
   @Column(nullable = false)

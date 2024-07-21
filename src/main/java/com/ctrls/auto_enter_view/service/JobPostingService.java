@@ -150,7 +150,9 @@ public class JobPostingService {
   public MainJobPostingDto.Response getAllJobPosting(int page, int size) {
 
     Pageable pageable = PageRequest.of(page - 1, size);
-    Page<JobPostingEntity> jobPostingPage = jobPostingRepository.findAll(pageable);
+    LocalDate currentDate = LocalDate.now();
+
+    Page<JobPostingEntity> jobPostingPage = jobPostingRepository.findByEndDateGreaterThanEqual(currentDate, pageable);
     List<MainJobPostingDto.JobPostingMainInfo> jobPostingMainInfoList = new ArrayList<>();
 
     for (JobPostingEntity entity : jobPostingPage.getContent()) {
@@ -174,8 +176,15 @@ public class JobPostingService {
    */
   public JobPostingDetailDto.Response getJobPostingDetail(String jobPostingKey) {
 
+    LocalDate currentDate = LocalDate.now();
+
     JobPostingEntity jobPosting = jobPostingRepository.findByJobPostingKey(jobPostingKey)
         .orElseThrow(() -> new CustomException(JOB_POSTING_NOT_FOUND));
+
+    // 마감일 지났는지 체크
+    if (!jobPostingRepository.existsByJobPostingKeyAndEndDateGreaterThanEqual(jobPostingKey, currentDate)) {
+      throw new CustomException(ErrorCode.JOB_POSTING_EXPIRED);
+    }
 
     List<TechStack> techStack = getTechStack(jobPosting.getJobPostingKey());
     List<String> step = getStep(jobPosting.getJobPostingKey());
