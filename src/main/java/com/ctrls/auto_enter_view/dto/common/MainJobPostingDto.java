@@ -4,6 +4,7 @@ import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.enums.TechStack;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,7 +29,7 @@ public class MainJobPostingDto {
     private String jobPostingKey;
     private String companyName;
     private String title;
-    private List<TechStack> techStack;
+    private List<String> techStack;
     private LocalDate endDate;
 
     public static JobPostingMainInfo from(JobPostingEntity entity, String companyName,
@@ -38,7 +39,7 @@ public class MainJobPostingDto {
           .jobPostingKey(entity.getJobPostingKey())
           .companyName(companyName)
           .title(entity.getTitle())
-          .techStack(techStack)
+          .techStack(techStack.stream().map(TechStack::getValue).collect(Collectors.toList()))
           .endDate(entity.getEndDate())
           .build();
     }

@@ -4,6 +4,7 @@ import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.enums.TechStack;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,7 +30,7 @@ public class JobPostingDetailDto {
     private LocalDate endDate;
     private String jobPostingContent;
 
-    private List<TechStack> techStack;
+    private List<String> techStack;
     private List<String> step;
     private String image;
 
@@ -50,7 +51,7 @@ public class JobPostingDetailDto {
           .startDate(entity.getStartDate())
           .endDate(entity.getEndDate())
           .jobPostingContent(entity.getJobPostingContent())
-          .techStack(techStack)
+          .techStack(techStack.stream().map(TechStack::getValue).collect(Collectors.toList()))
           .step(step)
           .image(imageUrl)
           .build();
