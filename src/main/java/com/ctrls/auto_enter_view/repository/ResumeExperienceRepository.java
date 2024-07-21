@@ -16,5 +16,5 @@ public interface ResumeExperienceRepository extends JpaRepository<ResumeExperien
   @Query("DELETE FROM ResumeExperienceEntity r WHERE r.resumeKey = :resumeKey")
   void deleteAllByResumeKey(String resumeKey);
 
-  int countByResumeKey(String resumeKey);
+  int countAllByResumeKey(String resumeKey);
 }

@@ -2,6 +2,7 @@ package com.ctrls.auto_enter_view.dto.resume;
 
 import com.ctrls.auto_enter_view.entity.ResumeEntity;
 import com.ctrls.auto_enter_view.enums.Education;
+import com.ctrls.auto_enter_view.enums.JobCategory;
 import com.ctrls.auto_enter_view.enums.TechStack;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -21,8 +22,8 @@ public class ResumeDto {
     @NotBlank(message = "제목은 필수 입력값 입니다.")
     private String title;
 
-    @NotBlank(message = "희망직종은 필수 입력값 입니다.")
-    private String jobWant;
+    @NotNull(message = "희망직종은 필수 입력값 입니다.")
+    private JobCategory jobWant;
 
     @NotBlank(message = "이름은 필수 입력값 입니다.")
     private String name;
@@ -42,8 +43,8 @@ public class ResumeDto {
     @NotBlank(message = "주소는 필수 입력값 입니다.")
     private String address;
 
-    @NotBlank(message = "학력은 필수 입력값 입니다.")
-    private String scholarship;
+    @NotNull(message = "학력은 필수 입력값 입니다.")
+    private Education education;
 
     @NotBlank(message = "학교명은 필수 입력값 입니다.")
     private String schoolName;
@@ -68,7 +69,7 @@ public class ResumeDto {
           .email(email)
           .phoneNumber(phoneNumber)
           .address(address)
-          .scholarship(Education.valueOf(scholarship))
+          .education(education)
           .schoolName(schoolName)
           .portfolio(portfolio)
           .build();

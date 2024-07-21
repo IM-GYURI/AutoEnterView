@@ -16,5 +16,5 @@ public interface ResumeCertificateRepository extends JpaRepository<ResumeCertifi
   @Query("DELETE FROM ResumeCertificateEntity r WHERE r.resumeKey = :resumeKey")
   void deleteAllByResumeKey(String resumeKey);
 
-  int countByResumeKey(String resumeKey);
+  int countAllByResumeKey(String resumeKey);
 }

@@ -35,7 +35,7 @@ public class JobPostingTechStackService {
   // 채용 공고 key -> 기술 스택 조회
   public List<TechStack> getTechStackByJobPostingKey(String jobPostingKey) {
 
-    List<JobPostingTechStackEntity> entities = jobPostingTechStackRepository.findByJobPostingKey(
+    List<JobPostingTechStackEntity> entities = jobPostingTechStackRepository.findAllByJobPostingKey(
         jobPostingKey);
     List<TechStack> techStack = new ArrayList<>();
 
@@ -49,7 +49,7 @@ public class JobPostingTechStackService {
 
   public void editJobPostingTechStack(String jobPostingKey, JobPostingDto.Request request) {
 
-    List<JobPostingTechStackEntity> entities = jobPostingTechStackRepository.findByJobPostingKey(
+    List<JobPostingTechStackEntity> entities = jobPostingTechStackRepository.findAllByJobPostingKey(
         jobPostingKey);
 
     jobPostingTechStackRepository.deleteAll(entities);

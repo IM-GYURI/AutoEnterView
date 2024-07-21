@@ -33,7 +33,8 @@ public class ApplicantEntity extends BaseEntity {
   @Builder.Default
   private int score = 0;
 
-  public void updateScore(int updateScore) {
-    this.score = updateScore;
+  public void updateScore(int score) {
+
+    this.score = score;
   }
 }

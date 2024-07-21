@@ -33,7 +33,6 @@ public class JobPostingDetailDto {
     private List<String> step;
     private String image;
 
-
     public static Response from(JobPostingEntity entity, List<TechStack> techStack,
         List<String> step, String imageUrl) {
 
@@ -41,10 +40,10 @@ public class JobPostingDetailDto {
           .jobPostingKey(entity.getJobPostingKey())
           .companyKey(entity.getCompanyKey())
           .title(entity.getTitle())
-          .jobCategory(String.valueOf(entity.getJobCategory()))
+          .jobCategory(entity.getJobCategory().getValue())
           .career(entity.getCareer())
           .workLocation(entity.getWorkLocation())
-          .education(String.valueOf(entity.getEducation()))
+          .education(entity.getEducation().getValue())
           .employmentType(entity.getEmploymentType())
           .salary(entity.getSalary())
           .workTime(entity.getWorkTime())

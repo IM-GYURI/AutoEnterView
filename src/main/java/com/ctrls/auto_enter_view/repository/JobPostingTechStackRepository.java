@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 public interface JobPostingTechStackRepository extends
     JpaRepository<JobPostingTechStackEntity, Long> {
 
-  List<JobPostingTechStackEntity> findByJobPostingKey(String jobPostingKey);
+  List<JobPostingTechStackEntity> findAllByJobPostingKey(String jobPostingKey);
 
   void deleteByJobPostingKey(String jobPostingKey);
 

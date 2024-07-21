@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum Education {
+  
   NONE("학력무관", 0),
   MIDDLE_SCHOOL("중졸 이하", 0),
   HIGH_SCHOOL("고졸", 5),
@@ -14,7 +15,6 @@ public enum Education {
   MASTER("석사", 20),
   DOCTORATE("박사", 25);
 
-  private final String label;
+  private final String value;
   private final int score;
-
 }
