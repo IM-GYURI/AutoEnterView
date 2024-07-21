@@ -52,7 +52,7 @@ public class ResumeDto {
     private List<TechStack> techStack;
 
     private List<ExperienceDto> experience;
-    private List<CareerDto> career;
+    private List<CareerDto.Request> career;
     private List<CertificateDto> certificates;
     private String portfolio;
 

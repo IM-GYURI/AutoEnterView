@@ -30,6 +30,7 @@ public class JobPostingEntity extends BaseEntity {
   @Column(nullable = false)
   private String title;
 
+  @Column(nullable = false)
   private JobCategory jobCategory;
 
   private Integer career;
@@ -37,6 +38,7 @@ public class JobPostingEntity extends BaseEntity {
   @Column(nullable = false)
   private String workLocation;
 
+  @Column(nullable = false)
   private Education education;
 
   @Column(nullable = false)
@@ -62,10 +64,10 @@ public class JobPostingEntity extends BaseEntity {
   public void updateEntity(Request request) {
 
     this.title = request.getTitle();
-    this.jobCategory = JobCategory.valueOf(request.getJobCategory());
+    this.jobCategory = request.getJobCategory();
     this.career = request.getCareer();
     this.workLocation = request.getWorkLocation();
-    this.education = Education.valueOf(request.getEducation());
+    this.education = request.getEducation();
     this.employmentType = request.getEmploymentType();
     this.salary = request.getSalary();
     this.workTime = request.getWorkTime();
