@@ -53,11 +53,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           throw new CustomException(ErrorCode.INVALID_TOKEN);
         }
       } catch (CustomException e) {
-        log.error("토큰 검증 실패", e);
-        throw e;
+        log.error("CustomException 발생", e);
+        setErrorResponse(response, e.getErrorCode());
+        return;
       } catch (Exception e) {
-        log.error("사용자 인증 실패", e);
-        throw new CustomException(ErrorCode.AUTHENTICATION_FAILED);
+        log.error("필터 오류 발생", e);
+        throw e;
       }
     }
 
@@ -73,5 +74,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       return bearerToken.substring(TOKEN_PREFIX.length());
     }
     return null;
+  }
+
+  private void setErrorResponse(HttpServletResponse response, ErrorCode errorCode)
+      throws IOException {
+
+    response.setContentType("application/json;charset=UTF-8");
+    response.setStatus(errorCode.getStatus());
+    response.getWriter().write(errorCode.getMessage());
   }
 }
