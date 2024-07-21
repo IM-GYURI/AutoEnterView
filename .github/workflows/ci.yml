@@ -30,7 +30,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew clean build -x test
+        run: ./gradlew clean build -x test #테스트 코드 미포함
 
       - name: Build Docker Image
         run: docker build -t eunsun0101/auto_enter_view .
