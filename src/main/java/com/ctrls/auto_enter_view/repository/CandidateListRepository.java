@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -26,10 +25,6 @@ public interface CandidateListRepository extends JpaRepository<CandidateListEnti
   
   @Query("SELECT c.candidateName FROM CandidateListEntity c WHERE c.candidateKey = :candidateKey")
   String findCandidateNameByCandidateKey(String candidateKey);
-
-  @Modifying
-  @Query("DELETE FROM CandidateListEntity r WHERE r.candidateKey = :candidateKey")
-  void deleteByCandidateKey(String candidateKey);
 
   Optional<CandidateListEntity> findByCandidateKeyAndJobPostingKey(String candidateKey, String jobPostingKey);
 }
