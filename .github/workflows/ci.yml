@@ -22,6 +22,7 @@ jobs:
 
       - name: Create and populate application.properties
         run: |
+          mkdir -p ./src/main/resources
           touch ./src/main/resources/application.yml 
           echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yml  
 
