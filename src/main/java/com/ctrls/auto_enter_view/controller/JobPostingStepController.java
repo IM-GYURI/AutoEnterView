@@ -1,13 +1,19 @@
 package com.ctrls.auto_enter_view.controller;
 
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingEveryInfoDto;
+import com.ctrls.auto_enter_view.dto.jobPostingStep.EditJobPostingStepDto;
 import com.ctrls.auto_enter_view.dto.jobPostingStep.JobPostingStepsDto;
+import com.ctrls.auto_enter_view.enums.ResponseMessage;
 import com.ctrls.auto_enter_view.service.JobPostingStepService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -42,5 +48,16 @@ public class JobPostingStepController {
 
     return ResponseEntity.ok(
         jobPostingStepService.getCandidatesListByStepId(jobPostingKey));
+  }
+
+  // 단계 이동 시키기
+  @PutMapping("/edit-step")
+  public ResponseEntity<String> editStepId(
+      @RequestBody EditJobPostingStepDto request,
+      @PathVariable String jobPostingKey,
+      @AuthenticationPrincipal UserDetails userDetails) {
+
+    jobPostingStepService.editStepId(request.getCurrentStepId(), request.getCandidateKey(), jobPostingKey, userDetails);
+    return ResponseEntity.ok(ResponseMessage.SUCCESS_STEP_MOVEMENT.getMessage());
   }
 }

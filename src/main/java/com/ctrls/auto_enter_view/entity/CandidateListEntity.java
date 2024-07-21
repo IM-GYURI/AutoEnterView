@@ -31,4 +31,8 @@ public class CandidateListEntity extends BaseEntity {
 
   @Column(nullable = false)
   private String candidateName;
+
+  public void updateJobPostingStepId(Long jobPostingStepId) {
+    this.jobPostingStepId = jobPostingStepId;
+  }
 }
