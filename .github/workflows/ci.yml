@@ -34,6 +34,8 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Push Docker Image to Docker Hub
         run: docker push eunsun0101/auto_enter_view
 
       - name: Deploy to Server
