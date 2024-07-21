@@ -58,6 +58,7 @@ public class JobPostingService {
   private final AppliedJobPostingRepository appliedJobPostingRepository;
   private final JobPostingStepService jobPostingStepService;
   private final JobPostingImageService jobPostingImageService;
+  private final FilteringService filteringService;
   private final MailComponent mailComponent;
 
   /**
@@ -73,6 +74,10 @@ public class JobPostingService {
         COMPANY_NOT_FOUND));
 
     JobPostingEntity entity = Request.toEntity(companyKey, request);
+
+    // 스케줄링 코드
+    filteringService.scheduleResumeScoringJob(entity.getJobPostingKey(), entity.getEndDate());
+
     return jobPostingRepository.save(entity);
   }
 
@@ -122,8 +127,14 @@ public class JobPostingService {
       throw new CustomException(NO_AUTHORITY);
     }
 
+    // 이전에 스케줄된 작업 취소
+    filteringService.unscheduleResumeScoringJob(jobPostingKey);
+
     // 채용 공고 수정
     jobPostingEntity.updateEntity(request);
+
+    // 새로운 스케줄 설정
+    filteringService.scheduleResumeScoringJob(jobPostingKey, request.getEndDate());
 
     // 지원자 목록을 순회하며 이메일 보내기
     notifyCandidates(candidateListEntityList, jobPostingEntity);
