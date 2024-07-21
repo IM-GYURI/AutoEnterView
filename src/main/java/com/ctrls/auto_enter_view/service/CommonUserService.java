@@ -15,12 +15,9 @@ import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.enums.UserRole;
 import com.ctrls.auto_enter_view.exception.CustomException;
-import com.ctrls.auto_enter_view.repository.ApplicantRepository;
-import com.ctrls.auto_enter_view.repository.CandidateListRepository;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyInfoRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
-import com.ctrls.auto_enter_view.repository.InterviewScheduleParticipantsRepository;
 import com.ctrls.auto_enter_view.repository.ResumeRepository;
 import com.ctrls.auto_enter_view.util.RandomGenerator;
 import java.util.Collection;
@@ -47,9 +44,6 @@ public class CommonUserService {
   private final CompanyInfoRepository companyInfoRepository;
   private final CandidateRepository candidateRepository;
   private final ResumeRepository resumeRepository;
-  private final ApplicantRepository applicantRepository;
-  private final CandidateListRepository candidateListRepository;
-  private final InterviewScheduleParticipantsRepository interviewScheduleParticipantsRepository;
   private final MailComponent mailComponent;
   private final PasswordEncoder passwordEncoder;
   private final RedisTemplate<String, String> redisTemplate;
@@ -295,15 +289,6 @@ public class CommonUserService {
 
         // 지원자가 작성한 이력서 삭제
         resumeRepository.deleteByCandidateKey(candidateEntity.getCandidateKey());
-
-        // 지원자가 지원한 채용 공고 이력 삭제
-        applicantRepository.deleteByCandidateKey(candidateEntity.getCandidateKey());
-
-        // 채용 공고 단계가 있다면 이력 삭제
-        candidateListRepository.deleteByCandidateKey(candidateEntity.getCandidateKey());
-
-        // 지원자와 관련된 면접 일정 삭제
-        interviewScheduleParticipantsRepository.deleteByCandidateKey(candidateEntity.getCandidateKey());
 
         // 지원자 삭제
         candidateRepository.delete(candidateEntity);
