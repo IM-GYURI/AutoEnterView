@@ -124,12 +124,12 @@ public class FilteringService {
 
   // 2. 자격/어학/수상 컬럼 당 score +1
   private int calculateCertificateScore(String resumeKey) {
-    return resumeCertificateRepository.countByResumeKey(resumeKey);
+    return resumeCertificateRepository.countAllByResumeKey(resumeKey);
   }
 
   // 3. 경험/활동/교육 컬럼 당 score +1
   private int calculateExperienceScore(String resumeKey) {
-    return resumeExperienceRepository.countByResumeKey(resumeKey);
+    return resumeExperienceRepository.countAllByResumeKey(resumeKey);
   }
 
   // 4. 기술 스택 : 채용공고에 올라온 것과 이력서에 작성한 것 비교해서 점수화
@@ -165,7 +165,7 @@ public class FilteringService {
   // 제약이 있는 경우
   private int calculateEducationScore(ResumeEntity resumeEntity,
       JobPostingEntity jobPostingEntity) {
-    Education resumeEducation = resumeEntity.getScholarship();
+    Education resumeEducation = resumeEntity.getEducation();
     Education requiredEducation = jobPostingEntity.getEducation();
 
     if (requiredEducation == Education.NONE) {

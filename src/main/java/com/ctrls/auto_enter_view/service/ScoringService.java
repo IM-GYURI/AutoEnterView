@@ -156,7 +156,7 @@ public class ScoringService {
     Education jobPostingEducation = jobPostingEntity.getEducation();
     Education resumeEducation = resumeEntity.getEducation();
 
-    if (jobPostingEducation != Education.EDUCATION_0
+    if (jobPostingEducation != Education.NONE
         && resumeEducation.compareTo(jobPostingEducation) >= 0) {
       return resumeEducation.getScore() * educationPriority;
     }

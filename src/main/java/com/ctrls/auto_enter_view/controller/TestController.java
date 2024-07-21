@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
   @Controller
   @RequiredArgsConstructor
-  @RequestMapping("/api-test")
+  @RequestMapping("/api-test/eunsun")
   public class TestController {
 
     private final FilteringService filteringService;
