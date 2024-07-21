@@ -31,7 +31,7 @@ public class ResumeReadDto {
     private String education;
     private String schoolName;
     private String portfolio;
-    private List<CareerDto> career;
+    private List<CareerDto.Response> career;
     private List<CertificateDto> certificates;
     private List<ExperienceDto> experience;
     private List<String> techStack;
@@ -57,7 +57,7 @@ public class ResumeReadDto {
       private String education;
       private String schoolName;
       private String portfolio;
-      private List<CareerDto> career;
+      private List<CareerDto.Response> career;
       private List<CertificateDto> certificates;
       private List<ExperienceDto> experience;
       private List<String> techStack;
@@ -167,9 +167,9 @@ public class ResumeReadDto {
       public ResponseBuilder career(List<ResumeCareerEntity> career) {
 
         this.career = career.stream().map(e ->
-            CareerDto.builder()
+            CareerDto.Response.builder()
                 .companyName(e.getCompanyName())
-                .jobCategory(e.getJobCategory())
+                .jobCategory(e.getJobCategory().getValue())
                 .startDate(e.getStartDate())
                 .endDate(e.getEndDate())
                 .calculatedCareer(e.getCalculatedCareer())

@@ -8,26 +8,40 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-@AllArgsConstructor
-@Builder
-@Getter
 public class CareerDto {
 
-  private String companyName;
-  private JobCategory jobCategory;
-  private LocalDate startDate;
-  private LocalDate endDate;
-  private int calculatedCareer;
+  @AllArgsConstructor
+  @Builder
+  @Getter
+  public static class Request {
 
-  public ResumeCareerEntity toEntity(String resumeKey) {
+    private String companyName;
+    private JobCategory jobCategory;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
-    return ResumeCareerEntity.builder()
-        .resumeKey(resumeKey)
-        .companyName(companyName)
-        .jobCategory(jobCategory)
-        .startDate(startDate)
-        .endDate(endDate)
-        .calculatedCareer((int) ChronoUnit.YEARS.between(startDate, endDate))
-        .build();
+    public ResumeCareerEntity toEntity(String resumeKey) {
+
+      return ResumeCareerEntity.builder()
+          .resumeKey(resumeKey)
+          .companyName(companyName)
+          .jobCategory(jobCategory)
+          .startDate(startDate)
+          .endDate(endDate)
+          .calculatedCareer((int) ChronoUnit.YEARS.between(startDate, endDate))
+          .build();
+    }
+  }
+
+  @AllArgsConstructor
+  @Builder
+  @Getter
+  public static class Response {
+
+    private String companyName;
+    private String jobCategory;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private int calculatedCareer;
   }
 }
