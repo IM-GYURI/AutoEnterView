@@ -1,0 +1,48 @@
+# 1 워크플로의 이름 지정
+name: Merge Dev to Main
+
+# 2 워크플로가 시작될 조건 지정
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # 3 실행 환경 지정
+    #4 실행스텝지정
+    steps:
+      # 워크플로우가 실행되는 가상 머신에 저장소의 코드를 복사하여 이후 단계에서 해당 코드를 사용할 수 있도록 준비
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'ubuntu'
+          java-version: '17'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew clean build
+
+      - name: Build Docker Image
+        run: docker build -t eunsun0101/auto_enter_view .
+
+      - name: Push Docker Image to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+        run: docker push eunsun0101/auto_enter_view
+
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker-compose down
+            docker pull eunsun0101/auto_enter_view
+            docker-compose up -d
