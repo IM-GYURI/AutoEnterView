@@ -20,6 +20,11 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Create and populate application.properties
+        run: |
+          touch ./src/main/resources/application.yml 
+          echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yml  
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
