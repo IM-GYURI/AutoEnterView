@@ -4,19 +4,24 @@ import com.ctrls.auto_enter_view.dto.candidateList.CandidateListDto;
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto.Request;
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleParticipantsDto;
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleParticipantsDto.Response;
+import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.entity.InterviewScheduleEntity;
 import com.ctrls.auto_enter_view.entity.InterviewScheduleParticipantsEntity;
+import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.MailAlarmInfoEntity;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateListRepository;
+import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.repository.InterviewScheduleParticipantsRepository;
 import com.ctrls.auto_enter_view.repository.InterviewScheduleRepository;
+import com.ctrls.auto_enter_view.repository.JobPostingRepository;
 import com.ctrls.auto_enter_view.repository.MailAlarmInfoRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +29,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Slf4j
 public class InterviewScheduleParticipantsService {
+
+  private final JobPostingRepository jobPostingRepository;
+
+  private final CompanyRepository companyRepository;
 
   private final InterviewScheduleParticipantsRepository interviewScheduleParticipantsRepository;
 
@@ -41,8 +50,12 @@ public class InterviewScheduleParticipantsService {
    * @param jobPostingKey
    * @param stepId
    * @param request
+   * @param userDetails
    */
-  public void createInterviewSchedule(String jobPostingKey, Long stepId, List<Request> request) {
+  public void createInterviewSchedule(String jobPostingKey, Long stepId, List<Request> request,
+      UserDetails userDetails) {
+
+    checkOwner(userDetails);
 
     String interviewScheduleKey = interviewScheduleRepository.findInterviewScheduleKeyByJobPostingKey(
         jobPostingKey).orElseThrow(() -> new CustomException(ErrorCode.JOB_POSTING_KEY_NOT_FOUND));
@@ -81,14 +94,19 @@ public class InterviewScheduleParticipantsService {
     }
   }
 
+
   /**
    * 개인 면접 일정 전체 조회
    *
    * @param jobPostingKey
    * @param stepId
+   * @param userDetails
    * @return
    */
-  public List<Response> getAllInterviewSchedule(String jobPostingKey, Long stepId) {
+  public List<Response> getAllInterviewSchedule(String jobPostingKey, Long stepId,
+      UserDetails userDetails) {
+
+    checkOwner(userDetails);
 
     List<InterviewScheduleParticipantsEntity> entities = interviewScheduleParticipantsRepository.findAllByJobPostingKeyAndJobPostingStepId(
         jobPostingKey,
@@ -103,10 +121,13 @@ public class InterviewScheduleParticipantsService {
    * @param interviewScheduleKey
    * @param candidateKey
    * @param request
+   * @param userDetails
    */
   @Transactional
   public void updatePersonalInterviewSchedule(String interviewScheduleKey, String candidateKey,
-      InterviewScheduleParticipantsDto.Request request) {
+      InterviewScheduleParticipantsDto.Request request, UserDetails userDetails) {
+
+    checkOwner(userDetails);
 
     InterviewScheduleEntity interviewScheduleEntity = interviewScheduleRepository.findByInterviewScheduleKey(
             interviewScheduleKey)
@@ -135,9 +156,14 @@ public class InterviewScheduleParticipantsService {
    *
    * @param jobPostingKey
    * @param stepId
+   * @param userDetails
    */
   @Transactional
-  public void deleteAllInterviewSchedule(String jobPostingKey, Long stepId) {
+  public void deleteAllInterviewSchedule(String jobPostingKey, Long stepId,
+      UserDetails userDetails) {
+
+    checkOwner(userDetails);
+
     InterviewScheduleEntity interviewScheduleEntity = interviewScheduleRepository.findByJobPostingKeyAndJobPostingStepId(
             jobPostingKey, stepId)
         .orElseThrow(() -> new CustomException(ErrorCode.INTERVIEW_SCHEDULE_NOT_FOUND));
@@ -177,5 +203,21 @@ public class InterviewScheduleParticipantsService {
 
     return participantsEntity.getInterviewEndDatetime().toLocalDate()
         .isEqual(interviewScheduleEntity.getLastInterviewDate());
+  }
+
+  // 본인 회사인지 체크
+  private void checkOwner(UserDetails userDetails) {
+    String userEmail = userDetails.getUsername();
+
+    CompanyEntity companyEntity = companyRepository.findByEmail(userEmail)
+        .orElseThrow(() -> new CustomException(
+            ErrorCode.COMPANY_NOT_FOUND));
+
+    JobPostingEntity jobPostingEntity = jobPostingRepository.findByCompanyKey(
+        companyEntity.getCompanyKey());
+
+    if (!jobPostingEntity.getCompanyKey().equals(companyEntity.getCompanyKey())) {
+      throw new CustomException(ErrorCode.NO_AUTHORITY);
+    }
   }
 }
