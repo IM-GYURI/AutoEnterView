@@ -8,6 +8,8 @@ import com.ctrls.auto_enter_view.service.InterviewScheduleParticipantsService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,9 +34,11 @@ public class InterviewScheduleParticipantsController {
    */
   @PostMapping("/job-postings/{jobPostingKey}/steps/{stepId}/interview-schedule-participants")
   public ResponseEntity<String> createInterviewSchedule(@PathVariable String jobPostingKey,
-      @PathVariable Long stepId, @RequestBody List<Request> request) {
+      @PathVariable Long stepId, @RequestBody List<Request> request,
+      @AuthenticationPrincipal UserDetails userDetails) {
 
-    interviewScheduleParticipantsService.createInterviewSchedule(jobPostingKey, stepId, request);
+    interviewScheduleParticipantsService.createInterviewSchedule(jobPostingKey, stepId, request,
+        userDetails);
 
     return ResponseEntity.ok(ResponseMessage.SUCCESS_PERSONAL_INTERVIEW_SCHEDULE.getMessage());
   }
@@ -49,9 +53,9 @@ public class InterviewScheduleParticipantsController {
   @GetMapping("/job-postings/{jobPostingKey}/steps/{stepId}/interview-schedule-participants")
 
   public ResponseEntity<List<Response>> getAllInterviewSchedule(@PathVariable String jobPostingKey,
-      @PathVariable Long stepId) {
+      @PathVariable Long stepId, @AuthenticationPrincipal UserDetails userDetails) {
     List<Response> responseList = interviewScheduleParticipantsService.getAllInterviewSchedule(
-        jobPostingKey, stepId);
+        jobPostingKey, stepId, userDetails);
 
     return ResponseEntity.ok().body(responseList);
 
@@ -69,10 +73,11 @@ public class InterviewScheduleParticipantsController {
   public ResponseEntity<String> updatePersonalInterviewSchedule(
       @PathVariable String interviewScheduleKey,
       @PathVariable String candidateKey,
-      @RequestBody InterviewScheduleParticipantsDto.Request request) {
+      @RequestBody InterviewScheduleParticipantsDto.Request request,
+      @AuthenticationPrincipal UserDetails userDetails) {
 
     interviewScheduleParticipantsService.updatePersonalInterviewSchedule(interviewScheduleKey,
-        candidateKey, request);
+        candidateKey, request, userDetails);
 
     return ResponseEntity.ok(ResponseMessage.SUCCESS_UPDATE_INTERVIEW_SCHEDULE.getMessage());
   }
@@ -86,8 +91,9 @@ public class InterviewScheduleParticipantsController {
    */
   @DeleteMapping("/job-postings/{jobPostingKey}/steps/{stepId}/interview-schedule")
   public ResponseEntity<String> deleteAllInterviewSchedule(@PathVariable String jobPostingKey,
-      @PathVariable Long stepId) {
-    interviewScheduleParticipantsService.deleteAllInterviewSchedule(jobPostingKey, stepId);
+      @PathVariable Long stepId, @AuthenticationPrincipal UserDetails userDetails) {
+    interviewScheduleParticipantsService.deleteAllInterviewSchedule(jobPostingKey, stepId,
+        userDetails);
 
     return ResponseEntity.ok(ResponseMessage.SUCCESS_DELETE_INTERVIEW_SCHEDULE.getMessage());
   }
