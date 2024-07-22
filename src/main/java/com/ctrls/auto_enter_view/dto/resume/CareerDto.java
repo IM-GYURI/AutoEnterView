@@ -2,6 +2,8 @@ package com.ctrls.auto_enter_view.dto.resume;
 
 import com.ctrls.auto_enter_view.entity.ResumeCareerEntity;
 import com.ctrls.auto_enter_view.enums.JobCategory;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import lombok.AllArgsConstructor;
@@ -15,9 +17,16 @@ public class CareerDto {
   @Getter
   public static class Request {
 
+    @NotBlank(message = "회사 이름은 필수 입력값 입니다.")
     private String companyName;
+
+    @NotNull(message = "직종은 필수 입력값 입니다.")
     private JobCategory jobCategory;
+
+    @NotNull(message = "시작일은 필수 입력값 입니다.")
     private LocalDate startDate;
+
+    @NotNull(message = "종료일은 필수 입력값 입니다.")
     private LocalDate endDate;
 
     public ResumeCareerEntity toEntity(String resumeKey) {

@@ -12,7 +12,6 @@ import com.ctrls.auto_enter_view.dto.candidate.SignUpDto;
 import com.ctrls.auto_enter_view.entity.AppliedJobPostingEntity;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
-import com.ctrls.auto_enter_view.enums.ResponseMessage;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.AppliedJobPostingRepository;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
@@ -57,7 +56,6 @@ public class CandidateService {
         .candidateKey(candidate.getCandidateKey())
         .email(signUpDto.getEmail())
         .name(signUpDto.getName())
-        .message(ResponseMessage.SIGNUP.getMessage())
         .build();
   }
 
@@ -98,6 +96,7 @@ public class CandidateService {
 
   // 이력서 존재 여부 확인하기
   public boolean hasResume(String candidateKey) {
+
     return resumeRepository.existsByCandidateKey(candidateKey);
   }
 

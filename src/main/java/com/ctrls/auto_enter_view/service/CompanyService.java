@@ -5,7 +5,6 @@ import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 
 import com.ctrls.auto_enter_view.dto.company.SignUpDto;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
-import com.ctrls.auto_enter_view.enums.ResponseMessage;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.util.KeyGenerator;
@@ -43,7 +42,6 @@ public class CompanyService {
         .companyKey(saved.getCompanyKey())
         .email(saved.getEmail())
         .name(saved.getCompanyName())
-        .message(ResponseMessage.SIGNUP.getMessage())
         .build();
   }
 

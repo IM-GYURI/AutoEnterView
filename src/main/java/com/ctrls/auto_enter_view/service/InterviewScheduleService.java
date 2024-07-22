@@ -4,7 +4,6 @@ import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto.Requ
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto.Response;
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto.TaskRequest;
 import com.ctrls.auto_enter_view.entity.InterviewScheduleEntity;
-import com.ctrls.auto_enter_view.enums.ResponseMessage;
 import com.ctrls.auto_enter_view.repository.InterviewScheduleRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +33,6 @@ public class InterviewScheduleService {
 
     return Response.builder()
         .interviewScheduleKey(saved.getInterviewScheduleKey())
-        .message(ResponseMessage.SUCCESS_INTERVIEW_SCHEDULE.getMessage())
         .build();
   }
 
@@ -53,7 +51,6 @@ public class InterviewScheduleService {
 
     return Response.builder()
         .interviewScheduleKey(saved.getInterviewScheduleKey())
-        .message(ResponseMessage.SUCCESS_CREATE_TASK_SCHEDULE.getMessage())
         .build();
   }
 }
