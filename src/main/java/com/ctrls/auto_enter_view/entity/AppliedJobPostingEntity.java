@@ -33,4 +33,8 @@ public class AppliedJobPostingEntity {
   private LocalDate startDate;
   private String stepName;
   private String title;
+
+  public void updateStepName(String newStepName) {
+    this.stepName = newStepName;
+  }
 }
