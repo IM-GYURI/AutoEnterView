@@ -41,7 +41,7 @@ public class InterviewScheduleService {
   public Response createInterviewSchedule(String jobPostingKey, Long stepId,
       List<Request> request, UserDetails userDetails) {
 
-    checkOwner(userDetails);
+    checkOwner(userDetails, jobPostingKey);
 
     InterviewScheduleEntity saved = interviewScheduleRepository.save(
         Request.toEntity(jobPostingKey, stepId, request));
@@ -64,7 +64,7 @@ public class InterviewScheduleService {
   public Response createTaskSchedule(String jobPostingKey, Long stepId, TaskRequest taskRequest,
       UserDetails userDetails) {
 
-    checkOwner(userDetails);
+    checkOwner(userDetails, jobPostingKey);
 
     InterviewScheduleEntity saved = interviewScheduleRepository.save(
         TaskRequest.toEntity(jobPostingKey, stepId, taskRequest));
@@ -76,15 +76,16 @@ public class InterviewScheduleService {
   }
 
   // 본인 회사인지 체크
-  private void checkOwner(UserDetails userDetails) {
+  private void checkOwner(UserDetails userDetails, String jobPostingKey) {
+
     String userEmail = userDetails.getUsername();
 
     CompanyEntity companyEntity = companyRepository.findByEmail(userEmail)
         .orElseThrow(() -> new CustomException(
             ErrorCode.COMPANY_NOT_FOUND));
 
-    JobPostingEntity jobPostingEntity = jobPostingRepository.findByCompanyKey(
-        companyEntity.getCompanyKey());
+    JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(
+        jobPostingKey).orElseThrow(() -> new CustomException(ErrorCode.JOB_POSTING_NOT_FOUND));
 
     if (!jobPostingEntity.getCompanyKey().equals(companyEntity.getCompanyKey())) {
       throw new CustomException(ErrorCode.NO_AUTHORITY);

@@ -55,7 +55,7 @@ public class InterviewScheduleParticipantsService {
   public void createInterviewSchedule(String jobPostingKey, Long stepId, List<Request> request,
       UserDetails userDetails) {
 
-    checkOwner(userDetails);
+    checkOwner(userDetails, jobPostingKey);
 
     String interviewScheduleKey = interviewScheduleRepository.findInterviewScheduleKeyByJobPostingKey(
         jobPostingKey).orElseThrow(() -> new CustomException(ErrorCode.JOB_POSTING_KEY_NOT_FOUND));
@@ -106,7 +106,7 @@ public class InterviewScheduleParticipantsService {
   public List<Response> getAllInterviewSchedule(String jobPostingKey, Long stepId,
       UserDetails userDetails) {
 
-    checkOwner(userDetails);
+    checkOwner(userDetails, jobPostingKey);
 
     List<InterviewScheduleParticipantsEntity> entities = interviewScheduleParticipantsRepository.findAllByJobPostingKeyAndJobPostingStepId(
         jobPostingKey,
@@ -127,7 +127,7 @@ public class InterviewScheduleParticipantsService {
   public void updatePersonalInterviewSchedule(String interviewScheduleKey, String candidateKey,
       InterviewScheduleParticipantsDto.Request request, UserDetails userDetails) {
 
-    checkOwner(userDetails);
+    checkOwnerByInterviewScheduleKey(userDetails, interviewScheduleKey);
 
     InterviewScheduleEntity interviewScheduleEntity = interviewScheduleRepository.findByInterviewScheduleKey(
             interviewScheduleKey)
@@ -162,7 +162,7 @@ public class InterviewScheduleParticipantsService {
   public void deleteAllInterviewSchedule(String jobPostingKey, Long stepId,
       UserDetails userDetails) {
 
-    checkOwner(userDetails);
+    checkOwner(userDetails, jobPostingKey);
 
     InterviewScheduleEntity interviewScheduleEntity = interviewScheduleRepository.findByJobPostingKeyAndJobPostingStepId(
             jobPostingKey, stepId)
@@ -206,18 +206,42 @@ public class InterviewScheduleParticipantsService {
   }
 
   // 본인 회사인지 체크
-  private void checkOwner(UserDetails userDetails) {
+  private void checkOwner(UserDetails userDetails, String jobPostingKey) {
+
     String userEmail = userDetails.getUsername();
 
     CompanyEntity companyEntity = companyRepository.findByEmail(userEmail)
         .orElseThrow(() -> new CustomException(
             ErrorCode.COMPANY_NOT_FOUND));
 
-    JobPostingEntity jobPostingEntity = jobPostingRepository.findByCompanyKey(
-        companyEntity.getCompanyKey());
+    JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(
+        jobPostingKey).orElseThrow(() -> new CustomException(ErrorCode.JOB_POSTING_NOT_FOUND));
 
     if (!jobPostingEntity.getCompanyKey().equals(companyEntity.getCompanyKey())) {
       throw new CustomException(ErrorCode.NO_AUTHORITY);
     }
+  }
+
+  // 본인 회사인지 체크
+  private void checkOwnerByInterviewScheduleKey(UserDetails userDetails,
+      String interviewScheduleKey) {
+
+    String userEmail = userDetails.getUsername();
+
+    CompanyEntity companyEntity = companyRepository.findByEmail(userEmail)
+        .orElseThrow(() -> new CustomException(
+            ErrorCode.COMPANY_NOT_FOUND));
+
+    InterviewScheduleParticipantsEntity interviewScheduleParticipantsEntity = interviewScheduleParticipantsRepository.findByInterviewScheduleKey(
+        interviewScheduleKey);
+
+    JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(
+            interviewScheduleParticipantsEntity.getJobPostingKey())
+        .orElseThrow(() -> new CustomException(ErrorCode.JOB_POSTING_NOT_FOUND));
+
+    if (!jobPostingEntity.getCompanyKey().equals(companyEntity.getCompanyKey())) {
+      throw new CustomException(ErrorCode.NO_AUTHORITY);
+    }
+
   }
 }
