@@ -122,6 +122,7 @@ public class JobPostingStepService {
 
         jobPostingEveryInfoDtoList.add(JobPostingEveryInfoDto.builder()
             .stepId(jobPostingStepEntity.getId())
+            .stepName(jobPostingStepEntity.getStep())
             .candidateTechStackInterviewInfoDtoList(candidateTechStackInterviewInfoDtoList)
             .build()
         );
@@ -143,6 +144,7 @@ public class JobPostingStepService {
 
         jobPostingEveryInfoDtoList.add(JobPostingEveryInfoDto.builder()
             .stepId(jobPostingStepEntity.getId())
+            .stepName(jobPostingStepEntity.getStep())
             .candidateTechStackInterviewInfoDtoList(candidateTechStackInterviewInfoDtoList)
             .build()
         );
@@ -163,6 +165,7 @@ public class JobPostingStepService {
 
         jobPostingEveryInfoDtoList.add(JobPostingEveryInfoDto.builder()
             .stepId(jobPostingStepEntity.getId())
+            .stepName(jobPostingStepEntity.getStep())
             .candidateTechStackInterviewInfoDtoList(candidateTechStackInterviewInfoDtoList)
             .build()
         );
