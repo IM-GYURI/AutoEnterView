@@ -15,5 +15,7 @@ public class JobPostingEveryInfoDto {
 
   private Long stepId;
 
+  private String stepName;
+
   private List<CandidateTechStackInterviewInfoDto> candidateTechStackInterviewInfoDtoList;
 }
