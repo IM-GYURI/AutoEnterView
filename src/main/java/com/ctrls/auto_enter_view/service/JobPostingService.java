@@ -40,6 +40,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,10 +69,16 @@ public class JobPostingService {
    * @param request
    * @return
    */
-  public JobPostingEntity createJobPosting(String companyKey, Request request) {
+  public JobPostingEntity createJobPosting(UserDetails userDetails, String companyKey, Request request) {
 
-    companyRepository.findByCompanyKey(companyKey).orElseThrow(() -> new CustomException(
-        COMPANY_NOT_FOUND));
+    // 회사 정보 조회
+    CompanyEntity company = companyRepository.findByCompanyKey(companyKey)
+        .orElseThrow(() -> new CustomException(COMPANY_NOT_FOUND));
+
+    // 현재 회사의 권한 체크
+    if (!company.getEmail().equals(userDetails.getUsername())) {
+      throw new CustomException(NO_AUTHORITY);
+    }
 
     JobPostingEntity entity = Request.toEntity(companyKey, request);
 
@@ -79,28 +86,6 @@ public class JobPostingService {
     filteringService.scheduleResumeScoringJob(entity.getJobPostingKey(), entity.getEndDate());
 
     return jobPostingRepository.save(entity);
-  }
-
-  /**
-   * 회사 본인이 등록한 채용공고 목록 조회
-   *
-   * @param companyKey
-   * @return
-   */
-  public List<JobPostingInfoDto> getJobPostingsByCompanyKey(
-      String companyKey) {
-
-    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    CompanyEntity company = findCompanyByPrincipal(principal);
-
-    verifyCompanyOwnership(company, companyKey);
-
-    List<JobPostingEntity> jobPostingEntityList = jobPostingRepository.findAllByCompanyKey(
-        companyKey);
-
-    return jobPostingEntityList.stream()
-        .map(JobPostingInfoDto::fromEntity)
-        .collect(Collectors.toList());
   }
 
   /**
@@ -139,6 +124,56 @@ public class JobPostingService {
     // 지원자 목록을 순회하며 이메일 보내기
     notifyCandidates(candidateListEntityList, jobPostingEntity);
   }
+
+  /**
+   * 채용 공고 삭제하기
+   *
+   * @param jobPostingKey
+   */
+  public void deleteJobPosting(String jobPostingKey) {
+
+    if (verifyExistsByJobPostingKey(jobPostingKey)) {
+      throw new CustomException(JOB_POSTING_HAS_CANDIDATES);
+    }
+
+    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+    CompanyEntity companyEntity = companyRepository.findByEmail(principal.getUsername())
+        .orElseThrow(() -> new CustomException(COMPANY_NOT_FOUND));
+
+    JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(jobPostingKey)
+        .orElseThrow(() ->
+            new CustomException(JOB_POSTING_NOT_FOUND));
+
+    if (!companyEntity.getCompanyKey().equals(jobPostingEntity.getCompanyKey())) {
+      throw new CustomException(NO_AUTHORITY);
+    }
+
+    jobPostingRepository.deleteByJobPostingKey(jobPostingKey);
+  }
+
+  /**
+   * 회사 본인이 등록한 채용공고 목록 조회
+   *
+   * @param companyKey
+   * @return
+   */
+  public List<JobPostingInfoDto> getJobPostingsByCompanyKey(
+      String companyKey) {
+
+    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    CompanyEntity company = findCompanyByPrincipal(principal);
+
+    verifyCompanyOwnership(company, companyKey);
+
+    List<JobPostingEntity> jobPostingEntityList = jobPostingRepository.findAllByCompanyKey(
+        companyKey);
+
+    return jobPostingEntityList.stream()
+        .map(JobPostingInfoDto::fromEntity)
+        .collect(Collectors.toList());
+  }
+
 
   /**
    * Main 화면 채용 공고 조회
@@ -194,41 +229,6 @@ public class JobPostingService {
   }
 
   /**
-   * 채용 공고 삭제하기
-   *
-   * @param jobPostingKey
-   */
-  public void deleteJobPosting(String jobPostingKey) {
-
-    if (verifyExistsByJobPostingKey(jobPostingKey)) {
-      throw new CustomException(JOB_POSTING_HAS_CANDIDATES);
-    }
-
-    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-    CompanyEntity companyEntity = companyRepository.findByEmail(principal.getUsername())
-        .orElseThrow(() -> new CustomException(COMPANY_NOT_FOUND));
-
-    JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(jobPostingKey)
-        .orElseThrow(() ->
-            new CustomException(JOB_POSTING_NOT_FOUND));
-
-    if (!companyEntity.getCompanyKey().equals(jobPostingEntity.getCompanyKey())) {
-      throw new CustomException(NO_AUTHORITY);
-    }
-
-    jobPostingRepository.deleteByJobPostingKey(jobPostingKey);
-  }
-
-  // 이미지 URL 가져오기
-  private String getImageUrl(String jobPostingKey) {
-
-    String imageUrl = jobPostingImageService.getImageUrl(jobPostingKey);
-    log.info("이미지 URL 조회 완료 : {}", imageUrl);
-    return imageUrl;
-  }
-
-  /**
    * 채용 공고 지원하기
    *
    * @param jobPostingKey
@@ -273,20 +273,48 @@ public class JobPostingService {
 
   }
 
+  /**
+   * 이미지 URL 가져오기
+   *
+   * @param jobPostingKey
+   * @return
+   */
+  private String getImageUrl(String jobPostingKey) {
+
+    String imageUrl = jobPostingImageService.getImageUrl(jobPostingKey);
+    log.info("이미지 URL 조회 완료 : {}", imageUrl);
+    return imageUrl;
+  }
+
+  /**
+   * 채용 공고 단계 중 맨 처음 단계 가져오기
+   * @param jobPostingKey
+   * @return
+   */
   private JobPostingStepEntity getJobPostingStepEntity(String jobPostingKey) {
 
     return jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(
         jobPostingKey).orElseThrow(() -> new CustomException(JOB_POSTING_STEP_NOT_FOUND));
   }
 
-  // 사용자 인증 정보로 회사 entity 찾기
+  /**
+   * 사용자 인증 정보로 회사 entity 찾기
+   *
+   * @param principal
+   * @return
+   */
   private CompanyEntity findCompanyByPrincipal(User principal) {
 
     return companyRepository.findByEmail(principal.getUsername())
         .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
   }
 
-  // 회사 본인인지 확인
+  /**
+   * 회사 본인인지 확인
+   *
+   * @param company
+   * @param companyKey
+   */
   private void verifyCompanyOwnership(CompanyEntity company, String companyKey) {
 
     if (!company.getCompanyKey().equals(companyKey)) {
@@ -294,7 +322,12 @@ public class JobPostingService {
     }
   }
 
-  // 채용 공고에 지원한 지원자가 존재하는지 확인 : 채용 공고의 첫번째 단계에 해당하는 지원자 목록 확인
+  /**
+   * 채용 공고에 지원한 지원자가 존재하는지 확인 : 채용 공고의 첫번째 단계에 해당하는 지원자 목록 확인
+   *
+   * @param jobPostingKey
+   * @return
+   */
   private boolean verifyExistsByJobPostingKey(String jobPostingKey) {
 
     Long firstStep = getJobPostingStepEntity(jobPostingKey).getId();
@@ -303,7 +336,12 @@ public class JobPostingService {
         jobPostingKey, firstStep);
   }
 
-  // 전체 체용 공고 List 들어갈 정보
+  /**
+   * 전체 체용 공고 List 들어갈 정보
+   *
+   * @param entity
+   * @return
+   */
   private JobPostingMainInfo createJobPostingMainInfo(JobPostingEntity entity) {
 
     String companyName = getCompanyName(entity.getCompanyKey());
@@ -312,7 +350,12 @@ public class JobPostingService {
     return JobPostingMainInfo.from(entity, companyName, techStack);
   }
 
-  // 회사 이름 가져오기
+  /**
+   * 회사 이름 가져오기
+   *
+   * @param companyKey
+   * @return
+   */
   private String getCompanyName(String companyKey) {
 
     CompanyEntity companyEntity = companyRepository.findByCompanyKey(companyKey)
@@ -323,7 +366,12 @@ public class JobPostingService {
     return companyName;
   }
 
-  // 기술 스택 가져오기
+  /**
+   * 기술 스택 가져오기
+   *
+   * @param jobPostingKey
+   * @return
+   */
   private List<TechStack> getTechStack(String jobPostingKey) {
 
     List<TechStack> techStack = jobPostingTechStackService.getTechStackByJobPostingKey(
@@ -332,7 +380,12 @@ public class JobPostingService {
     return techStack;
   }
 
-  // 채용 일정 가져오기
+  /**
+   * 채용 일정 가져오기
+   *
+   * @param jobPostingKey
+   * @return
+   */
   private List<String> getStep(String jobPostingKey) {
 
     List<String> step = jobPostingStepService.getStepByJobPostingKey(jobPostingKey);
@@ -340,7 +393,12 @@ public class JobPostingService {
     return step;
   }
 
-  // 지원자에게 이메일 보내기 메서드
+  /**
+   * 지원자에게 이메일 보내기 메서드
+   *
+   * @param candidates
+   * @param jobPostingEntity
+   */
   private void notifyCandidates(List<CandidateListEntity> candidates,
       JobPostingEntity jobPostingEntity) {
 
