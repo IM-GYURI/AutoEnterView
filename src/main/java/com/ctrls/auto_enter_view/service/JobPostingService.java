@@ -290,7 +290,7 @@ public class JobPostingService {
   private void verifyCompanyOwnership(CompanyEntity company, String companyKey) {
 
     if (!company.getCompanyKey().equals(companyKey)) {
-      throw new CustomException(USER_NOT_FOUND);
+      throw new CustomException(NO_AUTHORITY);
     }
   }
 
