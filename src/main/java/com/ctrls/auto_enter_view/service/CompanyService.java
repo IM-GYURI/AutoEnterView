@@ -1,18 +1,15 @@
 package com.ctrls.auto_enter_view.service;
 
 import static com.ctrls.auto_enter_view.enums.ErrorCode.EMAIL_DUPLICATION;
-import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 
 import com.ctrls.auto_enter_view.dto.company.SignUpDto;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
-import com.ctrls.auto_enter_view.enums.ResponseMessage;
+import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.util.KeyGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,8 +24,14 @@ public class CompanyService {
   // 회원 가입
   public SignUpDto.Response signUp(SignUpDto.Request request) {
 
+    // 이메일 중복 체크
     if (companyRepository.existsByEmail(request.getEmail())) {
       throw new CustomException(EMAIL_DUPLICATION);
+    }
+
+    // 전화번호 중복 체크
+    if (companyRepository.existsByCompanyNumber(request.getCompanyNumber())) {
+      throw new CustomException(ErrorCode.COMPANY_NUMBER_DUPLICATION);
     }
 
     // 키 생성
@@ -43,23 +46,7 @@ public class CompanyService {
         .companyKey(saved.getCompanyKey())
         .email(saved.getEmail())
         .name(saved.getCompanyName())
-        .message(ResponseMessage.SIGNUP.getMessage())
         .build();
   }
 
-  // 회원 탈퇴
-  public void withdraw(String companyKey) {
-
-    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-    CompanyEntity companyEntity = companyRepository.findByEmail(principal.getUsername())
-        .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
-
-    // 회사 정보의 회사키와 URL 회사키 일치 확인
-    if (!companyEntity.getCompanyKey().equals(companyKey)) {
-      throw new CustomException(USER_NOT_FOUND);
-    }
-
-    companyRepository.delete(companyEntity);
-  }
 }

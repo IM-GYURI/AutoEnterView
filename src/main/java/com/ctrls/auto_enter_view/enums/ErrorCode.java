@@ -11,6 +11,7 @@ public enum ErrorCode {
   COMPANY_NOT_FOUND(404, "가입된 회사를 찾을 수 없습니다."),
   CANDIDATE_NOT_FOUND(404, "가입된 지원자를 찾을 수 없습니다."),
   EMAIL_DUPLICATION(409, "이메일이 중복됩니다."),
+  COMPANY_NUMBER_DUPLICATION(409, "회사 전화번호가 중복됩니다."),
   EMAIL_NOT_FOUND(404, "가입된 사용자 이메일이 없습니다."),
   EMAIL_SEND_FAILURE(500, "이메일 전송에 실패했습니다."),
   INTERNAL_SERVER_ERROR(500, "내부 서버 오류입니다."),
