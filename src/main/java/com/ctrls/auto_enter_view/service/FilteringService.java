@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.service;
 
+import static com.ctrls.auto_enter_view.enums.ErrorCode.APPLY_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.CANDIDATE_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_STEP_NOT_FOUND;
@@ -7,12 +8,14 @@ import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_STEP_NOT_FOU
 import com.ctrls.auto_enter_view.component.FilteringJob;
 import com.ctrls.auto_enter_view.component.ScoringJob;
 import com.ctrls.auto_enter_view.entity.ApplicantEntity;
+import com.ctrls.auto_enter_view.entity.AppliedJobPostingEntity;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CandidateListEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.ApplicantRepository;
+import com.ctrls.auto_enter_view.repository.AppliedJobPostingRepository;
 import com.ctrls.auto_enter_view.repository.CandidateListRepository;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
@@ -20,12 +23,12 @@ import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
 import com.ctrls.auto_enter_view.util.KeyGenerator;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
@@ -37,9 +40,11 @@ import org.quartz.SimpleTrigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FilteringService {
 
   private final Scheduler scheduler;
@@ -48,6 +53,7 @@ public class FilteringService {
   private final CandidateRepository candidateRepository;
   private final CandidateListRepository candidateListRepository;
   private final JobPostingStepRepository jobPostingStepRepository;
+  private final AppliedJobPostingRepository appliedJobPostingRepository;
 
   // 스코어링 + 필터링 스케줄링
   public void scheduleResumeScoringJob(String jobPostingKey, LocalDate endDate) {
@@ -130,6 +136,7 @@ public class FilteringService {
     }
   }
 
+  @Transactional
   // 지원자를 점수가 높은 순서(같다면 지원한 시간이 빠른 순서)로 정렬하여 passingNumber만큼 candidateList에 저장시키기
   public void filterCandidates(String jobPostingKey) {
     JobPostingEntity jobPosting = jobPostingRepository.findByJobPostingKey(jobPostingKey)
@@ -164,6 +171,16 @@ public class FilteringService {
           .build();
 
       candidateListRepository.save(candidateListEntity);
+
+      // applicant별로 AppliedJobPostingEntity의 stepName을 해당 채용 공고의 첫번째 단계명으로 업데이트해주기
+      String currentStepName = jobPostingStepEntity.getStep();
+      AppliedJobPostingEntity appliedJobPostingEntity = appliedJobPostingRepository.findByCandidateKey(
+              applicant.getCandidateKey())
+          .orElseThrow(() -> new CustomException(APPLY_NOT_FOUND));
+
+      appliedJobPostingEntity.updateStepName(currentStepName);
+
+      log.info(currentStepName + " - " + appliedJobPostingEntity.getStepName());
     }
   }
 }
