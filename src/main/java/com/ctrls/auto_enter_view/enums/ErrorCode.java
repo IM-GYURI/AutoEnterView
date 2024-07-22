@@ -26,6 +26,7 @@ public enum ErrorCode {
   RESUME_NOT_FOUND(404, "지원자의 이력서를 찾을 수 없습니다"),
   TOKEN_BLACKLISTED(401, "토큰이 블랙리스트에 존재하여 사용할 수 없는 토큰입니다."),
   USER_NOT_FOUND(404, "사용자를 찾을 수 없습니다."),
+  USER_NOT_FOUND_BY_NAME_AND_PHONE(404, "입력한 이름과 전화번호로 등록된 사용자를 찾을 수 없습니다."),
   ALREADY_APPLIED(409, "이미 지원한 채용 공고입니다."),
   APPLY_NOT_FOUND(404, "채용 공고에 지원한 정보를 찾을 수 없습니다."),
   INTERVIEW_SCHEDULE_NOT_FOUND(404, "해당 면접 일정을 찾을 수 없습니다."),
