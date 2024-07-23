@@ -6,9 +6,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import java.io.IOException;
-import org.springframework.stereotype.Component;
 
-@Component
 public class TechStackDeserializer extends JsonDeserializer<TechStack> {
 
   @Override
