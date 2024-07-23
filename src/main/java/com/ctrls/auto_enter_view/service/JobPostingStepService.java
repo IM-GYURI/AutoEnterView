@@ -77,6 +77,7 @@ public class JobPostingStepService {
    */
   @Transactional(readOnly = true)
   public List<JobPostingEveryInfoDto> getCandidatesListByStepId(String jobPostingKey) {
+
     List<JobPostingEveryInfoDto> jobPostingEveryInfoDtoList = new ArrayList<>();
 
     JobPostingEntity jobPosting = findJobPostingEntityByJobPostingKey(jobPostingKey);
@@ -211,11 +212,11 @@ public class JobPostingStepService {
   }
 
   // 이력서의 기술 스택 조회
-  private List<String> findTechStackByResumeKey(String resumeKey) {
+  private List<TechStack> findTechStackByResumeKey(String resumeKey) {
+
     return resumeTechStackRepository.findAllByResumeKey(resumeKey)
         .stream()
         .map(ResumeTechStackEntity::getTechStackName)
-        .map(TechStack::getValue)
         .collect(Collectors.toList());
   }
 
@@ -227,7 +228,7 @@ public class JobPostingStepService {
         candidateListEntity.getCandidateKey());
 
     // List<String>으로 TechStack의 value를 받아와서 넘겨줘야 함
-    List<String> techStack = findTechStackByResumeKey(resumeEntity.getResumeKey());
+    List<TechStack> techStack = findTechStackByResumeKey(resumeEntity.getResumeKey());
 
     InterviewScheduleParticipantsEntity interviewScheduleParticipantsEntity = interviewScheduleParticipantsRepository.findByJobPostingStepIdAndCandidateKey(
             stepId, candidateListEntity.getCandidateKey())
@@ -250,7 +251,7 @@ public class JobPostingStepService {
         candidateListEntity.getCandidateKey());
 
     // List<String>으로 TechStack의 value를 받아와서 넘겨줘야 함
-    List<String> techStack = findTechStackByResumeKey(resumeEntity.getResumeKey());
+    List<TechStack> techStack = findTechStackByResumeKey(resumeEntity.getResumeKey());
 
     InterviewScheduleEntity interviewScheduleEntity = interviewScheduleRepository.findByJobPostingStepId(
         stepId).orElseGet(InterviewScheduleEntity::new);
@@ -280,7 +281,7 @@ public class JobPostingStepService {
     ResumeEntity resumeEntity = findResumeEntityByCandidateKey(
         candidateListEntity.getCandidateKey());
 
-    List<String> techStack = findTechStackByResumeKey(resumeEntity.getResumeKey());
+    List<TechStack> techStack = findTechStackByResumeKey(resumeEntity.getResumeKey());
 
     return CandidateTechStackInterviewInfoDto.builder()
         .candidateKey(candidateListEntity.getCandidateKey())
