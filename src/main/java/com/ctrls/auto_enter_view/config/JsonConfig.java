@@ -1,6 +1,11 @@
 package com.ctrls.auto_enter_view.config;
 
+import com.ctrls.auto_enter_view.component.EducationSerializer;
+import com.ctrls.auto_enter_view.component.JobCategorySerializer;
 import com.ctrls.auto_enter_view.component.TechStackDeserializer;
+import com.ctrls.auto_enter_view.component.TechStackSerializer;
+import com.ctrls.auto_enter_view.enums.Education;
+import com.ctrls.auto_enter_view.enums.JobCategory;
 import com.ctrls.auto_enter_view.enums.TechStack;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -22,6 +27,13 @@ public class JsonConfig {
 
     // TechStack
     simpleModule.addDeserializer(TechStack.class, new TechStackDeserializer());
+    simpleModule.addSerializer(TechStack.class, new TechStackSerializer());
+
+    // JobCategory
+    simpleModule.addSerializer(JobCategory.class, new JobCategorySerializer());
+
+    // Education
+    simpleModule.addSerializer(Education.class, new EducationSerializer());
 
     // LocalDate
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
