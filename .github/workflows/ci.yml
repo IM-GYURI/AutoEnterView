@@ -29,8 +29,11 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build with Gradle
-        run: ./gradlew clean build -x test #테스트 코드 미포함
+      - name: Refresh dependencies
+        run: ./gradlew --refresh-dependencies
+
+      - name: Clean and build without tests #테스트 코드 미포함
+        run: ./gradlew clean build -x test
 
       - name: Build Docker Image
         run: docker build -t eunsun0101/auto_enter_view .
