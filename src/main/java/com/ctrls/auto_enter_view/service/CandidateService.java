@@ -79,6 +79,7 @@ public class CandidateService {
 
   // 이력서 존재 여부 확인하기
   public boolean hasResume(String candidateKey) {
+
     return resumeRepository.existsByCandidateKey(candidateKey);
   }
 

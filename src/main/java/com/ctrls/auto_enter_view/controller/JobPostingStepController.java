@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -40,7 +41,7 @@ public class JobPostingStepController {
   // 단계 이동 시키기
   @PutMapping("/edit-step")
   public ResponseEntity<String> editStepId(
-      @RequestBody EditJobPostingStepDto request,
+      @RequestBody @Validated EditJobPostingStepDto request,
       @PathVariable String jobPostingKey,
       @AuthenticationPrincipal UserDetails userDetails) {
 

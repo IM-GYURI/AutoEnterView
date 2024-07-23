@@ -48,7 +48,6 @@ public class InterviewScheduleService {
 
     return Response.builder()
         .interviewScheduleKey(saved.getInterviewScheduleKey())
-        .message(ResponseMessage.SUCCESS_INTERVIEW_SCHEDULE.getMessage())
         .build();
   }
 
@@ -71,7 +70,6 @@ public class InterviewScheduleService {
 
     return Response.builder()
         .interviewScheduleKey(saved.getInterviewScheduleKey())
-        .message(ResponseMessage.SUCCESS_CREATE_TASK_SCHEDULE.getMessage())
         .build();
   }
 

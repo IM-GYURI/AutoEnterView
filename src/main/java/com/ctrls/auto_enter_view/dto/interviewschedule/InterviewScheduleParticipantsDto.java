@@ -21,9 +21,7 @@ public class InterviewScheduleParticipantsDto {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime interviewEndDatetime;
-
   }
-
 
   @Getter
   @Builder
@@ -41,7 +39,6 @@ public class InterviewScheduleParticipantsDto {
 
     private LocalDateTime interviewEndDateTime;
 
-
     public static Response fromEntity(InterviewScheduleParticipantsEntity entity) {
 
       return Response.builder()
@@ -52,7 +49,5 @@ public class InterviewScheduleParticipantsDto {
           .interviewEndDateTime(entity.getInterviewEndDatetime())
           .build();
     }
-
   }
-
 }

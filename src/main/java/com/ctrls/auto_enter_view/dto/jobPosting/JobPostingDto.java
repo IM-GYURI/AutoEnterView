@@ -7,6 +7,7 @@ import com.ctrls.auto_enter_view.enums.Education;
 import com.ctrls.auto_enter_view.enums.JobCategory;
 import com.ctrls.auto_enter_view.enums.TechStack;
 import com.ctrls.auto_enter_view.util.KeyGenerator;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -28,9 +29,10 @@ public class JobPostingDto {
     @NotBlank(message = "제목은 필수 항목입니다.")
     private String title;
 
+    @NotNull(message = "직종은 필수 입력값 입니다.")
     private JobCategory jobCategory;
 
-    private Integer career;
+    private int career;
 
     @NotEmpty(message = "기술 스택은 필수 입력 항목입니다.")
     private List<TechStack> techStack;
@@ -41,6 +43,7 @@ public class JobPostingDto {
     @NotBlank(message = "근무 위치는 필수 입력 항목입니다.")
     private String workLocation;
 
+    @NotNull(message = "학력은 필수 입력값 입니다.")
     private Education education;
 
     @NotBlank(message = "고용 형태는 필수 항목입니다.")
@@ -60,8 +63,8 @@ public class JobPostingDto {
 
     private String jobPostingContent;
 
-    @NotNull(message = "서류 통과 인원은 필수 입력 항목입니다.")
-    private Integer passingNumber;
+    @Min(value = 1, message = "구인수는 1명 이상이어야 합니다.")
+    private int passingNumber;
 
     public static JobPostingEntity toEntity(String companyKey, Request request) {
 
