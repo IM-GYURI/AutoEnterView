@@ -17,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,8 +41,7 @@ public class CommonUserController {
 
   private final CommonUserService commonUserService;
   private final JwtTokenProvider jwtTokenProvider;
-
-
+  
   /**
    * 이메일 중복 확인
    *
@@ -49,7 +50,6 @@ public class CommonUserController {
    */
   @PostMapping("/duplicate-email")
   public ResponseEntity<String> checkDuplicateEmail(@RequestBody @Validated EmailDto emailDto) {
-
     return ResponseEntity.ok(commonUserService.checkDuplicateEmail(emailDto.getEmail()));
   }
 
@@ -61,7 +61,6 @@ public class CommonUserController {
    */
   @PostMapping("/send-verification-code")
   public ResponseEntity<String> sendVerificationCode(@RequestBody @Validated EmailDto emailDto) {
-
     commonUserService.sendVerificationCode(emailDto.getEmail());
 
     return ResponseEntity.ok(SUCCESS_SEND_CODE.getMessage());
@@ -76,7 +75,6 @@ public class CommonUserController {
   @PostMapping("/verify-email")
   public ResponseEntity<String> verifyEmail(
       @RequestBody @Validated EmailVerificationDto emailVerificationDto) {
-
     commonUserService.verifyEmailVerificationCode(emailVerificationDto.getEmail(),
         emailVerificationDto.getVerificationCode());
 
@@ -92,7 +90,6 @@ public class CommonUserController {
   @PostMapping("/email/password")
   public ResponseEntity<String> sendTemporaryPassword(
       @RequestBody @Validated TemporaryPasswordDto temporaryPasswordDto) {
-
     commonUserService.sendTemporaryPassword(temporaryPasswordDto.getEmail(),
         temporaryPasswordDto.getName());
 
@@ -102,7 +99,6 @@ public class CommonUserController {
   // 로그인
   @PostMapping("/signin")
   public ResponseEntity<SignInDto.Response> login(@Validated @RequestBody Request request) {
-
     SignInDto.Response response = commonUserService.loginUser(request.getEmail(),
         request.getPassword());
 
@@ -121,7 +117,6 @@ public class CommonUserController {
   // 로그 아웃
   @PostMapping("/signout")
   public ResponseEntity<String> logout(@RequestHeader("Authorization") String token) {
-
     log.info(token);
     commonUserService.logoutUser(token);
 
@@ -130,17 +125,18 @@ public class CommonUserController {
 
   // 비밀번호 변경
   @PutMapping("/{key}/password")
-  public ResponseEntity<String> changePassword(@PathVariable String key, @RequestBody @Validated
+  public ResponseEntity<String> changePassword(@AuthenticationPrincipal UserDetails userDetails,
+      @PathVariable String key, @RequestBody @Validated
   ChangePasswordDto.Request request) {
-    commonUserService.changePassword(key, request);
+    commonUserService.changePassword(userDetails, key, request);
     return ResponseEntity.ok(ResponseMessage.CHANGE_PASSWORD.getMessage());
   }
 
   // 회원 탈퇴
   @DeleteMapping("/{key}/withdraw")
-  public ResponseEntity<String> withdraw(@PathVariable String key) {
-
-    commonUserService.withdraw(key);
+  public ResponseEntity<String> withdraw(@AuthenticationPrincipal UserDetails userDetails,
+      @PathVariable String key) {
+    commonUserService.withdraw(userDetails, key);
 
     return ResponseEntity.ok(ResponseMessage.WITHDRAW.getMessage());
   }
