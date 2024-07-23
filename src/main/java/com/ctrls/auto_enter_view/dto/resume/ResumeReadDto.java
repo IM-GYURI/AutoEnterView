@@ -5,6 +5,8 @@ import com.ctrls.auto_enter_view.entity.ResumeCertificateEntity;
 import com.ctrls.auto_enter_view.entity.ResumeEntity;
 import com.ctrls.auto_enter_view.entity.ResumeExperienceEntity;
 import com.ctrls.auto_enter_view.entity.ResumeTechStackEntity;
+import com.ctrls.auto_enter_view.enums.Education;
+import com.ctrls.auto_enter_view.enums.JobCategory;
 import com.ctrls.auto_enter_view.enums.TechStack;
 import java.time.LocalDate;
 import java.util.List;
@@ -21,20 +23,20 @@ public class ResumeReadDto {
     private String resumeKey;
     private String candidateKey;
     private String title;
-    private String jobWant;
+    private JobCategory jobWant;
     private String name;
     private String gender;
     private LocalDate birthDate;
     private String email;
     private String phoneNumber;
     private String address;
-    private String education;
+    private Education education;
     private String schoolName;
     private String portfolio;
     private List<CareerDto.Response> career;
     private List<CertificateDto> certificates;
     private List<ExperienceDto> experience;
-    private List<String> techStack;
+    private List<TechStack> techStack;
     private String resumeImageUrl;
 
     public static ResponseBuilder builder() {
@@ -47,20 +49,20 @@ public class ResumeReadDto {
       private String resumeKey;
       private String candidateKey;
       private String title;
-      private String jobWant;
+      private JobCategory jobWant;
       private String name;
       private String gender;
       private LocalDate birthDate;
       private String email;
       private String phoneNumber;
       private String address;
-      private String education;
+      private Education education;
       private String schoolName;
       private String portfolio;
       private List<CareerDto.Response> career;
       private List<CertificateDto> certificates;
       private List<ExperienceDto> experience;
-      private List<String> techStack;
+      private List<TechStack> techStack;
       private String resumeImageUrl;
 
       ResponseBuilder() {
@@ -72,14 +74,14 @@ public class ResumeReadDto {
         resumeKey = resumeEntity.getResumeKey();
         candidateKey = resumeEntity.getCandidateKey();
         title = resumeEntity.getTitle();
-        jobWant = resumeEntity.getJobWant().getValue();
+        jobWant = resumeEntity.getJobWant();
         name = resumeEntity.getName();
         gender = resumeEntity.getGender();
         birthDate = resumeEntity.getBirthDate();
         email = resumeEntity.getEmail();
         phoneNumber = resumeEntity.getPhoneNumber();
         address = resumeEntity.getAddress();
-        education = resumeEntity.getEducation().getValue();
+        education = resumeEntity.getEducation();
         schoolName = resumeEntity.getSchoolName();
         portfolio = resumeEntity.getPortfolio();
 
@@ -104,7 +106,7 @@ public class ResumeReadDto {
         return this;
       }
 
-      public ResponseBuilder jobWant(String jobWant) {
+      public ResponseBuilder jobWant(JobCategory jobCategory) {
 
         this.jobWant = jobWant;
         return this;
@@ -146,7 +148,7 @@ public class ResumeReadDto {
         return this;
       }
 
-      public ResponseBuilder education(String education) {
+      public ResponseBuilder education(Education education) {
 
         this.education = education;
         return this;
@@ -169,7 +171,7 @@ public class ResumeReadDto {
         this.career = career.stream().map(e ->
             CareerDto.Response.builder()
                 .companyName(e.getCompanyName())
-                .jobCategory(e.getJobCategory().getValue())
+                .jobCategory(e.getJobCategory())
                 .startDate(e.getStartDate())
                 .endDate(e.getEndDate())
                 .calculatedCareer(e.getCalculatedCareer())
@@ -185,8 +187,7 @@ public class ResumeReadDto {
             CertificateDto.builder()
                 .certificateName(e.getCertificateName())
                 .certificateDate(e.getCertificateDate())
-                .build(
-                )
+                .build()
         ).collect(Collectors.toList());
 
         return this;
@@ -199,8 +200,7 @@ public class ResumeReadDto {
                 .experienceName(e.getExperienceName())
                 .startDate(e.getStartDate())
                 .endDate(e.getEndDate())
-                .build(
-                )
+                .build()
         ).collect(Collectors.toList());
 
         return this;
@@ -210,7 +210,6 @@ public class ResumeReadDto {
 
         this.techStack = techStack.stream()
             .map(ResumeTechStackEntity::getTechStackName)
-            .map(TechStack::getValue)
             .collect(Collectors.toList());
 
         return this;

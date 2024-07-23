@@ -1,10 +1,11 @@
 package com.ctrls.auto_enter_view.dto.common;
 
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
+import com.ctrls.auto_enter_view.enums.Education;
+import com.ctrls.auto_enter_view.enums.JobCategory;
 import com.ctrls.auto_enter_view.enums.TechStack;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,10 +20,10 @@ public class JobPostingDetailDto {
     private String jobPostingKey;
     private String companyKey;
     private String title;
-    private String jobCategory;
+    private JobCategory jobCategory;
     private Integer career;
     private String workLocation;
-    private String education;
+    private Education education;
     private String employmentType;
     private Long salary;
     private String workTime;
@@ -30,7 +31,7 @@ public class JobPostingDetailDto {
     private LocalDate endDate;
     private String jobPostingContent;
 
-    private List<String> techStack;
+    private List<TechStack> techStack;
     private List<String> step;
     private String image;
 
@@ -41,17 +42,17 @@ public class JobPostingDetailDto {
           .jobPostingKey(entity.getJobPostingKey())
           .companyKey(entity.getCompanyKey())
           .title(entity.getTitle())
-          .jobCategory(entity.getJobCategory().getValue())
+          .jobCategory(entity.getJobCategory())
           .career(entity.getCareer())
           .workLocation(entity.getWorkLocation())
-          .education(entity.getEducation().getValue())
+          .education(entity.getEducation())
           .employmentType(entity.getEmploymentType())
           .salary(entity.getSalary())
           .workTime(entity.getWorkTime())
           .startDate(entity.getStartDate())
           .endDate(entity.getEndDate())
           .jobPostingContent(entity.getJobPostingContent())
-          .techStack(techStack.stream().map(TechStack::getValue).collect(Collectors.toList()))
+          .techStack(techStack)
           .step(step)
           .image(imageUrl)
           .build();
