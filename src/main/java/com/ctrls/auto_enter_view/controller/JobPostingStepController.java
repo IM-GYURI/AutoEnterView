@@ -32,10 +32,9 @@ public class JobPostingStepController {
    */
   @GetMapping("/candidates-list")
   public ResponseEntity<List<JobPostingEveryInfoDto>> getCandidatesList(
-      @PathVariable String jobPostingKey) {
-
+      @AuthenticationPrincipal UserDetails userDetails, @PathVariable String jobPostingKey) {
     return ResponseEntity.ok(
-        jobPostingStepService.getCandidatesListByStepId(jobPostingKey));
+        jobPostingStepService.getCandidatesListByStepId(userDetails, jobPostingKey));
   }
 
   // 단계 이동 시키기
@@ -44,7 +43,6 @@ public class JobPostingStepController {
       @RequestBody @Validated EditJobPostingStepDto request,
       @PathVariable String jobPostingKey,
       @AuthenticationPrincipal UserDetails userDetails) {
-
     jobPostingStepService.editStepId(request.getCurrentStepId(), request.getCandidateKey(),
         jobPostingKey, userDetails);
     return ResponseEntity.ok(ResponseMessage.SUCCESS_STEP_MOVEMENT.getMessage());
