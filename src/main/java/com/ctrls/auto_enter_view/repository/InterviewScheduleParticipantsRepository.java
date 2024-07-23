@@ -22,4 +22,5 @@ public interface InterviewScheduleParticipantsRepository extends
   Optional<InterviewScheduleParticipantsEntity> findByJobPostingStepIdAndCandidateKey(Long stepId,
       String candidateKey);
 
+  InterviewScheduleParticipantsEntity findByInterviewScheduleKey(String interviewScheduleKey);
 }

@@ -23,7 +23,9 @@ public enum ResponseMessage {
   SUCCESS_EDIT_MAIL_ALARM("메일 예약 수정 완료."),
   SUCCESS_UPDATE_INTERVIEW_SCHEDULE("면접 일정 수정 완료."),
   SUCCESS_DELETE_INTERVIEW_SCHEDULE("면접 일정 삭제 완료."),
-  SUCCESS_STEP_MOVEMENT("단계 이동 성공.");
+  SUCCESS_CREATE_TASK_SCHEDULE("과제 일정 생성 완료."),
+  SUCCESS_STEP_MOVEMENT("단계 이동 성공."),
+  SUCCESS_LOGOUT("정상적으로 로그아웃 되었습니다.");
 
   private final String message;
 }

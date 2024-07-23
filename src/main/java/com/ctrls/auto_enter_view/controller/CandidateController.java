@@ -32,7 +32,7 @@ public class CandidateController {
 
     SignUpDto.Response response = candidateService.signUp(signUpDto);
 
-    return ResponseEntity.ok().body(response);
+    return ResponseEntity.ok(response);
   }
 
   // 이메일 찾기
