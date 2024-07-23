@@ -53,8 +53,8 @@ public class JobPostingController {
       @PathVariable String companyKey,
       @RequestPart(value = "jobPostingInfo") @Validated JobPostingDto.Request request,
       @RequestPart(value = "image", required = false) MultipartFile image) {
-
-    JobPostingEntity jobPosting = jobPostingService.createJobPosting(userDetails, companyKey, request);
+    JobPostingEntity jobPosting = jobPostingService.createJobPosting(userDetails, companyKey,
+        request);
 
     jobPostingTechStackService.createJobPostingTechStack(jobPosting, request);
     jobPostingStepService.createJobPostingStep(jobPosting, request);
@@ -79,11 +79,11 @@ public class JobPostingController {
    */
   @PutMapping("/job-postings/{jobPostingKey}")
   public ResponseEntity<JobPostingDto.Response> editJobPosting(
+      @AuthenticationPrincipal UserDetails userDetails,
       @PathVariable String jobPostingKey,
       @RequestPart(value = "jobPostingInfo") @Validated JobPostingDto.Request request,
       @RequestPart(value = "image", required = false) MultipartFile image) {
-
-    jobPostingService.editJobPosting(jobPostingKey, request);
+    jobPostingService.editJobPosting(userDetails, jobPostingKey, request);
     jobPostingTechStackService.editJobPostingTechStack(jobPostingKey, request);
 
     JobPostingDto.Response response;
@@ -104,9 +104,9 @@ public class JobPostingController {
    */
   @Transactional
   @DeleteMapping("/job-postings/{jobPostingKey}")
-  public ResponseEntity<String> deleteJobPosting(@PathVariable String jobPostingKey) {
-
-    jobPostingService.deleteJobPosting(jobPostingKey);
+  public ResponseEntity<String> deleteJobPosting(@AuthenticationPrincipal UserDetails userDetails,
+      @PathVariable String jobPostingKey) {
+    jobPostingService.deleteJobPosting(userDetails, jobPostingKey);
     jobPostingTechStackService.deleteJobPostingTechStack(jobPostingKey);
     jobPostingStepService.deleteJobPostingStep(jobPostingKey);
     jobPostingImageService.deleteImage(jobPostingKey);
@@ -122,9 +122,8 @@ public class JobPostingController {
    */
   @GetMapping("/companies/{companyKey}/posted-job-postings")
   public ResponseEntity<List<JobPostingInfoDto>> getJobPostingsByCompanyKey(
-      @PathVariable String companyKey) {
-
-    return ResponseEntity.ok(jobPostingService.getJobPostingsByCompanyKey(companyKey));
+      @AuthenticationPrincipal UserDetails userDetails, @PathVariable String companyKey) {
+    return ResponseEntity.ok(jobPostingService.getJobPostingsByCompanyKey(userDetails, companyKey));
   }
 
   /**
@@ -138,7 +137,6 @@ public class JobPostingController {
   public ResponseEntity<String> applyJobPosting(
       @PathVariable String jobPostingKey,
       @AuthenticationPrincipal UserDetails userDetails) {
-
     String candidateEmail = userDetails.getUsername();
     String candidateKey = candidateService.findCandidateKeyByEmail(candidateEmail);
 
