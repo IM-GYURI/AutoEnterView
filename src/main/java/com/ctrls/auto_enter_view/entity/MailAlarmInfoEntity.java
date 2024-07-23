@@ -34,6 +34,7 @@ public class MailAlarmInfoEntity extends BaseEntity {
   @Column(nullable = false, unique = true)
   private String jobPostingKey;
 
+  @Column(columnDefinition = "TEXT")
   private String mailContent;
 
   @Column(nullable = false)
