@@ -6,6 +6,8 @@ import com.ctrls.auto_enter_view.enums.ResponseMessage;
 import com.ctrls.auto_enter_view.service.CompanyInfoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,12 +26,10 @@ public class CompanyInfoController {
   private final CompanyInfoService companyInfoService;
 
   @PostMapping
-  public ResponseEntity<String> createInfo(
-      @PathVariable String companyKey,
-      @RequestBody @Validated Request request
+  public ResponseEntity<String> createInfo(@AuthenticationPrincipal UserDetails userDetails,
+      @PathVariable String companyKey, @RequestBody @Validated Request request
   ) {
-
-    companyInfoService.createInfo(companyKey, request);
+    companyInfoService.createInfo(userDetails, companyKey, request);
 
     return ResponseEntity.ok(ResponseMessage.SUCCESS_CREATE_COMPANY_INFO.getMessage());
   }
@@ -38,29 +38,25 @@ public class CompanyInfoController {
   public ResponseEntity<Response> readInfo(
       @PathVariable String companyKey
   ) {
-
     Response response = companyInfoService.readInfo(companyKey);
 
     return ResponseEntity.ok(response);
   }
 
   @PutMapping
-  public ResponseEntity<String> updateInfo(
-      @PathVariable String companyKey,
-      @RequestBody @Validated Request request
+  public ResponseEntity<String> updateInfo(@AuthenticationPrincipal UserDetails userDetails,
+      @PathVariable String companyKey, @RequestBody @Validated Request request
   ) {
-
-    companyInfoService.updateInfo(companyKey, request);
+    companyInfoService.updateInfo(userDetails, companyKey, request);
 
     return ResponseEntity.ok(ResponseMessage.SUCCESS_UPDATE_COMPANY_INFO.getMessage());
   }
 
   @DeleteMapping
-  public ResponseEntity<String> deleteInfo(
+  public ResponseEntity<String> deleteInfo(@AuthenticationPrincipal UserDetails userDetails,
       @PathVariable String companyKey
   ) {
-
-    companyInfoService.deleteInfo(companyKey);
+    companyInfoService.deleteInfo(userDetails, companyKey);
 
     return ResponseEntity.ok(ResponseMessage.SUCCESS_DELETE_COMPANY_INFO.getMessage());
   }
