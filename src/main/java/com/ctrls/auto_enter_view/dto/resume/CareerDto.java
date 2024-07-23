@@ -48,7 +48,7 @@ public class CareerDto {
   public static class Response {
 
     private String companyName;
-    private String jobCategory;
+    private JobCategory jobCategory;
     private LocalDate startDate;
     private LocalDate endDate;
     private int calculatedCareer;

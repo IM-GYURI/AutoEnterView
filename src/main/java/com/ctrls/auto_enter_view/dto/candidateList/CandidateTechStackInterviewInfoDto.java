@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.dto.candidateList;
 
+import com.ctrls.auto_enter_view.enums.TechStack;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,7 +21,7 @@ public class CandidateTechStackInterviewInfoDto {
 
   private String resumeKey;
 
-  private List<String> techStack;
+  private List<TechStack> techStack;
 
   @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
   private LocalDateTime scheduleDateTime;
