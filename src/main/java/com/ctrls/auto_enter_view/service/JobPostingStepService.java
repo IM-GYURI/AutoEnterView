@@ -8,8 +8,6 @@ import com.ctrls.auto_enter_view.dto.candidateList.CandidateTechStackInterviewIn
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto.Request;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingEveryInfoDto;
-import com.ctrls.auto_enter_view.dto.jobPostingStep.JobPostingStepDto;
-import com.ctrls.auto_enter_view.dto.jobPostingStep.JobPostingStepsDto;
 import com.ctrls.auto_enter_view.entity.CandidateListEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.entity.InterviewScheduleEntity;
@@ -72,32 +70,6 @@ public class JobPostingStepService {
   }
 
   /**
-   * 채용 공고 단계 전체 조회
-   *
-   * @param jobPostingKey
-   * @return
-   */
-  public JobPostingStepsDto getJobPostingSteps(String jobPostingKey) {
-
-    JobPostingEntity jobPosting = findJobPostingEntityByJobPostingKey(jobPostingKey);
-
-    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    CompanyEntity company = findCompanyByPrincipal(principal);
-
-    verifyCompanyOwnership(company, jobPosting);
-
-    List<JobPostingStepEntity> jobPostingSteps = jobPostingStepRepository.findAllByJobPostingKey(
-        jobPostingKey);
-    List<JobPostingStepDto> jobPostingStepDtoList = JobPostingStepDto.fromEntityList(
-        jobPostingSteps);
-
-    return JobPostingStepsDto.builder()
-        .jobPostingKey(jobPostingKey)
-        .jobPostingSteps(jobPostingStepDtoList)
-        .build();
-  }
-
-  /**
    * 전체 채용 단계의 지원자 리스트 조회 : 채용단계 ID - 지원자 key, 지원자 이름, 이력서 key, 기술 스택 리스트, 면접 일시?
    *
    * @param jobPostingKey
@@ -150,6 +122,7 @@ public class JobPostingStepService {
 
         jobPostingEveryInfoDtoList.add(JobPostingEveryInfoDto.builder()
             .stepId(jobPostingStepEntity.getId())
+            .stepName(jobPostingStepEntity.getStep())
             .candidateTechStackInterviewInfoDtoList(candidateTechStackInterviewInfoDtoList)
             .build()
         );
@@ -171,6 +144,7 @@ public class JobPostingStepService {
 
         jobPostingEveryInfoDtoList.add(JobPostingEveryInfoDto.builder()
             .stepId(jobPostingStepEntity.getId())
+            .stepName(jobPostingStepEntity.getStep())
             .candidateTechStackInterviewInfoDtoList(candidateTechStackInterviewInfoDtoList)
             .build()
         );
@@ -191,6 +165,7 @@ public class JobPostingStepService {
 
         jobPostingEveryInfoDtoList.add(JobPostingEveryInfoDto.builder()
             .stepId(jobPostingStepEntity.getId())
+            .stepName(jobPostingStepEntity.getStep())
             .candidateTechStackInterviewInfoDtoList(candidateTechStackInterviewInfoDtoList)
             .build()
         );

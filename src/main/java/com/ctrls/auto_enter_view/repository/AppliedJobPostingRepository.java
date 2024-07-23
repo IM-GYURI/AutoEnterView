@@ -1,6 +1,7 @@
 package com.ctrls.auto_enter_view.repository;
 
 import com.ctrls.auto_enter_view.entity.AppliedJobPostingEntity;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,4 +11,6 @@ import org.springframework.stereotype.Repository;
 public interface AppliedJobPostingRepository extends JpaRepository<AppliedJobPostingEntity, Long> {
 
   Page<AppliedJobPostingEntity> findAllByCandidateKey(String candidateKey, Pageable pageable);
+
+  Optional<AppliedJobPostingEntity> findByCandidateKey(String candidateKey);
 }
