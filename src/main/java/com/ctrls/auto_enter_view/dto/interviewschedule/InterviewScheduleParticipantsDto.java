@@ -1,7 +1,6 @@
 package com.ctrls.auto_enter_view.dto.interviewschedule;
 
 import com.ctrls.auto_enter_view.entity.InterviewScheduleParticipantsEntity;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,10 +15,8 @@ public class InterviewScheduleParticipantsDto {
   @NoArgsConstructor
   public static class Request {
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime interviewStartDatetime;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime interviewEndDatetime;
   }
 
