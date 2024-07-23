@@ -83,14 +83,6 @@ public class CandidateService {
     return resumeRepository.existsByCandidateKey(candidateKey);
   }
 
-  // candidateKey -> 지원자 정보 조회 : 이름
-  public String getCandidateNameByKey(String candidateKey) {
-
-    return candidateRepository.findByCandidateKey(candidateKey)
-        .map(CandidateEntity::getName)
-        .orElseThrow(() -> new CustomException(ErrorCode.CANDIDATE_NOT_FOUND));
-  }
-
   // 지원자가 지원한 채용 공고 조회
   public CandidateApplyDto.Response getApplyJobPostings(UserDetails userDetails,
       String candidateKey, int page, int size) {
