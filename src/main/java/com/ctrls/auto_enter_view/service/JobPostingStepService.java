@@ -8,8 +8,6 @@ import com.ctrls.auto_enter_view.dto.candidateList.CandidateTechStackInterviewIn
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto.Request;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingEveryInfoDto;
-import com.ctrls.auto_enter_view.dto.jobPostingStep.JobPostingStepDto;
-import com.ctrls.auto_enter_view.dto.jobPostingStep.JobPostingStepsDto;
 import com.ctrls.auto_enter_view.entity.CandidateListEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.entity.InterviewScheduleEntity;
@@ -72,32 +70,6 @@ public class JobPostingStepService {
   }
 
   /**
-   * 채용 공고 단계 전체 조회
-   *
-   * @param jobPostingKey
-   * @return
-   */
-  public JobPostingStepsDto getJobPostingSteps(String jobPostingKey) {
-
-    JobPostingEntity jobPosting = findJobPostingEntityByJobPostingKey(jobPostingKey);
-
-    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    CompanyEntity company = findCompanyByPrincipal(principal);
-
-    verifyCompanyOwnership(company, jobPosting);
-
-    List<JobPostingStepEntity> jobPostingSteps = jobPostingStepRepository.findAllByJobPostingKey(
-        jobPostingKey);
-    List<JobPostingStepDto> jobPostingStepDtoList = JobPostingStepDto.fromEntityList(
-        jobPostingSteps);
-
-    return JobPostingStepsDto.builder()
-        .jobPostingKey(jobPostingKey)
-        .jobPostingSteps(jobPostingStepDtoList)
-        .build();
-  }
-
-  /**
    * 전체 채용 단계의 지원자 리스트 조회 : 채용단계 ID - 지원자 key, 지원자 이름, 이력서 key, 기술 스택 리스트, 면접 일시?
    *
    * @param jobPostingKey
@@ -142,7 +114,7 @@ public class JobPostingStepService {
         List<CandidateTechStackInterviewInfoDto> candidateTechStackInterviewInfoDtoList = new ArrayList<>();
 
         for (CandidateListEntity candidate : candidateList) {
-          CandidateTechStackInterviewInfoDto candidateTechStackInterviewInfoDto = mapToCandidateTechStackListDtoInterview(
+          CandidateTechStackInterviewInfoDto candidateTechStackInterviewInfoDto = mapToCandidateTechStackListDtoTask(
               candidate, jobPostingStepEntity.getId());
 
           candidateTechStackInterviewInfoDtoList.add(candidateTechStackInterviewInfoDto);
@@ -150,6 +122,7 @@ public class JobPostingStepService {
 
         jobPostingEveryInfoDtoList.add(JobPostingEveryInfoDto.builder()
             .stepId(jobPostingStepEntity.getId())
+            .stepName(jobPostingStepEntity.getStep())
             .candidateTechStackInterviewInfoDtoList(candidateTechStackInterviewInfoDtoList)
             .build()
         );
@@ -163,7 +136,7 @@ public class JobPostingStepService {
         List<CandidateTechStackInterviewInfoDto> candidateTechStackInterviewInfoDtoList = new ArrayList<>();
 
         for (CandidateListEntity candidate : candidateList) {
-          CandidateTechStackInterviewInfoDto candidateTechStackInterviewInfoDto = mapToCandidateTechStackListDtoTask(
+          CandidateTechStackInterviewInfoDto candidateTechStackInterviewInfoDto = mapToCandidateTechStackListDtoInterview(
               candidate, jobPostingStepEntity.getId());
 
           candidateTechStackInterviewInfoDtoList.add(candidateTechStackInterviewInfoDto);
@@ -171,6 +144,7 @@ public class JobPostingStepService {
 
         jobPostingEveryInfoDtoList.add(JobPostingEveryInfoDto.builder()
             .stepId(jobPostingStepEntity.getId())
+            .stepName(jobPostingStepEntity.getStep())
             .candidateTechStackInterviewInfoDtoList(candidateTechStackInterviewInfoDtoList)
             .build()
         );
@@ -191,6 +165,7 @@ public class JobPostingStepService {
 
         jobPostingEveryInfoDtoList.add(JobPostingEveryInfoDto.builder()
             .stepId(jobPostingStepEntity.getId())
+            .stepName(jobPostingStepEntity.getStep())
             .candidateTechStackInterviewInfoDtoList(candidateTechStackInterviewInfoDtoList)
             .build()
         );
@@ -236,22 +211,23 @@ public class JobPostingStepService {
   }
 
   // 이력서의 기술 스택 조회
-  private List<TechStack> findTechStackByResumeKey(String resumeKey) {
-
+  private List<String> findTechStackByResumeKey(String resumeKey) {
     return resumeTechStackRepository.findAllByResumeKey(resumeKey)
         .stream()
         .map(ResumeTechStackEntity::getTechStackName)
+        .map(TechStack::getValue)
         .collect(Collectors.toList());
   }
 
   // 면접 : CandidateListEntity & stepId -> CandidateTechStackInterviewInfoDto 매핑
-  private CandidateTechStackInterviewInfoDto mapToCandidateTechStackListDtoTask(
+  private CandidateTechStackInterviewInfoDto mapToCandidateTechStackListDtoInterview(
       CandidateListEntity candidateListEntity, Long stepId) {
 
     ResumeEntity resumeEntity = findResumeEntityByCandidateKey(
         candidateListEntity.getCandidateKey());
 
-    List<TechStack> techStack = findTechStackByResumeKey(resumeEntity.getResumeKey());
+    // List<String>으로 TechStack의 value를 받아와서 넘겨줘야 함
+    List<String> techStack = findTechStackByResumeKey(resumeEntity.getResumeKey());
 
     InterviewScheduleParticipantsEntity interviewScheduleParticipantsEntity = interviewScheduleParticipantsRepository.findByJobPostingStepIdAndCandidateKey(
             stepId, candidateListEntity.getCandidateKey())
@@ -267,13 +243,14 @@ public class JobPostingStepService {
   }
 
   // 과제 : CandidateListEntity & stepId -> CandidateTechStackInterviewInfoDto 매핑
-  private CandidateTechStackInterviewInfoDto mapToCandidateTechStackListDtoInterview(
+  private CandidateTechStackInterviewInfoDto mapToCandidateTechStackListDtoTask(
       CandidateListEntity candidateListEntity, Long stepId) {
 
     ResumeEntity resumeEntity = findResumeEntityByCandidateKey(
         candidateListEntity.getCandidateKey());
 
-    List<TechStack> techStack = findTechStackByResumeKey(resumeEntity.getResumeKey());
+    // List<String>으로 TechStack의 value를 받아와서 넘겨줘야 함
+    List<String> techStack = findTechStackByResumeKey(resumeEntity.getResumeKey());
 
     InterviewScheduleEntity interviewScheduleEntity = interviewScheduleRepository.findByJobPostingStepId(
         stepId).orElseGet(InterviewScheduleEntity::new);
@@ -303,7 +280,7 @@ public class JobPostingStepService {
     ResumeEntity resumeEntity = findResumeEntityByCandidateKey(
         candidateListEntity.getCandidateKey());
 
-    List<TechStack> techStack = findTechStackByResumeKey(resumeEntity.getResumeKey());
+    List<String> techStack = findTechStackByResumeKey(resumeEntity.getResumeKey());
 
     return CandidateTechStackInterviewInfoDto.builder()
         .candidateKey(candidateListEntity.getCandidateKey())
@@ -335,7 +312,8 @@ public class JobPostingStepService {
 
   // 채용 단계 올리기
   @Transactional
-  public void editStepId(Long currentStepId, String candidateKey, String jobPostingKey, UserDetails userDetails) {
+  public void editStepId(Long currentStepId, String candidateKey, String jobPostingKey,
+      UserDetails userDetails) {
 
     CompanyEntity companyEntity = companyRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new CustomException(ErrorCode.COMPANY_NOT_FOUND));
@@ -349,14 +327,16 @@ public class JobPostingStepService {
     }
 
     // 지원자 정보 조회
-    CandidateListEntity candidateListEntity = candidateListRepository.findByCandidateKeyAndJobPostingKey(candidateKey, jobPostingKey)
+    CandidateListEntity candidateListEntity = candidateListRepository.findByCandidateKeyAndJobPostingKey(
+            candidateKey, jobPostingKey)
         .orElseThrow(() -> new CustomException(ErrorCode.CANDIDATE_NOT_FOUND));
 
     // 다음 단계 ID 계산
     Long nextStepId = currentStepId + 1;
 
     // 다음 단계가 존재하는지 확인
-    JobPostingStepEntity nextStep = jobPostingStepRepository.findByJobPostingKeyAndId(jobPostingKey, nextStepId)
+    JobPostingStepEntity nextStep = jobPostingStepRepository.findByJobPostingKeyAndId(jobPostingKey,
+            nextStepId)
         .orElseThrow(() -> new CustomException(ErrorCode.NEXT_STEP_NOT_FOUND));
 
     // 지원자의 단계 ID 업데이트

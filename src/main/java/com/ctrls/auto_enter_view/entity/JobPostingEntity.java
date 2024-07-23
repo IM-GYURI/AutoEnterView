@@ -59,6 +59,7 @@ public class JobPostingEntity extends BaseEntity {
   @Column(nullable = false)
   private int passingNumber;
 
+  @Column(columnDefinition = "TEXT")
   private String jobPostingContent;
 
   public void updateEntity(Request request) {

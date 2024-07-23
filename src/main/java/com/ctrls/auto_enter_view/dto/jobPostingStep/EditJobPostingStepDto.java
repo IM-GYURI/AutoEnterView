@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.dto.jobPostingStep;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,6 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EditJobPostingStepDto {
-  private Long currentStepId;
+
+  private long currentStepId;
+
+  @NotBlank(message = "지원자 키는 필수 입력값 입니다.")
   private String candidateKey;
 }

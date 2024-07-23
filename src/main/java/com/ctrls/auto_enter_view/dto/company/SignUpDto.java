@@ -25,10 +25,11 @@ public class SignUpDto {
     @NotBlank(message = "인증번호는 필수 입력값 입니다.")
     private String verificationCode;
 
+    @NotBlank(message = "비밀번호는 필수 입력값 입니다.")
     @Pattern(regexp = "(?=.*[0-9])(?=.*[a-zA-Z])(?=.*\\W)(?=\\S+$).{8,16}", message = "비밀번호 형식이 올바르지 않습니다.")
     private String password;
 
-    @NotBlank(message = "이름은 필수 입력값 입니다.")
+    @NotBlank(message = "회사 이름은 필수 입력값 입니다.")
     private String companyName;
 
     @NotBlank(message = "전화번호는 필수 입력값 입니다.")
@@ -57,6 +58,5 @@ public class SignUpDto {
     private String companyKey;
     private String email;
     private String name;
-    private String message;
   }
 }

@@ -47,6 +47,7 @@ public class JobPostingTechStackService {
     return techStack;
   }
 
+  // 채용 공고 수정하기
   public void editJobPostingTechStack(String jobPostingKey, JobPostingDto.Request request) {
 
     List<JobPostingTechStackEntity> entities = jobPostingTechStackRepository.findAllByJobPostingKey(
@@ -63,6 +64,7 @@ public class JobPostingTechStackService {
     jobPostingTechStackRepository.saveAll(techStackEntities);
   }
 
+  // 채용 공고 삭제하기
   public void deleteJobPostingTechStack(String jobPostingKey) {
 
     jobPostingTechStackRepository.deleteByJobPostingKey(jobPostingKey);

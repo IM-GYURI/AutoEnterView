@@ -50,7 +50,6 @@ public class ResumeDto {
     private String schoolName;
 
     private List<TechStack> techStack;
-
     private List<ExperienceDto> experience;
     private List<CareerDto.Request> career;
     private List<CertificateDto> certificates;

@@ -34,7 +34,7 @@ public class CompanyEntity extends BaseEntity {
   @Column(nullable = false)
   private String companyName;
 
-  @Column(nullable = false)
+  @Column(nullable = false, unique = true)
   private String companyNumber;
 
   @Column(nullable = false)

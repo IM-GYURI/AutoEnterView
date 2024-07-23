@@ -2,7 +2,7 @@ package com.ctrls.auto_enter_view.service;
 
 import static com.ctrls.auto_enter_view.enums.ErrorCode.EMAIL_DUPLICATION;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.EMAIL_NOT_FOUND;
-import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND_BY_NAME_AND_PHONE;
 
 import com.ctrls.auto_enter_view.dto.candidate.CandidateApplyDto;
 import com.ctrls.auto_enter_view.dto.candidate.CandidateApplyDto.ApplyInfo;
@@ -12,7 +12,6 @@ import com.ctrls.auto_enter_view.dto.candidate.SignUpDto;
 import com.ctrls.auto_enter_view.entity.AppliedJobPostingEntity;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
-import com.ctrls.auto_enter_view.enums.ResponseMessage;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.AppliedJobPostingRepository;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
@@ -24,8 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -57,31 +54,15 @@ public class CandidateService {
         .candidateKey(candidate.getCandidateKey())
         .email(signUpDto.getEmail())
         .name(signUpDto.getName())
-        .message(ResponseMessage.SIGNUP.getMessage())
         .build();
   }
 
-  // 회원 탈퇴
-  public void withdraw(String candidateKey) {
-
-    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-    CandidateEntity candidateEntity = candidateRepository.findByEmail(principal.getUsername())
-        .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
-
-    // 응시자 정보의 응시자키와 URL 응시자키 일치 확인
-    if (!candidateEntity.getCandidateKey().equals(candidateKey)) {
-      throw new CustomException(USER_NOT_FOUND);
-    }
-
-    candidateRepository.delete(candidateEntity);
-  }
-
+  // 이름과 전화번호로 지원자 이메일 찾기
   public Response findEmail(FindEmailDto.Request request) {
 
     CandidateEntity candidateEntity = candidateRepository.findByNameAndPhoneNumber(
             request.getName(), request.getPhoneNumber())
-        .orElseThrow(() -> new CustomException(EMAIL_NOT_FOUND));
+        .orElseThrow(() -> new CustomException(USER_NOT_FOUND_BY_NAME_AND_PHONE));
 
     return Response.builder()
         .email(candidateEntity.getEmail())
@@ -98,6 +79,7 @@ public class CandidateService {
 
   // 이력서 존재 여부 확인하기
   public boolean hasResume(String candidateKey) {
+
     return resumeRepository.existsByCandidateKey(candidateKey);
   }
 
