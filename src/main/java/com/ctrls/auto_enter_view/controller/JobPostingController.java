@@ -37,15 +37,24 @@ public class JobPostingController {
   private final CandidateService candidateService;
   private final JobPostingImageService jobPostingImageService;
 
-  // 채용 공고 생성하기
+  /**
+   * 채용 공고 생성하기
+   *
+   * @param userDetails
+   * @param companyKey
+   * @param request
+   * @param image
+   * @return
+   */
   @Transactional
   @PostMapping("/companies/{companyKey}/job-postings")
   public ResponseEntity<JobPostingDto.Response> createJobPosting(
+      @AuthenticationPrincipal UserDetails userDetails,
       @PathVariable String companyKey,
       @RequestPart(value = "jobPostingInfo") @Validated JobPostingDto.Request request,
       @RequestPart(value = "image", required = false) MultipartFile image) {
 
-    JobPostingEntity jobPosting = jobPostingService.createJobPosting(companyKey, request);
+    JobPostingEntity jobPosting = jobPostingService.createJobPosting(userDetails, companyKey, request);
 
     jobPostingTechStackService.createJobPostingTechStack(jobPosting, request);
     jobPostingStepService.createJobPostingStep(jobPosting, request);
@@ -61,21 +70,16 @@ public class JobPostingController {
   }
 
   /**
-   * 회사 본인이 등록한 채용공고 목록 조회
+   * 채용 공고 수정
    *
-   * @param companyKey
+   * @param jobPostingKey
+   * @param request
+   * @param image
    * @return
    */
-  @GetMapping("/companies/{companyKey}/posted-job-postings")
-  public ResponseEntity<List<JobPostingInfoDto>> getJobPostingsByCompanyKey(
-      @PathVariable String companyKey) {
-
-    return ResponseEntity.ok(jobPostingService.getJobPostingsByCompanyKey(companyKey));
-  }
-
-  // 채용 공고 수정
   @PutMapping("/job-postings/{jobPostingKey}")
-  public ResponseEntity<JobPostingDto.Response> editJobPosting(@PathVariable String jobPostingKey,
+  public ResponseEntity<JobPostingDto.Response> editJobPosting(
+      @PathVariable String jobPostingKey,
       @RequestPart(value = "jobPostingInfo") @Validated JobPostingDto.Request request,
       @RequestPart(value = "image", required = false) MultipartFile image) {
 
@@ -92,7 +96,12 @@ public class JobPostingController {
     return ResponseEntity.ok(response);
   }
 
-  // 채용 공고 삭제하기
+  /**
+   * 채용 공고 삭제하기
+   *
+   * @param jobPostingKey
+   * @return
+   */
   @Transactional
   @DeleteMapping("/job-postings/{jobPostingKey}")
   public ResponseEntity<String> deleteJobPosting(@PathVariable String jobPostingKey) {
@@ -105,7 +114,26 @@ public class JobPostingController {
     return ResponseEntity.ok(ResponseMessage.SUCCESS_DELETE_JOB_POSTING.getMessage());
   }
 
-  // (지원자) 채용 공고 지원하기
+  /**
+   * 회사 본인이 등록한 채용공고 목록 조회
+   *
+   * @param companyKey
+   * @return
+   */
+  @GetMapping("/companies/{companyKey}/posted-job-postings")
+  public ResponseEntity<List<JobPostingInfoDto>> getJobPostingsByCompanyKey(
+      @PathVariable String companyKey) {
+
+    return ResponseEntity.ok(jobPostingService.getJobPostingsByCompanyKey(companyKey));
+  }
+
+  /**
+   * (지원자) 채용 공고 지원하기
+   *
+   * @param jobPostingKey
+   * @param userDetails
+   * @return
+   */
   @PostMapping("/job-postings/{jobPostingKey}/apply")
   public ResponseEntity<String> applyJobPosting(
       @PathVariable String jobPostingKey,
