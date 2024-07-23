@@ -39,7 +39,6 @@ public class CandidateService {
 
   // 회원 가입
   public SignUpDto.Response signUp(SignUpDto.Request signUpDto) {
-
     if (candidateRepository.existsByEmail(signUpDto.getEmail())) {
       throw new CustomException(EMAIL_DUPLICATION);
     }
@@ -59,7 +58,6 @@ public class CandidateService {
 
   // 이름과 전화번호로 지원자 이메일 찾기
   public Response findEmail(FindEmailDto.Request request) {
-
     CandidateEntity candidateEntity = candidateRepository.findByNameAndPhoneNumber(
             request.getName(), request.getPhoneNumber())
         .orElseThrow(() -> new CustomException(USER_NOT_FOUND_BY_NAME_AND_PHONE));
@@ -71,7 +69,6 @@ public class CandidateService {
 
   // 로그인 한 지원자 email -> candidateKey 추출
   public String findCandidateKeyByEmail(String candidateEmail) {
-
     return candidateRepository.findByEmail(candidateEmail)
         .map(CandidateEntity::getCandidateKey)
         .orElseThrow(() -> new CustomException(EMAIL_NOT_FOUND));
@@ -79,22 +76,12 @@ public class CandidateService {
 
   // 이력서 존재 여부 확인하기
   public boolean hasResume(String candidateKey) {
-
     return resumeRepository.existsByCandidateKey(candidateKey);
-  }
-
-  // candidateKey -> 지원자 정보 조회 : 이름
-  public String getCandidateNameByKey(String candidateKey) {
-
-    return candidateRepository.findByCandidateKey(candidateKey)
-        .map(CandidateEntity::getName)
-        .orElseThrow(() -> new CustomException(ErrorCode.CANDIDATE_NOT_FOUND));
   }
 
   // 지원자가 지원한 채용 공고 조회
   public CandidateApplyDto.Response getApplyJobPostings(UserDetails userDetails,
       String candidateKey, int page, int size) {
-
     CandidateEntity candidateEntity = candidateRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new CustomException(ErrorCode.CANDIDATE_NOT_FOUND));
 
