@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Table(name = "resume_experience")
-public class ResumeExperienceEntity extends BaseEntity {
+public class ResumeExperienceEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
