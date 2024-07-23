@@ -22,5 +22,8 @@ public interface JobPostingRepository extends JpaRepository<JobPostingEntity, St
 
   Page<JobPostingEntity> findByEndDateGreaterThanEqual(LocalDate currentDate, Pageable pageable);
 
-  boolean existsByJobPostingKeyAndEndDateGreaterThanEqual(String jobPostingKey, LocalDate currentDate);
+  boolean existsByJobPostingKeyAndEndDateGreaterThanEqual(String jobPostingKey,
+      LocalDate currentDate);
+
+  JobPostingEntity findByCompanyKey(String companyKey);
 }
