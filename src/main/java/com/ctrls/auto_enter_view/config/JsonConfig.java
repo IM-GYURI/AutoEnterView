@@ -4,8 +4,6 @@ import com.ctrls.auto_enter_view.component.TechStackDeserializer;
 import com.ctrls.auto_enter_view.enums.TechStack;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import java.time.LocalDate;
@@ -27,13 +25,10 @@ public class JsonConfig {
 
     // LocalDate
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    simpleModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
     simpleModule.addSerializer(LocalDate.class, new LocalDateSerializer(dateFormatter));
 
     // LocalDateTime
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-    simpleModule.addDeserializer(LocalDateTime.class,
-        new LocalDateTimeDeserializer(dateTimeFormatter));
     simpleModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(dateTimeFormatter));
 
     return simpleModule;
