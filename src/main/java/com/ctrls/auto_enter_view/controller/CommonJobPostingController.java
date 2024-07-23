@@ -18,7 +18,13 @@ public class CommonJobPostingController {
 
   private final JobPostingService jobPostingService;
 
-  // main 화면에 보여질 채용 공고 가져오기
+  /**
+   * Main 화면에 보여질 채용 공고 전체 조회하기
+   *
+   * @param page 페이징 처리 시 page 시작 1
+   * @param size 페이징 처리 시 한번에 가져오는 size 24
+   * @return MainJobPostingDto.Response
+   */
   @GetMapping
   public ResponseEntity<MainJobPostingDto.Response> getAllJobPosting(
       @RequestParam(defaultValue = "1") int page,
@@ -28,7 +34,12 @@ public class CommonJobPostingController {
     return ResponseEntity.ok(response);
   }
 
-  // 채용 공고 상세 정보 가져오기
+  /**
+   * 채용 공고 상세 조회하기
+   *
+   * @param jobPostingKey 채용 공고 PK
+   * @return JobPostingDetailDto.Response
+   */
   @GetMapping("/{jobPostingKey}")
   public ResponseEntity<JobPostingDetailDto.Response> getDetailJobPosting(
       @PathVariable String jobPostingKey) {

@@ -13,7 +13,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 
 public class InterviewScheduleDto {
 
@@ -27,7 +26,6 @@ public class InterviewScheduleDto {
     private LocalDate startDate;
 
     @NotNull(message = "시작시간은 필수 입력값 입니다.")
-    @DateTimeFormat(pattern = "HH:mm")
     private LocalTime startTime;
 
     @Min(value = 1, message = "구간은 1분 이상이어야 합니다.")

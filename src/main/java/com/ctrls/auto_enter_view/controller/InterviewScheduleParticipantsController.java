@@ -25,12 +25,12 @@ public class InterviewScheduleParticipantsController {
   private final InterviewScheduleParticipantsService interviewScheduleParticipantsService;
 
   /**
-   * 개인 면접 일정 생성
+   * 개인 면접 일정 생성하기
    *
-   * @param jobPostingKey
-   * @param stepId
-   * @param request
-   * @return
+   * @param jobPostingKey 채용 공고 PK
+   * @param stepId 채용 단계 PK
+   * @param request InterviewScheduleDto.Request
+   * @return ResponseMessage
    */
   @PostMapping("/job-postings/{jobPostingKey}/steps/{stepId}/interview-schedule-participants")
   public ResponseEntity<String> createInterviewSchedule(@PathVariable String jobPostingKey,
@@ -44,11 +44,11 @@ public class InterviewScheduleParticipantsController {
   }
 
   /**
-   * 면접 일정 조회
+   * 면접 일정 조회하기
    *
-   * @param jobPostingKey
-   * @param stepId
-   * @return
+   * @param jobPostingKey 채용 공고 PK
+   * @param stepId 채용 단계 PK
+   * @return List<InterviewScheduleParticipantsDto.Response>
    */
   @GetMapping("/job-postings/{jobPostingKey}/steps/{stepId}/interview-schedule-participants")
 
@@ -62,12 +62,12 @@ public class InterviewScheduleParticipantsController {
   }
 
   /**
-   * 개인 면접 일정 수정
+   * 개인 면접 일정 수정하기
    *
-   * @param interviewScheduleKey
-   * @param candidateKey
-   * @param request
-   * @return
+   * @param interviewScheduleKey 면접 일정 PK
+   * @param candidateKey 지원자 PK
+   * @param request InterviewScheduleParticipantsDto.Request
+   * @return ResponseMessage
    */
   @PutMapping("/interview-schedule-participants/{interviewScheduleKey}/candidates/{candidateKey}")
   public ResponseEntity<String> updatePersonalInterviewSchedule(
@@ -83,11 +83,11 @@ public class InterviewScheduleParticipantsController {
   }
 
   /**
-   * 전체 면접 일정 삭제
+   * 전체 면접 일정 삭제하기
    *
-   * @param jobPostingKey
-   * @param stepId
-   * @return
+   * @param jobPostingKey 채용 공고 PK
+   * @param stepId 채용 단계 PK
+   * @return ResponseMessage
    */
   @DeleteMapping("/job-postings/{jobPostingKey}/steps/{stepId}/interview-schedule")
   public ResponseEntity<String> deleteAllInterviewSchedule(@PathVariable String jobPostingKey,
