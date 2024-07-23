@@ -29,7 +29,15 @@ public class ResumeController {
   private final ResumeService resumeService;
   private final ResumeImageService resumeImageService;
 
-  // 이력서 생성
+  /**
+   * 이력서 생성하기
+   *
+   * @param userDetails 로그인 된 사용자 정보
+   * @param candidateKey 지원자 PK
+   * @param request ResumeDto.Request
+   * @param image MultipartFile
+   * @return ResumeDto.Response
+   */
   @PostMapping
   public ResponseEntity<ResumeDto.Response> createResume(
       @AuthenticationPrincipal UserDetails userDetails,
@@ -49,7 +57,13 @@ public class ResumeController {
     return ResponseEntity.ok(response);
   }
 
-  // 이력서 조회
+  /**
+   * 이력서 조회하기
+   *
+   * @param userDetails 로그인 된 사용자 정보
+   * @param candidateKey 지원자 PK
+   * @return ResumeReadDto.Response
+   */
   @GetMapping
   public ResponseEntity<ResumeReadDto.Response> readResume(
       @AuthenticationPrincipal UserDetails userDetails,
@@ -60,7 +74,15 @@ public class ResumeController {
     return ResponseEntity.ok(response);
   }
 
-  // 이력서 수정
+  /**
+   * 이력서 수정하기
+   *
+   * @param userDetails 로그인 된 사용자 정보
+   * @param candidateKey 지원자 PK
+   * @param request ResumeDto.Request
+   * @param image MultipartFile
+   * @return ResumeDto.Response
+   */
   @PutMapping
   public ResponseEntity<ResumeDto.Response> updateResume(
       @AuthenticationPrincipal UserDetails userDetails,
@@ -81,7 +103,13 @@ public class ResumeController {
     return ResponseEntity.ok(response);
   }
 
-  // 이력서 삭제
+  /**
+   * 이력서 삭제하기
+   *
+   * @param userDetails 로그인 된 사용자 정보
+   * @param candidateKey 지원자 PK
+   * @return ResponseMessage
+   */
   @Transactional
   @DeleteMapping
   public ResponseEntity<String> deleteResume(

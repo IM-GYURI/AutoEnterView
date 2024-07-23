@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * 인증 없이 접근 가능 - 공통 회원 기능 : 회사, 지원자
  */
-
 @RequestMapping("/common")
 @RequiredArgsConstructor
 @RestController
@@ -44,8 +43,8 @@ public class CommonUserController {
   /**
    * 이메일 중복 확인
    *
-   * @param emailDto
-   * @return
+   * @param emailDto requestDto
+   * @return ResponseMessage
    */
   @PostMapping("/duplicate-email")
   public ResponseEntity<String> checkDuplicateEmail(@RequestBody @Validated EmailDto emailDto) {
@@ -56,8 +55,8 @@ public class CommonUserController {
   /**
    * 이메일 인증 코드 전송
    *
-   * @param emailDto
-   * @return
+   * @param emailDto requestDto
+   * @return ResponseMessage
    */
   @PostMapping("/send-verification-code")
   public ResponseEntity<String> sendVerificationCode(@RequestBody @Validated EmailDto emailDto) {
@@ -70,8 +69,8 @@ public class CommonUserController {
   /**
    * 이메일 인증 코드 확인
    *
-   * @param emailVerificationDto
-   * @return
+   * @param emailVerificationDto RequestDto
+   * @return ResponseMessage
    */
   @PostMapping("/verify-email")
   public ResponseEntity<String> verifyEmail(
@@ -86,8 +85,8 @@ public class CommonUserController {
   /**
    * 임시 비밀번호 전송
    *
-   * @param temporaryPasswordDto
-   * @return
+   * @param temporaryPasswordDto RequestDto
+   * @return ResponseMessage
    */
   @PostMapping("/email/password")
   public ResponseEntity<String> sendTemporaryPassword(
@@ -99,7 +98,11 @@ public class CommonUserController {
     return ResponseEntity.ok(SUCCESS_TEMPORARY_PASSWORD_SEND.getMessage());
   }
 
-  // 로그인
+  /**
+   * 로그인
+   * @param request SignInDto.Request
+   * @return SignInDto.Response + Header token
+   */
   @PostMapping("/signin")
   public ResponseEntity<SignInDto.Response> login(@Validated @RequestBody Request request) {
 
@@ -118,7 +121,12 @@ public class CommonUserController {
         .body(response);
   }
 
-  // 로그 아웃
+  /**
+   * 로그 아웃
+   *
+   * @param token 토큰 정보
+   * @return ResponseMessage
+   */
   @PostMapping("/signout")
   public ResponseEntity<String> logout(@RequestHeader("Authorization") String token) {
 
@@ -128,7 +136,13 @@ public class CommonUserController {
     return ResponseEntity.ok(ResponseMessage.SUCCESS_LOGOUT.getMessage());
   }
 
-  // 비밀번호 변경
+  /**
+   * 비밀번호 변경하기
+   *
+   * @param key CompanyKey 또는 CandidateKey
+   * @param request ChangePasswordDto.Request
+   * @return ResponseMessage
+   */
   @PutMapping("/{key}/password")
   public ResponseEntity<String> changePassword(@PathVariable String key, @RequestBody @Validated
   ChangePasswordDto.Request request) {
@@ -136,7 +150,12 @@ public class CommonUserController {
     return ResponseEntity.ok(ResponseMessage.CHANGE_PASSWORD.getMessage());
   }
 
-  // 회원 탈퇴
+  /**
+   * 사용자 탈퇴하기
+   *
+   * @param key CompanyKey 또는 CandidateKey
+   * @return ResponseMessage
+   */
   @DeleteMapping("/{key}/withdraw")
   public ResponseEntity<String> withdraw(@PathVariable String key) {
 

@@ -25,17 +25,27 @@ public class CandidateController {
 
   private final CandidateService candidateService;
 
-  // 회원 가입
+  /**
+   * 지원자 회원가입
+   *
+   * @param request SignUpDto.Request
+   * @return SignUpDto.Response
+   */
   @PostMapping("/signup")
   public ResponseEntity<SignUpDto.Response> signUp(
-      @RequestBody @Validated SignUpDto.Request signUpDto) {
+      @RequestBody @Validated SignUpDto.Request request) {
 
-    SignUpDto.Response response = candidateService.signUp(signUpDto);
+    SignUpDto.Response response = candidateService.signUp(request);
 
     return ResponseEntity.ok(response);
   }
 
-  // 이메일 찾기
+  /**
+   * 지원자 가입한 이메일 찾기
+   *
+   * @param request FindEmailDto.Request
+   * @return FindEmailDto.Response
+   */
   @PostMapping("/find-email")
   public ResponseEntity<FindEmailDto.Response> findEmail(
       @RequestBody @Validated FindEmailDto.Request request) {
@@ -45,7 +55,15 @@ public class CandidateController {
     return ResponseEntity.ok(response);
   }
 
-  // (지원자) 지원한 채용 공고 조회하기
+  /**
+   * 본인이 지원한 채용 공고 조회하기
+   *
+   * @param userDetails 로그인 된 사용자 정보
+   * @param candidateKey 지원자 PK
+   * @param page 페이징 처리 시 page 시작 1
+   * @param size 페이징 처리 시 한번에 가져오는 size 20
+   * @return CandidateApplyDto.Response
+   */
   @GetMapping("/{candidateKey}/applied-job-postings")
   public ResponseEntity<CandidateApplyDto.Response> getApplyJobPosting(
       @AuthenticationPrincipal UserDetails userDetails,

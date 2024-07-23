@@ -23,40 +23,38 @@ public class MailAlarmInfoController {
   private final MailAlarmInfoService mailAlarmInfoService;
 
   /**
-   * 메일 예약 생성
+   * 메일 예약 생성하기
    *
-   * @param companyKey
-   * @param jobPostingKey
-   * @param stepId
-   * @param mailAlarmInfoDto
-   * @return
+   * @param companyKey 회사 PK
+   * @param jobPostingKey 채용 공고 PK
+   * @param stepId 채용 단계 PK
+   * @param mailAlarmInfoDto MailAlarmInfoDto.Request
+   * @return ResponseMessage
    */
   @PostMapping
   public ResponseEntity<String> createMailAlarmInfo(@PathVariable String companyKey,
       @PathVariable String jobPostingKey, @PathVariable Long stepId,
       @Validated @RequestBody MailAlarmInfoDto mailAlarmInfoDto) {
-    mailAlarmInfoService.createMailAlarmInfo(companyKey, jobPostingKey, stepId,
-        mailAlarmInfoDto);
+    mailAlarmInfoService.createMailAlarmInfo(companyKey, jobPostingKey, stepId, mailAlarmInfoDto);
 
     return ResponseEntity.ok(SUCCESS_CREATE_MAIL_ALARM.getMessage());
   }
 
   /**
-   * 예약된 메일 수정
+   * 예약된 메일 수정하기
    *
-   * @param companyKey
-   * @param jobPostingKey
-   * @param stepId
-   * @param mailAlarmInfoDto
-   * @return
+   * @param companyKey 회사 PK
+   * @param jobPostingKey 채용 공고 PK
+   * @param stepId 채용 단계 PK
+   * @param request MailAlarmInfoDto.Request
+   * @return ResponseMessage
    */
   @PutMapping
   public ResponseEntity<String> editMailAlarmInfo(@PathVariable String companyKey,
       @PathVariable String jobPostingKey, @PathVariable Long stepId,
-      @Validated @RequestBody MailAlarmInfoDto mailAlarmInfoDto) {
-    // 여기도 수정해야 함
-    mailAlarmInfoService.editMailAlarmInfo(companyKey, jobPostingKey, stepId,
-        mailAlarmInfoDto);
+      @Validated @RequestBody MailAlarmInfoDto request) {
+
+    mailAlarmInfoService.editMailAlarmInfo(companyKey, jobPostingKey, stepId, request);
 
     return ResponseEntity.ok(SUCCESS_EDIT_MAIL_ALARM.getMessage());
   }

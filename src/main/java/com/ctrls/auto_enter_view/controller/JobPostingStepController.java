@@ -25,10 +25,10 @@ public class JobPostingStepController {
   private final JobPostingStepService jobPostingStepService;
 
   /**
-   * 전체 채용 단계의 지원자 리스트 조회 : 채용단계 ID - 지원자 key, 지원자 이름, 이력서 key, 기술 스택 리스트, 면접 일시
+   * 전체 채용 단계의 지원자 리스트 조회하기 : 채용단계 ID - 지원자 key, 지원자 이름, 이력서 key, 기술 스택 리스트, 면접 일시
    *
-   * @param jobPostingKey
-   * @return
+   * @param jobPostingKey 지원자 PK
+   * @return List<JobPostingEveryInfoDto.Response>
    */
   @GetMapping("/candidates-list")
   public ResponseEntity<List<JobPostingEveryInfoDto>> getCandidatesList(
@@ -38,7 +38,14 @@ public class JobPostingStepController {
         jobPostingStepService.getCandidatesListByStepId(jobPostingKey));
   }
 
-  // 단계 이동 시키기
+  /**
+   * 채용 공고에 지원한 지원자 단계 이동 시키기
+   *
+   * @param request EditJobPostingStepDto.Request
+   * @param jobPostingKey 채용 공고 PK
+   * @param userDetails 로그인 된 사용자 정보
+   * @return ResponseMessage
+   */
   @PutMapping("/edit-step")
   public ResponseEntity<String> editStepId(
       @RequestBody @Validated EditJobPostingStepDto request,
