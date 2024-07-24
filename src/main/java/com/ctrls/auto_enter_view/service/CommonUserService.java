@@ -55,7 +55,6 @@ public class CommonUserService {
    * @throws CustomException EMAIL_DUPLICATION : 이메일이 중복된 경우
    */
   public String checkDuplicateEmail(String email) {
-
     if (!validateCompanyExistsByEmail(email) && !validateCandidateExistsByEmail(email)) {
       return USABLE_EMAIL.getMessage();
     } else {
@@ -70,7 +69,6 @@ public class CommonUserService {
    * @return boolean : 이메일이 존재하면 true, 존재하지 않으면 false
    */
   private boolean validateCompanyExistsByEmail(String email) {
-
     return companyRepository.existsByEmail(email);
   }
 
@@ -81,7 +79,6 @@ public class CommonUserService {
    * @return boolean : 이메일이 존재하면 true, 존재하지 않으면 false
    */
   private boolean validateCandidateExistsByEmail(String email) {
-
     return candidateRepository.existsByEmail(email);
   }
 
@@ -91,7 +88,6 @@ public class CommonUserService {
    * @return 랜덤 로직으로 생성된 인증 코드
    */
   private String generateVerificationCode() {
-
     return RandomGenerator.generateRandomCode();
   }
 
@@ -102,7 +98,6 @@ public class CommonUserService {
    * @throws CustomException EMAIL_SEND_FAILURE : 이메일 전송에 실패한 경우
    */
   public void sendVerificationCode(String email) {
-
     try {
       String verificationCode = generateVerificationCode();
       // Redis 유효 시간 5분으로 설정
@@ -121,7 +116,6 @@ public class CommonUserService {
    * @throws CustomException INVALID_VERIFICATION_CODE : 전송한 인증 코드가 없거나(시간초과) 불일치하는 경우
    */
   public void verifyEmailVerificationCode(String email, String verificationCode) {
-
     String sentVerificationCode = redisTemplate.opsForValue().get(email);
 
     if (sentVerificationCode == null) {
@@ -138,8 +132,7 @@ public class CommonUserService {
    *
    * @return 랜덤 로직으로 생성된 임시 비밀번호
    */
-  private String generateTemporaryPassword() {
-
+  public String generateTemporaryPassword() {
     return RandomGenerator.generateTemporaryPassword();
   }
 
@@ -204,7 +197,6 @@ public class CommonUserService {
    * @throws CustomException INVALID_EMAIL_OR_PASSWORD : 이메일이 존재하지 않거나 비밀번호가 일치하지 않는 경우
    */
   public SignInDto.Response loginUser(String email, String password) {
-
     log.info("로그인 요청 - 이메일 : {}", email);
 
     // 이메일로 회사 엔티티 조회
@@ -235,21 +227,18 @@ public class CommonUserService {
    * @param token 토큰 정보
    */
   public void logoutUser(String token) {
-
     blacklistTokenService.addToBlacklist(token);
   }
 
   /**
    * 비밀번호 수정
    *
-   * @param userDetails 로그인 된 사용자 정보
-   * @param key CompanyKey 또는 CandidateKey
+   * @param key     CompanyKey 또는 CandidateKey
    * @param request ChangePasswordDto.Request
    * @throws CustomException USER_NOT_FOUND : 사용자를 찾을 수 없는 경우
    * @throws CustomException PASSWORD_NOT_MATCH : 입력한 비밀번호와 기존 비밀번호가 일치하지 않는 경우
    */
   public void changePassword(UserDetails userDetails, String key, Request request) {
-
     Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
 
     for (GrantedAuthority authority : authorities) {
@@ -268,6 +257,7 @@ public class CommonUserService {
         candidateEntity.setPassword(passwordEncoder.encode(request.getNewPassword()));
 
         candidateRepository.save(candidateEntity);
+
       } else {
 
         CompanyEntity companyEntity = companyRepository.findByCompanyKey(key)
@@ -294,7 +284,6 @@ public class CommonUserService {
    */
   @Transactional
   public void withdraw(UserDetails userDetails, String key) {
-
     Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
 
     for (GrantedAuthority authority : authorities) {
