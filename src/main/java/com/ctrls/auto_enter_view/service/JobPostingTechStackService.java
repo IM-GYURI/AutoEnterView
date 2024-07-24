@@ -20,6 +20,12 @@ public class JobPostingTechStackService {
 
   private final JobPostingTechStackRepository jobPostingTechStackRepository;
 
+  /**
+   * 채용 단계 생성
+   *
+   * @param jobPostingEntity 채용 공고 ENTITY
+   * @param request          채용 공고 생성 DTO
+   */
   public void createJobPostingTechStack(JobPostingEntity jobPostingEntity,
       JobPostingDto.Request request) {
 
@@ -32,7 +38,12 @@ public class JobPostingTechStackService {
     jobPostingTechStackRepository.saveAll(entities);
   }
 
-  // 채용 공고 key -> 기술 스택 조회
+  /**
+   * 채용 공고 key -> 기술 스택 조회
+   *
+   * @param jobPostingKey 채용공고 KEY
+   * @return 기술스택 리스트
+   */
   public List<TechStack> getTechStackByJobPostingKey(String jobPostingKey) {
 
     List<JobPostingTechStackEntity> entities = jobPostingTechStackRepository.findAllByJobPostingKey(
@@ -47,7 +58,12 @@ public class JobPostingTechStackService {
     return techStack;
   }
 
-  // 채용 공고 수정하기
+  /**
+   * 채용 공고 수정하기 삭제 후 새로 저장
+   *
+   * @param jobPostingKey 채용공고 KEY
+   * @param request       채용공고 수정 DTO
+   */
   public void editJobPostingTechStack(String jobPostingKey, JobPostingDto.Request request) {
 
     List<JobPostingTechStackEntity> entities = jobPostingTechStackRepository.findAllByJobPostingKey(
