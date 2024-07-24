@@ -14,7 +14,6 @@ import com.ctrls.auto_enter_view.dto.common.SignInDto;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
-import com.ctrls.auto_enter_view.enums.UserRole;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyInfoRepository;
@@ -56,7 +55,7 @@ public class CommonUserService {
    * @throws CustomException EMAIL_DUPLICATION : 이메일이 중복된 경우
    */
   public String checkDuplicateEmail(String email) {
-    
+
     if (!validateCompanyExistsByEmail(email) && !validateCandidateExistsByEmail(email)) {
       return USABLE_EMAIL.getMessage();
     } else {
@@ -242,9 +241,6 @@ public class CommonUserService {
    */
   public void changePassword(UserDetails userDetails, String key, Request request) {
 
-    UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
-        .getPrincipal();
-
     Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
 
     for (GrantedAuthority authority : authorities) {
@@ -284,6 +280,7 @@ public class CommonUserService {
   /**
    * 회원 탈퇴
    *
+   * @param userDetails 로그인 된 사용자 정보
    * @param key CompanyKey 또는 CandidateKey
    * @throws CustomException USER_NOT_FOUND : 사용자를 찾을 수 없는 경우
    * @throws CustomException KEY_NOT_MATCH : 키가 일치하지 않는 경우
