@@ -172,7 +172,7 @@ public class MailAlarmInfoService {
   }
 
   // 예약 메일 스케쥴링
-  public void scheduleMailJob(MailAlarmInfoEntity mailAlarmInfo) throws SchedulerException {
+  private void scheduleMailJob(MailAlarmInfoEntity mailAlarmInfo) throws SchedulerException {
 
     JobDetail jobDetail = JobBuilder.newJob(MailJob.class)
         .withIdentity("mailJob" + mailAlarmInfo.getId(), "mailGroup")
