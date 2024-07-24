@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.service;
 
+import com.ctrls.auto_enter_view.component.S3ImageUpload;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto;
 import com.ctrls.auto_enter_view.entity.JobPostingImageEntity;
 import com.ctrls.auto_enter_view.repository.JobPostingImageRepository;
@@ -15,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class JobPostingImageService {
 
   private final JobPostingImageRepository jobPostingImageRepository;
-  private final S3ImageUploadService s3ImageUploadService;
+  private final S3ImageUpload s3ImageUpload;
 
   /**
    * 이미지 파일 업로드
@@ -34,10 +35,10 @@ public class JobPostingImageService {
 
     // 기존 이미지가 있다면 삭제
     if (jobPostingImage.getCompanyImageUrl() != null) {
-      s3ImageUploadService.deleteImage(jobPostingImage.getCompanyImageUrl());
+      s3ImageUpload.deleteImage(jobPostingImage.getCompanyImageUrl());
     }
 
-    String imageUrl = s3ImageUploadService.uploadImage(image, "job-posting-images");
+    String imageUrl = s3ImageUpload.uploadImage(image, "job-posting-images");
     jobPostingImage.updateCompanyImageUrl(imageUrl);
     jobPostingImageRepository.save(jobPostingImage);
 
@@ -67,7 +68,7 @@ public class JobPostingImageService {
     jobPostingImageRepository.findByJobPostingKey(jobPostingKey)
         .ifPresent(image -> {
           String imageUrl = image.getCompanyImageUrl();
-          s3ImageUploadService.deleteImage(imageUrl);
+          s3ImageUpload.deleteImage(imageUrl);
           jobPostingImageRepository.delete(image);
         });
   }

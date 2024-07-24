@@ -1,4 +1,4 @@
-package com.ctrls.auto_enter_view.service;
+package com.ctrls.auto_enter_view.component;
 
 import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.CustomException;
@@ -9,7 +9,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -19,8 +19,8 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Slf4j
 @RequiredArgsConstructor
-@Service
-public class S3ImageUploadService {
+@Component
+public class S3ImageUpload {
 
   private final S3Client s3Client;
 
