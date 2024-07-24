@@ -1,5 +1,7 @@
 package com.ctrls.auto_enter_view.service;
 
+import static com.ctrls.auto_enter_view.enums.ErrorCode.FAILED_MAIL_SCHEDULING;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.FAILED_MAIL_UNSCHEDULING;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.INTERVIEW_SCHEDULE_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_STEP_NOT_FOUND;
@@ -62,13 +64,17 @@ public class MailAlarmInfoService {
   /**
    * 메일 예약 생성
    *
-   * @param companyKey
-   * @param jobPostingKey
-   * @param stepId
-   * @param mailAlarmInfoDto
+   * @param companyKey       회사 KEY
+   * @param jobPostingKey    채용 공고 KEY
+   * @param stepId           채용 단계 ID
+   * @param mailAlarmInfoDto 메일 발송 예약 정보 DTO
+   * @throws CustomException INTERVIEW_SCHEDULE_NOT_FOUND 면접 일정 없음 일정이 없음
+   * @throws CustomException MAIL_ALARM_TIME_BEFORE_NOW 메일 예약 시간이 과거임
+   * @throws CustomException FAILED_MAIL_SCHEDULING 메일 예약 등록을 실패함
    */
   public void createMailAlarmInfo(String companyKey, String jobPostingKey, Long stepId,
       MailAlarmInfoDto mailAlarmInfoDto, UserDetails userDetails) {
+
     CompanyEntity company = findCompanyByPrincipal(userDetails);
 
     verifyCompanyOwnership(company, companyKey);
@@ -96,21 +102,26 @@ public class MailAlarmInfoService {
     try {
       scheduleMailJob(mailAlarmInfoEntity);
     } catch (SchedulerException e) {
-      throw new RuntimeException("Error scheduling mail job");
+      throw new CustomException(FAILED_MAIL_SCHEDULING);
     }
   }
 
   /**
    * 예약된 메일 수정
    *
-   * @param companyKey
-   * @param jobPostingKey
-   * @param stepId
-   * @param mailAlarmInfoDto
+   * @param companyKey       회사 KEY
+   * @param jobPostingKey    채용 공고 KEY
+   * @param stepId           채용 단계 ID
+   * @param mailAlarmInfoDto 메일 발송 예약 정보 DTO
+   * @throws CustomException INTERVIEW_SCHEDULE_NOT_FOUND 면접 일정 없음 일정이 없음
+   * @throws CustomException MAIL_ALARM_INFO_NOT_FOUND 메일 예약이 없음
+   * @throws CustomException MAIL_ALARM_TIME_BEFORE_NOW 메일 예약 시간이 과거임
+   * @throws CustomException FAILED_MAIL_SCHEDULING 메일 예약 등록을 실패함
    */
   @Transactional
   public void editMailAlarmInfo(String companyKey, String jobPostingKey, Long stepId,
       MailAlarmInfoDto mailAlarmInfoDto, UserDetails userDetails) {
+
     CompanyEntity company = findCompanyByPrincipal(userDetails);
 
     verifyCompanyOwnership(company, companyKey);
@@ -138,24 +149,31 @@ public class MailAlarmInfoService {
     try {
       scheduleMailJob(mailAlarmInfoEntity);
     } catch (SchedulerException e) {
-      throw new RuntimeException("Error scheduling mail job");
+      throw new CustomException(FAILED_MAIL_SCHEDULING);
     }
   }
 
-  // 기존의 Quartz 스케줄링된 작업 삭제
+  /**
+   * 기존의 Quartz 스케줄링된 작업 삭제
+   *
+   * @param mailAlarmInfo 메일 예약 정보 ENTITY
+   * @throws CustomException FAILED_MAIL_UNSCHEDULING 메일 예약 취소를 실패함
+   */
   public void unscheduleMailJob(MailAlarmInfoEntity mailAlarmInfo) {
+
     try {
       TriggerKey triggerKey = TriggerKey.triggerKey("mailTrigger" + mailAlarmInfo.getId(),
           "mailGroup");
       scheduler.unscheduleJob(triggerKey);
     } catch (SchedulerException e) {
       log.error("Error unscheduling mail job", e);
-      throw new RuntimeException("Error unscheduling mail job");
+      throw new CustomException(FAILED_MAIL_UNSCHEDULING);
     }
   }
 
   // 예약 메일 스케쥴링
   public void scheduleMailJob(MailAlarmInfoEntity mailAlarmInfo) throws SchedulerException {
+
     JobDetail jobDetail = JobBuilder.newJob(MailJob.class)
         .withIdentity("mailJob" + mailAlarmInfo.getId(), "mailGroup")
         .usingJobData("mailId", mailAlarmInfo.getId())
@@ -171,10 +189,19 @@ public class MailAlarmInfoService {
     scheduler.scheduleJob(jobDetail, trigger);
   }
 
-  // 예약 시간이 되면 지원자들에게 메일 발송 - 면접
+  /**
+   * 예약 시간이 되면 지원자들에게 메일 발송 - 면접
+   *
+   * @param participants        일정 참가자 리스트
+   * @param mailAlarmInfoEntity 메일 예약 정보 ENTITY
+   * @throws CustomException JOB_POSTING_NOT_FOUND 채용 공고 없음
+   * @throws CustomException JOB_POSTING_STEP_NOT_FOUND 채용 단계 없음
+   * @throws CustomException USER_NOT_FOUND 사용자 없음
+   */
   @Transactional
   public void sendInterviewMailToCandidates(List<InterviewScheduleParticipantsEntity> participants,
       MailAlarmInfoEntity mailAlarmInfoEntity) {
+
     JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(
             mailAlarmInfoEntity.getJobPostingKey())
         .orElseThrow(() -> new CustomException(JOB_POSTING_NOT_FOUND));
@@ -207,10 +234,20 @@ public class MailAlarmInfoService {
     }
   }
 
-  // 예약 시간이 되면 지원자들에게 메일 발송 - 과제
+  /**
+   * 예약 시간이 되면 지원자들에게 메일 발송 - 과제
+   *
+   * @param participants        일정 참가자 리스트
+   * @param mailAlarmInfoEntity 메일 예약 정보 ENTITY
+   * @throws CustomException JOB_POSTING_NOT_FOUND 채용 공고 없음
+   * @throws CustomException JOB_POSTING_STEP_NOT_FOUND 채용 단계 없음
+   * @throws CustomException INTERVIEW_SCHEDULE_NOT_FOUND 면접 일정 없음
+   * @throws CustomException USER_NOT_FOUND 사용자 없음
+   */
   @Transactional
   public void sendTaskMailToCandidates(List<CandidateListEntity> participants,
       MailAlarmInfoEntity mailAlarmInfoEntity) {
+
     JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(
             mailAlarmInfoEntity.getJobPostingKey())
         .orElseThrow(() -> new CustomException(JOB_POSTING_NOT_FOUND));
@@ -245,9 +282,18 @@ public class MailAlarmInfoService {
     }
   }
 
-  // 취소 메일 발송
+  /**
+   * 취소 메일 발송
+   *
+   * @param interviewScheduleEntity 면접 일정 ENTITY
+   * @param participants            일정 참가자 리스트
+   * @throws CustomException JOB_POSTING_NOT_FOUND 채용 공고 없음
+   * @throws CustomException JOB_POSTING_STEP_NOT_FOUND 채용 단계 없음
+   * @throws CustomException USER_NOT_FOUND 사용자 없음
+   */
   public void sendCancellationMailToParticipants(InterviewScheduleEntity interviewScheduleEntity,
       List<InterviewScheduleParticipantsEntity> participants) {
+
     JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(
             interviewScheduleEntity.getJobPostingKey())
         .orElseThrow(() -> new CustomException(JOB_POSTING_NOT_FOUND));
@@ -270,14 +316,28 @@ public class MailAlarmInfoService {
     }
   }
 
-  // 사용자 인증 정보로 회사 entity 찾기
+  /**
+   * 사용자 인증 정보로 회사 entity 찾기
+   *
+   * @param userDetails 사용자 정보
+   * @return 회사 ENTITY
+   * @throws CustomException USER_NOT_FOUND 사용자 없음
+   */
   private CompanyEntity findCompanyByPrincipal(UserDetails userDetails) {
+
     return companyRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
   }
 
-  // 회사 본인인지 확인
+  /**
+   * 회사 본인인지 확인
+   *
+   * @param company    회사 ENTITY
+   * @param companyKey 회사 KEY
+   * @throws CustomException USER_NOT_FOUND 사용자 없음
+   */
   private void verifyCompanyOwnership(CompanyEntity company, String companyKey) {
+
     if (!company.getCompanyKey().equals(companyKey)) {
       throw new CustomException(USER_NOT_FOUND);
     }
