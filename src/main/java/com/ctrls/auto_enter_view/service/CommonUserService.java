@@ -65,6 +65,7 @@ public class CommonUserService {
 
   /**
    * 회사 이메일 존재 여부 확인하기
+   *
    * @param email 회사 이메일
    * @return boolean : 이메일이 존재하면 true, 존재하지 않으면 false
    */
@@ -90,6 +91,7 @@ public class CommonUserService {
    * @return 랜덤 로직으로 생성된 인증 코드
    */
   private String generateVerificationCode() {
+
     return RandomGenerator.generateRandomCode();
   }
 
@@ -100,6 +102,7 @@ public class CommonUserService {
    * @throws CustomException EMAIL_SEND_FAILURE : 이메일 전송에 실패한 경우
    */
   public void sendVerificationCode(String email) {
+
     try {
       String verificationCode = generateVerificationCode();
       // Redis 유효 시간 5분으로 설정
@@ -113,11 +116,12 @@ public class CommonUserService {
   /**
    * 이메일 인증 코드 확인
    *
-   * @param email 인증 코드를 확인할 이메일
+   * @param email            인증 코드를 확인할 이메일
    * @param verificationCode 입력 받은 인증 코드
    * @throws CustomException INVALID_VERIFICATION_CODE : 전송한 인증 코드가 없거나(시간초과) 불일치하는 경우
    */
   public void verifyEmailVerificationCode(String email, String verificationCode) {
+
     String sentVerificationCode = redisTemplate.opsForValue().get(email);
 
     if (sentVerificationCode == null) {
@@ -135,6 +139,7 @@ public class CommonUserService {
    * @return 랜덤 로직으로 생성된 임시 비밀번호
    */
   private String generateTemporaryPassword() {
+
     return RandomGenerator.generateTemporaryPassword();
   }
 
@@ -142,7 +147,7 @@ public class CommonUserService {
    * 임시 비밀번호 전송
    *
    * @param email 임시 비밀번호를 전송할 이메일
-   * @param name 사용자 이름
+   * @param name  사용자 이름
    * @throws CustomException USER_NOT_FOUND : 사용자를 찾을 수 없는 경우
    * @throws CustomException EMAIL_SEND_FAILURE 이메일 전송에 실패한 경우
    */
@@ -193,7 +198,7 @@ public class CommonUserService {
   /**
    * 로그인 : 이메일 조회 + 비밀번호 일치 확인
    *
-   * @param email 가입할 때 작성한 이메일
+   * @param email    가입할 때 작성한 이메일
    * @param password 가입할 때 작성한 비밀번호
    * @return SignInDto.Response
    * @throws CustomException INVALID_EMAIL_OR_PASSWORD : 이메일이 존재하지 않거나 비밀번호가 일치하지 않는 경우
@@ -206,7 +211,8 @@ public class CommonUserService {
     Optional<CompanyEntity> companyOptional = companyRepository.findByEmail(email);
 
     // 회사 엔티티 존재하고 비밀번호가 일치하는 경우
-    if (companyOptional.isPresent() && passwordEncoder.matches(password, companyOptional.get().getPassword())) {
+    if (companyOptional.isPresent() && passwordEncoder.matches(password,
+        companyOptional.get().getPassword())) {
       return SignInDto.fromCompany(companyOptional.get());
     }
 
@@ -214,7 +220,8 @@ public class CommonUserService {
     Optional<CandidateEntity> candidateOptional = candidateRepository.findByEmail(email);
 
     // 지원자 엔티티가 존재하는 경우
-    if (candidateOptional.isPresent() && passwordEncoder.matches(password, candidateOptional.get().getPassword())) {
+    if (candidateOptional.isPresent() && passwordEncoder.matches(password,
+        candidateOptional.get().getPassword())) {
       return SignInDto.fromCandidate(candidateOptional.get());
     }
 
@@ -228,12 +235,14 @@ public class CommonUserService {
    * @param token 토큰 정보
    */
   public void logoutUser(String token) {
+
     blacklistTokenService.addToBlacklist(token);
   }
 
   /**
    * 비밀번호 수정
    *
+   * @param userDetails 로그인 된 사용자 정보
    * @param key CompanyKey 또는 CandidateKey
    * @param request ChangePasswordDto.Request
    * @throws CustomException USER_NOT_FOUND : 사용자를 찾을 수 없는 경우
@@ -259,7 +268,6 @@ public class CommonUserService {
         candidateEntity.setPassword(passwordEncoder.encode(request.getNewPassword()));
 
         candidateRepository.save(candidateEntity);
-
       } else {
 
         CompanyEntity companyEntity = companyRepository.findByCompanyKey(key)
@@ -287,6 +295,7 @@ public class CommonUserService {
    */
   @Transactional
   public void withdraw(UserDetails userDetails, String key) {
+
     Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
 
     for (GrantedAuthority authority : authorities) {

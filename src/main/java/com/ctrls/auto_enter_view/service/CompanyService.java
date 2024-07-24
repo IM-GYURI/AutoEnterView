@@ -22,6 +22,14 @@ public class CompanyService {
   private final PasswordEncoder passwordEncoder;
 
   // 회원 가입
+
+  /**
+   * 회사 회원 가입
+   * @param request SignUpDto.Request
+   * @return SignUpDto.Response
+   * @throws CustomException EMAIL_DUPLICATION : 이메일이 중복된 경우
+   * @throws CustomException COMPANY_NUMBER_DUPLICATION : 회사 전화번호가 중복된 경우
+   */
   public SignUpDto.Response signUp(SignUpDto.Request request) {
 
     // 이메일 중복 체크
