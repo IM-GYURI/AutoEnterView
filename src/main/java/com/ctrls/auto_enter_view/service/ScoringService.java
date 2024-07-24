@@ -44,7 +44,7 @@ public class ScoringService {
   /**
    * 채용 공고 마감시간 후 스케줄러에 의해 지원자들의 이력서를 기반으로 점수 채점하는 서비스
    *
-   * @param jobPostingKey
+   * @param jobPostingKey 채용공고 키
    * @throws CustomException ErrorCode.JOB_POSTING_NOT_FOUND 채용 공고가 존재하지 않을 경우
    */
   @Transactional

@@ -36,9 +36,9 @@ public class S3ImageUploadService {
   /**
    * 이미지 파일 업로드
    *
-   * @param file
-   * @param directory
-   * @return
+   * @param file      이미지 파일
+   * @param directory 파일을 저장할 디렉토리 이름
+   * @return S3 리소스 URL
    * @throws CustomException ErrorCode.INVALID_FILE_FORMAT 올바르지 않은 확장자 파일
    * @throws CustomException ErrorCode.FILE_SIZE_EXCEEDED 파일 크기 초과
    * @throws CustomException ErrorCode.S3_UPLOAD_ERROR 파일 업로드 실패
@@ -83,7 +83,7 @@ public class S3ImageUploadService {
   /**
    * 이미지 파일 삭제
    *
-   * @param imageUrl
+   * @param imageUrl S3 리소스 URL
    * @throws CustomException ErrorCode.FAILED_TO_DELETE_IMAGE 이미지 삭제 실패
    */
   public void deleteImage(String imageUrl) {
@@ -104,8 +104,8 @@ public class S3ImageUploadService {
   /**
    * key 추출하기
    *
-   * @param imageUrl
-   * @return
+   * @param imageUrl S3 리소스 URL
+   * @return S3 리소스 KEY STRING
    * @throws CustomException ErrorCode.INVALID_IMAGE_URL 올바르지 않은 이미지 URL
    */
   private String extractKeyFromUrl(String imageUrl) {

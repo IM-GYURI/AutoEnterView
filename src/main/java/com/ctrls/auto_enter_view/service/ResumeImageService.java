@@ -24,9 +24,9 @@ public class ResumeImageService {
   /**
    * 이미지 파일 업로드
    *
-   * @param image
-   * @param resumeKey
-   * @return
+   * @param image     이미지 파일
+   * @param resumeKey 이력서 KEY
+   * @return 이력서 생성 DTO
    */
   public ResumeDto.Response uploadImage(MultipartFile image, String resumeKey) {
 
@@ -50,8 +50,8 @@ public class ResumeImageService {
   /**
    * 기존 이미지 정보 반환 -> 업데이트 시 확인
    *
-   * @param resumeKey
-   * @return
+   * @param resumeKey 이력서 KEY
+   * @return 이력서 생성 DTO
    */
   public ResumeDto.Response getExistingResumeImage(String resumeKey) {
 

@@ -55,10 +55,10 @@ public class ResumeService {
   /**
    * 이력서 생성
    *
-   * @param userDetails
-   * @param candidateKey
-   * @param request
-   * @return
+   * @param userDetails  사용자 정보
+   * @param candidateKey 지원자 KEY
+   * @param request      이력서 생성 DTO
+   * @return 이력서 KEY STRING
    * @throws CustomException ErrorCode.CANDIDATE_NOT_FOUND 지원자 없음
    * @throws CustomException ErrorCode.NO_AUTHORITY 다른 지원자가 이력서 생성을 시도함
    * @throws CustomException ErrorCode.ALREADY_EXISTS 이미 이력서가 존재함
@@ -96,9 +96,9 @@ public class ResumeService {
   /**
    * 이력서 조회
    *
-   * @param userDetails
-   * @param candidateKey
-   * @return
+   * @param userDetails  사용자 정보
+   * @param candidateKey 지원자 KEY
+   * @return 이력서 조회 DTO
    * @throws CustomException ErrorCode.COMPANY_NOT_FOUND 회사 계정이 없음
    * @throws CustomException ErrorCode.CANDIDATE_NOT_FOUND 지원자 계정이 없음
    * @throws CustomException ErrorCode.NO_AUTHORITY 지원받지 않은 회사나 다른 지원자가 조회를 시도함
@@ -167,10 +167,10 @@ public class ResumeService {
   /**
    * 이력서 수정
    *
-   * @param userDetails
-   * @param candidateKey
-   * @param request
-   * @return
+   * @param userDetails  사용자 정보
+   * @param candidateKey 지원자 KEY
+   * @param request      이력서 수정 DTO
+   * @return 이력서 KEY STRING
    * @throws CustomException ErrorCode.CANDIDATE_NOT_FOUND 지원자 계정이 없음
    * @throws CustomException ErrorCode.NO_AUTHORITY 다른 지원자가 수정을 시도함
    * @throws CustomException ErrorCode.RESUME_NOT_FOUND 이력서가 없음
@@ -199,8 +199,8 @@ public class ResumeService {
   /**
    * 이력서 삭제
    *
-   * @param userDetails
-   * @param candidateKey
+   * @param userDetails  사용자 정보
+   * @param candidateKey 지원자 KEY
    * @throws CustomException ErrorCode.CANDIDATE_NOT_FOUND 지원자의 계정이 없음
    * @throws CustomException ErrorCode.NO_AUTHORITY 다른 지원자가 삭제를 시도함
    * @throws CustomException ErrorCode.RESUME_NOT_FOUND 이력서가 없음
@@ -278,7 +278,7 @@ public class ResumeService {
   /**
    * 이력서 정보와 추가 정보를 조립하고 반환하는 메서드
    *
-   * @param resumeEntity
+   * @param resumeEntity 이력서 ENTITY
    * @return 이력서 정보, 이력서가 없다면 모든 필드가 null 및 빈 리스트
    */
   private ResumeReadDto.Response buildResponseDto(ResumeEntity resumeEntity) {
