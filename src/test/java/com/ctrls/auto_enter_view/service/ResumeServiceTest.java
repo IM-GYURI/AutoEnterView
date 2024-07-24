@@ -24,6 +24,7 @@ import com.ctrls.auto_enter_view.entity.ResumeExperienceEntity;
 import com.ctrls.auto_enter_view.entity.ResumeTechStackEntity;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.enums.TechStack;
+import com.ctrls.auto_enter_view.enums.UserRole;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.ApplicantRepository;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
@@ -106,10 +107,10 @@ class ResumeServiceTest {
   private ResumeService resumeService;
 
   private final UserDetails candidateDetails = new User("candidate@naver.com", "testPassword",
-      List.of(new SimpleGrantedAuthority("ROLE_CANDIDATE")));
+      List.of(new SimpleGrantedAuthority(UserRole.ROLE_CANDIDATE.name())));
 
   private final UserDetails companyDetails = new User("company@naver.com", "testPassword",
-      List.of(new SimpleGrantedAuthority("ROLE_COMPANY")));
+      List.of(new SimpleGrantedAuthority(UserRole.ROLE_COMPANY.name())));
 
   @Test
   @DisplayName("이력서 생성_성공")
