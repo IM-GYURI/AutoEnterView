@@ -278,6 +278,7 @@ public class CommonUserService {
   /**
    * 회원 탈퇴
    *
+   * @param userDetails 로그인 된 사용자 정보
    * @param key CompanyKey 또는 CandidateKey
    * @throws CustomException USER_NOT_FOUND : 사용자를 찾을 수 없는 경우
    * @throws CustomException KEY_NOT_MATCH : 키가 일치하지 않는 경우
