@@ -14,7 +14,6 @@ import com.ctrls.auto_enter_view.dto.common.SignInDto;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
-import com.ctrls.auto_enter_view.enums.UserRole;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyInfoRepository;
@@ -66,6 +65,7 @@ public class CommonUserService {
 
   /**
    * 회사 이메일 존재 여부 확인하기
+   *
    * @param email 회사 이메일
    * @return boolean : 이메일이 존재하면 true, 존재하지 않으면 false
    */
@@ -235,15 +235,13 @@ public class CommonUserService {
   /**
    * 비밀번호 수정
    *
+   * @param userDetails 로그인 된 사용자 정보
    * @param key CompanyKey 또는 CandidateKey
    * @param request ChangePasswordDto.Request
    * @throws CustomException USER_NOT_FOUND : 사용자를 찾을 수 없는 경우
    * @throws CustomException PASSWORD_NOT_MATCH : 입력한 비밀번호와 기존 비밀번호가 일치하지 않는 경우
    */
   public void changePassword(UserDetails userDetails, String key, Request request) {
-
-    UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
-        .getPrincipal();
 
     Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
 
