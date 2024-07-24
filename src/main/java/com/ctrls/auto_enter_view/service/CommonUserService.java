@@ -242,7 +242,8 @@ public class CommonUserService {
   /**
    * 비밀번호 수정
    *
-   * @param key     CompanyKey 또는 CandidateKey
+   * @param userDetails 로그인 된 사용자 정보
+   * @param key CompanyKey 또는 CandidateKey
    * @param request ChangePasswordDto.Request
    * @throws CustomException USER_NOT_FOUND : 사용자를 찾을 수 없는 경우
    * @throws CustomException PASSWORD_NOT_MATCH : 입력한 비밀번호와 기존 비밀번호가 일치하지 않는 경우

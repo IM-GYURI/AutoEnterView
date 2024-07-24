@@ -29,11 +29,12 @@ public class InterviewScheduleService {
   /**
    * 면접 일정 생성
    *
-   * @param jobPostingKey
-   * @param stepId
-   * @param request
-   * @param userDetails
-   * @return
+   * @param jobPostingKey 채용 공고 PK
+   * @param stepId 채용 공고 단계 PK
+   * @param request InterviewScheduleDto.Request
+   * @param userDetails 로그인 된 사용자 정보
+   * @return InterviewScheduleDto.Response
+   * @throws CustomException NO_AUTHORITY : 로그인한 사용자의 회사키와 매개변수의 회사키가 일치하지 않는 경우
    */
   public Response createInterviewSchedule(String jobPostingKey, Long stepId,
       List<Request> request, UserDetails userDetails) {
@@ -50,11 +51,12 @@ public class InterviewScheduleService {
   /**
    * 과제 일정 생성
    *
-   * @param jobPostingKey
-   * @param stepId
-   * @param taskRequest
-   * @param userDetails
-   * @return
+   * @param jobPostingKey 채용 공고 PK
+   * @param stepId 채용 공고 단계 PK
+   * @param taskRequest InterviewScheduleDto.TaskRequest
+   * @param userDetails 로그인 된 사용자 정보
+   * @return InterviewScheduleDto.Response
+   * @throws CustomException NO_AUTHORITY : 로그인한 사용자의 회사키와 매개변수의 회사키가 일치하지 않는 경우
    */
   public Response createTaskSchedule(String jobPostingKey, Long stepId, TaskRequest taskRequest,
       UserDetails userDetails) {
@@ -68,7 +70,15 @@ public class InterviewScheduleService {
         .build();
   }
 
-  // 본인 회사인지 체크
+  /**
+   * 본인 회사인지 체크
+   *
+   * @param userDetails 로그인 된 사용자 정보
+   * @param jobPostingKey 채용 공고 PK
+   * @throws CustomException COMPANY_NOT_FOUND : 회사를 찾을 수 없는 경우
+   * @throws CustomException JOB_POSTING_NOT_FOUND : 채용 공고를 찾을 수 없는 경우
+   * @throws CustomException NO_AUTHORITY : 로그인한 사용자의 회사키와 매개변수의 회사키가 일치하지 않는 경우
+   */
   private void checkOwner(UserDetails userDetails, String jobPostingKey) {
     CompanyEntity companyEntity = companyRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new CustomException(
