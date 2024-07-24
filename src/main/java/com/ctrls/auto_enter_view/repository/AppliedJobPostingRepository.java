@@ -12,5 +12,6 @@ public interface AppliedJobPostingRepository extends JpaRepository<AppliedJobPos
 
   Page<AppliedJobPostingEntity> findAllByCandidateKey(String candidateKey, Pageable pageable);
 
-  Optional<AppliedJobPostingEntity> findByCandidateKey(String candidateKey);
+  Optional<AppliedJobPostingEntity> findByCandidateKeyAndJobPostingKey(String candidateKey,
+      String jobPostingKey);
 }
