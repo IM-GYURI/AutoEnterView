@@ -35,8 +35,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,7 +54,6 @@ public class JobPostingStepService {
   private final InterviewScheduleParticipantsRepository interviewScheduleParticipantsRepository;
 
   public void createJobPostingStep(JobPostingEntity entity, JobPostingDto.Request request) {
-
     List<String> jobPostingStep = request.getJobPostingStep();
 
     List<JobPostingStepEntity> entities = jobPostingStep.stream()
@@ -76,13 +73,14 @@ public class JobPostingStepService {
    * @return
    */
   @Transactional(readOnly = true)
-  public List<JobPostingEveryInfoDto> getCandidatesListByStepId(String jobPostingKey) {
+  public List<JobPostingEveryInfoDto> getCandidatesListByStepId(UserDetails userDetails,
+      String jobPostingKey) {
+
     List<JobPostingEveryInfoDto> jobPostingEveryInfoDtoList = new ArrayList<>();
 
     JobPostingEntity jobPosting = findJobPostingEntityByJobPostingKey(jobPostingKey);
 
-    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    CompanyEntity company = findCompanyByPrincipal(principal);
+    CompanyEntity company = findCompanyByPrincipal(userDetails);
 
     verifyCompanyOwnership(company, jobPosting);
 
@@ -177,21 +175,18 @@ public class JobPostingStepService {
 
   // 채용공고 key로 채용공고 entity 찾기
   public JobPostingEntity findJobPostingEntityByJobPostingKey(String jobPostingKey) {
-
     return jobPostingRepository.findByJobPostingKey(jobPostingKey)
         .orElseThrow(() -> new CustomException(JOB_POSTING_NOT_FOUND));
   }
 
   // 사용자 인증 정보로 회사 entity 찾기
-  private CompanyEntity findCompanyByPrincipal(User principal) {
-
-    return companyRepository.findByEmail(principal.getUsername())
+  private CompanyEntity findCompanyByPrincipal(UserDetails userDetails) {
+    return companyRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
   }
 
   // 채용 공고를 올린 회사 본인인지 확인
   private void verifyCompanyOwnership(CompanyEntity company, JobPostingEntity jobPosting) {
-
     if (!company.getCompanyKey().equals(jobPosting.getCompanyKey())) {
       throw new CustomException(USER_NOT_FOUND);
     }
@@ -199,35 +194,32 @@ public class JobPostingStepService {
 
   // 해당 채용공고에 지정된 단계에 속하는 지원자 목록 조회
   private List<CandidateListEntity> getCandidateList(String jobPostingKey, Long stepId) {
-
     return candidateListRepository.findAllByJobPostingKeyAndJobPostingStepId(jobPostingKey, stepId);
   }
 
   // 지원자의 이력서 entity 조회
   private ResumeEntity findResumeEntityByCandidateKey(String candidateKey) {
-
     return resumeRepository.findByCandidateKey(candidateKey)
         .orElseThrow(() -> new CustomException(RESUME_NOT_FOUND));
   }
 
   // 이력서의 기술 스택 조회
-  private List<String> findTechStackByResumeKey(String resumeKey) {
+  private List<TechStack> findTechStackByResumeKey(String resumeKey) {
+
     return resumeTechStackRepository.findAllByResumeKey(resumeKey)
         .stream()
         .map(ResumeTechStackEntity::getTechStackName)
-        .map(TechStack::getValue)
         .collect(Collectors.toList());
   }
 
   // 면접 : CandidateListEntity & stepId -> CandidateTechStackInterviewInfoDto 매핑
   private CandidateTechStackInterviewInfoDto mapToCandidateTechStackListDtoInterview(
       CandidateListEntity candidateListEntity, Long stepId) {
-
     ResumeEntity resumeEntity = findResumeEntityByCandidateKey(
         candidateListEntity.getCandidateKey());
 
     // List<String>으로 TechStack의 value를 받아와서 넘겨줘야 함
-    List<String> techStack = findTechStackByResumeKey(resumeEntity.getResumeKey());
+    List<TechStack> techStack = findTechStackByResumeKey(resumeEntity.getResumeKey());
 
     InterviewScheduleParticipantsEntity interviewScheduleParticipantsEntity = interviewScheduleParticipantsRepository.findByJobPostingStepIdAndCandidateKey(
             stepId, candidateListEntity.getCandidateKey())
@@ -245,12 +237,11 @@ public class JobPostingStepService {
   // 과제 : CandidateListEntity & stepId -> CandidateTechStackInterviewInfoDto 매핑
   private CandidateTechStackInterviewInfoDto mapToCandidateTechStackListDtoTask(
       CandidateListEntity candidateListEntity, Long stepId) {
-
     ResumeEntity resumeEntity = findResumeEntityByCandidateKey(
         candidateListEntity.getCandidateKey());
 
     // List<String>으로 TechStack의 value를 받아와서 넘겨줘야 함
-    List<String> techStack = findTechStackByResumeKey(resumeEntity.getResumeKey());
+    List<TechStack> techStack = findTechStackByResumeKey(resumeEntity.getResumeKey());
 
     InterviewScheduleEntity interviewScheduleEntity = interviewScheduleRepository.findByJobPostingStepId(
         stepId).orElseGet(InterviewScheduleEntity::new);
@@ -276,11 +267,10 @@ public class JobPostingStepService {
   // CandidateListEntity & stepId -> CandidateTechStackInterviewInfoDto 매핑
   private CandidateTechStackInterviewInfoDto mapToCandidateTechStackListDtoNothing(
       CandidateListEntity candidateListEntity) {
-
     ResumeEntity resumeEntity = findResumeEntityByCandidateKey(
         candidateListEntity.getCandidateKey());
 
-    List<String> techStack = findTechStackByResumeKey(resumeEntity.getResumeKey());
+    List<TechStack> techStack = findTechStackByResumeKey(resumeEntity.getResumeKey());
 
     return CandidateTechStackInterviewInfoDto.builder()
         .candidateKey(candidateListEntity.getCandidateKey())
@@ -292,13 +282,11 @@ public class JobPostingStepService {
   }
 
   public void deleteJobPostingStep(String jobPostingKey) {
-
     jobPostingStepRepository.deleteByJobPostingKey(jobPostingKey);
   }
 
   // 채용 공고 key -> 채용 단계 조회
   public List<String> getStepByJobPostingKey(String jobPostingKey) {
-
     List<JobPostingStepEntity> entities = jobPostingStepRepository.findByJobPostingKey(
         jobPostingKey);
     List<String> step = new ArrayList<>();
@@ -314,7 +302,6 @@ public class JobPostingStepService {
   @Transactional
   public void editStepId(Long currentStepId, String candidateKey, String jobPostingKey,
       UserDetails userDetails) {
-
     CompanyEntity companyEntity = companyRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new CustomException(ErrorCode.COMPANY_NOT_FOUND));
 

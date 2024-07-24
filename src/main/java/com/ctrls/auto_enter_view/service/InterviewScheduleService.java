@@ -23,9 +23,7 @@ import org.springframework.stereotype.Service;
 public class InterviewScheduleService {
 
   private final InterviewScheduleRepository interviewScheduleRepository;
-
   private final JobPostingRepository jobPostingRepository;
-
   private final CompanyRepository companyRepository;
 
   /**
@@ -39,7 +37,6 @@ public class InterviewScheduleService {
    */
   public Response createInterviewSchedule(String jobPostingKey, Long stepId,
       List<Request> request, UserDetails userDetails) {
-
     checkOwner(userDetails, jobPostingKey);
 
     InterviewScheduleEntity saved = interviewScheduleRepository.save(
@@ -61,7 +58,6 @@ public class InterviewScheduleService {
    */
   public Response createTaskSchedule(String jobPostingKey, Long stepId, TaskRequest taskRequest,
       UserDetails userDetails) {
-
     checkOwner(userDetails, jobPostingKey);
 
     InterviewScheduleEntity saved = interviewScheduleRepository.save(
@@ -74,10 +70,7 @@ public class InterviewScheduleService {
 
   // 본인 회사인지 체크
   private void checkOwner(UserDetails userDetails, String jobPostingKey) {
-
-    String userEmail = userDetails.getUsername();
-
-    CompanyEntity companyEntity = companyRepository.findByEmail(userEmail)
+    CompanyEntity companyEntity = companyRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new CustomException(
             ErrorCode.COMPANY_NOT_FOUND));
 

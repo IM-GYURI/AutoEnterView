@@ -37,6 +37,7 @@ public class CandidateService {
   private final AppliedJobPostingRepository appliedJobPostingRepository;
   private final PasswordEncoder passwordEncoder;
 
+
   /**
    * 지원자 회원 가입
    *
@@ -71,7 +72,6 @@ public class CandidateService {
    * @throws CustomException USER_NOT_FOUND_BY_NAME_AND_PHONE : 이름과 전화번호가 일치하는 지원자가 없는 경우
    */
   public Response findEmail(FindEmailDto.Request request) {
-
     CandidateEntity candidateEntity = candidateRepository.findByNameAndPhoneNumber(
             request.getName(), request.getPhoneNumber())
         .orElseThrow(() -> new CustomException(USER_NOT_FOUND_BY_NAME_AND_PHONE));
@@ -89,7 +89,6 @@ public class CandidateService {
    * @throws CustomException EMAIL_NOT_FOUND : 가입된 지원자 이메일이 없는 경우
    */
   public String findCandidateKeyByEmail(String candidateEmail) {
-
     return candidateRepository.findByEmail(candidateEmail)
         .map(CandidateEntity::getCandidateKey)
         .orElseThrow(() -> new CustomException(EMAIL_NOT_FOUND));
@@ -102,7 +101,6 @@ public class CandidateService {
    * @return boolean : 이력서가 존재하면 ture, 존재하지 않으면 false
    */
   public boolean hasResume(String candidateKey) {
-
     return resumeRepository.existsByCandidateKey(candidateKey);
   }
 
@@ -119,7 +117,6 @@ public class CandidateService {
    */
   public CandidateApplyDto.Response getApplyJobPostings(UserDetails userDetails,
       String candidateKey, int page, int size) {
-
     CandidateEntity candidateEntity = candidateRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new CustomException(ErrorCode.CANDIDATE_NOT_FOUND));
 

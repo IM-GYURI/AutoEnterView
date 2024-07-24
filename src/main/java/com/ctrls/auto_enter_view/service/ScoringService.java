@@ -41,8 +41,15 @@ public class ScoringService {
   private final ResumeRepository resumeRepository;
   private final ResumeTechStackRepository resumeTechStackRepository;
 
+  /**
+   * 채용 공고 마감시간 후 스케줄러에 의해 지원자들의 이력서를 기반으로 점수 채점하는 서비스
+   *
+   * @param jobPostingKey 채용공고 키
+   * @throws CustomException ErrorCode.JOB_POSTING_NOT_FOUND 채용 공고가 존재하지 않을 경우
+   */
   @Transactional
   public void scoreApplicants(String jobPostingKey) {
+
     log.info("ScoringService : start scoreApplicants");
 
     // setup
@@ -50,6 +57,7 @@ public class ScoringService {
         .orElseThrow(() -> new CustomException(
             ErrorCode.JOB_POSTING_NOT_FOUND));
 
+    // 우선순위 배수 지정
     int careerPriority = 1; // setPriority(jobPostingEntity, PriorityType.CAREER);
     int techStackPriority = 1; // setPriority(jobPostingEntity, PriorityType.TECH_STACK);
     int educationPriority = 1; // setPriority(jobPostingEntity, PriorityType.EDUCATION);
@@ -71,11 +79,13 @@ public class ScoringService {
 //    return multiplier;
 //  }
 
+  // 점수 수정
   private void updateScore(JobPostingEntity jobPostingEntity, int careerPriority,
       int techStackPriority, int educationPriority) {
 
     String jobPostingKey = jobPostingEntity.getJobPostingKey();
 
+    // 채용 공고의 기술스택을 EnumSet 에 저장
     EnumSet<TechStack> jobPostingTechStacks = jobPostingTechStackRepository.findAllByJobPostingKey(
             jobPostingKey).stream().map(JobPostingTechStackEntity::getTechName)
         .collect(Collectors.toCollection(() -> EnumSet.noneOf(TechStack.class)));
@@ -87,6 +97,7 @@ public class ScoringService {
       Optional<ResumeEntity> optionalResumeEntity = resumeRepository.findByCandidateKey(
           applicantEntity.getCandidateKey());
 
+      // 이력서 없을 경우 0점
       if (optionalResumeEntity.isEmpty()) {
         continue;
       }
@@ -96,6 +107,7 @@ public class ScoringService {
 
       String resumeKey = resumeEntity.getResumeKey();
 
+      // 점수 계산
       totalScore += calculateEducationScore(jobPostingEntity, resumeEntity, educationPriority);
 
       totalScore += calculateExperienceScore(resumeKey);
@@ -108,10 +120,12 @@ public class ScoringService {
 
       totalScore += calculateCareerScore(jobPostingEntity, resumeKey, careerPriority);
 
+      // 점수 수정
       applicantEntity.updateScore(totalScore);
     }
   }
 
+  // 기술스택 점수 계산
   private int calculateTechStackScore(EnumSet<TechStack> jobPostingTechStacks, String resumeKey,
       int techStackPriority) {
 
@@ -121,11 +135,13 @@ public class ScoringService {
         .stream().map(ResumeTechStackEntity::getTechStackName)
         .collect(Collectors.toCollection(() -> EnumSet.noneOf(TechStack.class)));
 
+    // 이력서에 작성한 기술스택과 채용공고 기술스택의 교집합
     resumeTechStacks.retainAll(jobPostingTechStacks);
 
     return resumeTechStacks.size() * techStackScore * techStackPriority;
   }
 
+  // 포트폴리오 점수 계산
   private int calculatePortfolioScore(ResumeEntity resumeEntity) {
 
     int portfolioScore = 3;
@@ -139,6 +155,7 @@ public class ScoringService {
     }
   }
 
+  // 자격증 점수 계산
   private int calculateCertificateScore(String resumeKey) {
 
     int certificateScore = 1;
@@ -146,6 +163,7 @@ public class ScoringService {
     return resumeCertificateRepository.countAllByResumeKey(resumeKey) * certificateScore;
   }
 
+  // 경험 점수 계산
   private int calculateExperienceScore(String resumeKey) {
 
     int experienceScore = 1;
@@ -153,12 +171,14 @@ public class ScoringService {
     return resumeExperienceRepository.countAllByResumeKey(resumeKey) * experienceScore;
   }
 
+  // 학력 점수 계산
   private int calculateEducationScore(JobPostingEntity jobPostingEntity,
       ResumeEntity resumeEntity, int educationPriority) {
 
     Education jobPostingEducation = jobPostingEntity.getEducation();
     Education resumeEducation = resumeEntity.getEducation();
 
+    // 학력 무관이 아니고 채용 공고의 학력 이상인 경우
     if (jobPostingEducation != Education.NONE
         && resumeEducation.compareTo(jobPostingEducation) >= 0) {
       return resumeEducation.getScore() * educationPriority;
@@ -167,6 +187,7 @@ public class ScoringService {
     return 0;
   }
 
+  // 경력 점수 계산
   private int calculateCareerScore(JobPostingEntity jobPostingEntity, String resumeKey,
       int careerPriority) {
 
@@ -175,9 +196,13 @@ public class ScoringService {
     JobCategory jobPostingJobCategory = jobPostingEntity.getJobCategory();
     Integer career = jobPostingEntity.getCareer();
 
+    // 경력 무관인 경우
     if (career == -1) {
       return 0;
-    } else {
+    }
+
+    // 이력서의 경력 직무와 채용 공고의 직무가 동일하고 채용 공고가 요구하는 경력 년수 이상일 경우 득점
+    else {
       return resumeCareerRepository.findAllByResumeKey(resumeKey).stream()
           .mapToInt(e -> {
             if (e.getJobCategory() == jobPostingJobCategory) {

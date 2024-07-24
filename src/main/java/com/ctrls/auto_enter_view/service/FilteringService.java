@@ -137,13 +137,11 @@ public class FilteringService {
     }
   }
 
-  @Transactional
   // 지원자를 점수가 높은 순서(같다면 지원한 시간이 빠른 순서)로 정렬하여 passingNumber만큼 candidateList에 저장시키기
+  @Transactional
   public void filterCandidates(String jobPostingKey) {
     JobPostingEntity jobPosting = jobPostingRepository.findByJobPostingKey(jobPostingKey)
         .orElseThrow(() -> new CustomException(JOB_POSTING_NOT_FOUND));
-
-    int passingNumber = jobPosting.getPassingNumber();
 
     List<ApplicantEntity> applicants = applicantRepository.findAllByJobPostingKey(jobPostingKey);
 
@@ -151,7 +149,7 @@ public class FilteringService {
     List<ApplicantEntity> toApplicants = applicants.stream()
         .sorted(Comparator.comparingInt(ApplicantEntity::getScore).reversed()
             .thenComparing(ApplicantEntity::getCreatedAt))
-        .limit(passingNumber)
+        .limit(jobPosting.getPassingNumber())
         .toList();
 
     JobPostingStepEntity jobPostingStepEntity = jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(
@@ -180,8 +178,6 @@ public class FilteringService {
           .orElseThrow(() -> new CustomException(APPLY_NOT_FOUND));
 
       appliedJobPostingEntity.updateStepName(currentStepName);
-
-      log.info(currentStepName + " - " + appliedJobPostingEntity.getStepName());
     }
   }
 }

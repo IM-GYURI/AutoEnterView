@@ -7,6 +7,8 @@ import com.ctrls.auto_enter_view.dto.mailAlarmInfo.MailAlarmInfoDto;
 import com.ctrls.auto_enter_view.service.MailAlarmInfoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,8 +36,11 @@ public class MailAlarmInfoController {
   @PostMapping
   public ResponseEntity<String> createMailAlarmInfo(@PathVariable String companyKey,
       @PathVariable String jobPostingKey, @PathVariable Long stepId,
-      @Validated @RequestBody MailAlarmInfoDto mailAlarmInfoDto) {
-    mailAlarmInfoService.createMailAlarmInfo(companyKey, jobPostingKey, stepId, mailAlarmInfoDto);
+      @Validated @RequestBody MailAlarmInfoDto mailAlarmInfoDto,
+      @AuthenticationPrincipal UserDetails userDetails) {
+    mailAlarmInfoService.createMailAlarmInfo(companyKey, jobPostingKey, stepId,
+        mailAlarmInfoDto, userDetails);
+
 
     return ResponseEntity.ok(SUCCESS_CREATE_MAIL_ALARM.getMessage());
   }
@@ -52,9 +57,10 @@ public class MailAlarmInfoController {
   @PutMapping
   public ResponseEntity<String> editMailAlarmInfo(@PathVariable String companyKey,
       @PathVariable String jobPostingKey, @PathVariable Long stepId,
-      @Validated @RequestBody MailAlarmInfoDto request) {
-
-    mailAlarmInfoService.editMailAlarmInfo(companyKey, jobPostingKey, stepId, request);
+      @Validated @RequestBody MailAlarmInfoDto mailAlarmInfoDto,
+      @AuthenticationPrincipal UserDetails userDetails) {
+    mailAlarmInfoService.editMailAlarmInfo(companyKey, jobPostingKey, stepId,
+        mailAlarmInfoDto, userDetails);
 
     return ResponseEntity.ok(SUCCESS_EDIT_MAIL_ALARM.getMessage());
   }
