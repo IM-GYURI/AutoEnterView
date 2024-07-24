@@ -6,6 +6,7 @@ import static com.ctrls.auto_enter_view.enums.ErrorCode.INVALID_VERIFICATION_COD
 import static com.ctrls.auto_enter_view.enums.ErrorCode.PASSWORD_NOT_MATCH;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ResponseMessage.USABLE_EMAIL;
+import static com.ctrls.auto_enter_view.enums.UserRole.ROLE_CANDIDATE;
 
 import com.ctrls.auto_enter_view.component.MailComponent;
 import com.ctrls.auto_enter_view.dto.common.ChangePasswordDto.Request;
@@ -13,7 +14,6 @@ import com.ctrls.auto_enter_view.dto.common.SignInDto;
 import com.ctrls.auto_enter_view.dto.common.SignInDto.Response;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
-import com.ctrls.auto_enter_view.enums.UserRole;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyInfoRepository;
@@ -27,7 +27,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -50,13 +49,11 @@ public class CommonUserService {
 
   // 이메일을 통해 이메일의 사용 여부를 확인 - 회사
   private boolean validateCompanyExistsByEmail(String email) {
-
     return companyRepository.existsByEmail(email);
   }
 
   // 이메일을 통해 이메일의 사용 여부를 확인 - 지원자
   private boolean validateCandidateExistsByEmail(String email) {
-
     return candidateRepository.existsByEmail(email);
   }
 
@@ -67,7 +64,6 @@ public class CommonUserService {
    * @return
    */
   public String checkDuplicateEmail(String email) {
-
     if (!validateCompanyExistsByEmail(email) && !validateCandidateExistsByEmail(email)) {
       return USABLE_EMAIL.getMessage();
     } else {
@@ -77,7 +73,6 @@ public class CommonUserService {
 
   // 인증 코드 생성
   private String generateVerificationCode() {
-
     return RandomGenerator.generateRandomCode();
   }
 
@@ -88,7 +83,6 @@ public class CommonUserService {
    * @return
    */
   public void sendVerificationCode(String email) {
-
     try {
       String verificationCode = generateVerificationCode();
       // Redis 유효 시간 5분으로 설정
@@ -107,7 +101,6 @@ public class CommonUserService {
    * @return
    */
   public void verifyEmailVerificationCode(String email, String verificationCode) {
-
     String sentVerificationCode = redisTemplate.opsForValue().get(email);
 
     if (sentVerificationCode == null) {
@@ -121,7 +114,6 @@ public class CommonUserService {
 
   // 임시 비밀번호 생성
   private String generateTemporaryPassword() {
-
     return RandomGenerator.generateTemporaryPassword();
   }
 
@@ -178,7 +170,6 @@ public class CommonUserService {
 
   // 로그인 : 이메일 조회 + 비밀번호 일치 확인
   public Response loginUser(String email, String password) {
-
     log.info("로그인 요청 - 이메일 : {}", email);
 
     // 이메일로 회사 엔티티 조회
@@ -217,22 +208,17 @@ public class CommonUserService {
 
   // 로그 아웃
   public void logoutUser(String token) {
-
     blacklistTokenService.addToBlacklist(token);
   }
 
   // 비밀번호 수정
-  public void changePassword(String key, Request request) {
-
-    UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
-        .getPrincipal();
-
+  public void changePassword(UserDetails userDetails, String key, Request request) {
     Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
 
     for (GrantedAuthority authority : authorities) {
       String role = authority.getAuthority();
 
-      if (role.equals(UserRole.ROLE_CANDIDATE.name())) {
+      if (role.equals(ROLE_CANDIDATE.name())) {
 
         CandidateEntity candidateEntity = candidateRepository.findByCandidateKey(key)
             .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
@@ -259,25 +245,19 @@ public class CommonUserService {
         companyEntity.setPassword(passwordEncoder.encode(request.getNewPassword()));
 
         companyRepository.save(companyEntity);
-
       }
     }
   }
 
-
   // 회원 탈퇴
-
   @Transactional
-  public void withdraw(String key) {
-    UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
-        .getPrincipal();
-
+  public void withdraw(UserDetails userDetails, String key) {
     Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
 
     for (GrantedAuthority authority : authorities) {
       String role = authority.getAuthority();
 
-      if (role.equals(UserRole.ROLE_CANDIDATE.name())) {
+      if (role.equals(ROLE_CANDIDATE.name())) {
 
         CandidateEntity candidateEntity = candidateRepository.findByCandidateKey(key)
             .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
@@ -292,7 +272,6 @@ public class CommonUserService {
 
         // 지원자 삭제
         candidateRepository.delete(candidateEntity);
-
       } else {
 
         CompanyEntity companyEntity = companyRepository.findByCompanyKey(key)
@@ -308,9 +287,7 @@ public class CommonUserService {
 
         // 회사 삭제
         companyRepository.delete(companyEntity);
-
       }
     }
-
   }
 }

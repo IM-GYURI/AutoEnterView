@@ -41,8 +41,7 @@ import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,9 +68,8 @@ public class MailAlarmInfoService {
    * @param mailAlarmInfoDto
    */
   public void createMailAlarmInfo(String companyKey, String jobPostingKey, Long stepId,
-      MailAlarmInfoDto mailAlarmInfoDto) {
-    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    CompanyEntity company = findCompanyByPrincipal(principal);
+      MailAlarmInfoDto mailAlarmInfoDto, UserDetails userDetails) {
+    CompanyEntity company = findCompanyByPrincipal(userDetails);
 
     verifyCompanyOwnership(company, companyKey);
 
@@ -112,9 +110,8 @@ public class MailAlarmInfoService {
    */
   @Transactional
   public void editMailAlarmInfo(String companyKey, String jobPostingKey, Long stepId,
-      MailAlarmInfoDto mailAlarmInfoDto) {
-    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    CompanyEntity company = findCompanyByPrincipal(principal);
+      MailAlarmInfoDto mailAlarmInfoDto, UserDetails userDetails) {
+    CompanyEntity company = findCompanyByPrincipal(userDetails);
 
     verifyCompanyOwnership(company, companyKey);
 
@@ -274,15 +271,13 @@ public class MailAlarmInfoService {
   }
 
   // 사용자 인증 정보로 회사 entity 찾기
-  private CompanyEntity findCompanyByPrincipal(User principal) {
-
-    return companyRepository.findByEmail(principal.getUsername())
+  private CompanyEntity findCompanyByPrincipal(UserDetails userDetails) {
+    return companyRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
   }
 
   // 회사 본인인지 확인
   private void verifyCompanyOwnership(CompanyEntity company, String companyKey) {
-
     if (!company.getCompanyKey().equals(companyKey)) {
       throw new CustomException(USER_NOT_FOUND);
     }
