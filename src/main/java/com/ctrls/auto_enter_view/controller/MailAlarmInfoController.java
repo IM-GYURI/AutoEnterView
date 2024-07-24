@@ -25,13 +25,13 @@ public class MailAlarmInfoController {
   private final MailAlarmInfoService mailAlarmInfoService;
 
   /**
-   * 메일 예약 생성
+   * 메일 예약 생성하기
    *
-   * @param companyKey
-   * @param jobPostingKey
-   * @param stepId
-   * @param mailAlarmInfoDto
-   * @return
+   * @param companyKey 회사 PK
+   * @param jobPostingKey 채용 공고 PK
+   * @param stepId 채용 단계 PK
+   * @param mailAlarmInfoDto MailAlarmInfoDto.Request
+   * @return ResponseMessage
    */
   @PostMapping
   public ResponseEntity<String> createMailAlarmInfo(@PathVariable String companyKey,
@@ -41,17 +41,18 @@ public class MailAlarmInfoController {
     mailAlarmInfoService.createMailAlarmInfo(companyKey, jobPostingKey, stepId,
         mailAlarmInfoDto, userDetails);
 
+
     return ResponseEntity.ok(SUCCESS_CREATE_MAIL_ALARM.getMessage());
   }
 
   /**
-   * 예약된 메일 수정
+   * 예약된 메일 수정하기
    *
-   * @param companyKey
-   * @param jobPostingKey
-   * @param stepId
-   * @param mailAlarmInfoDto
-   * @return
+   * @param companyKey 회사 PK
+   * @param jobPostingKey 채용 공고 PK
+   * @param stepId 채용 단계 PK
+   * @param request MailAlarmInfoDto.Request
+   * @return ResponseMessage
    */
   @PutMapping
   public ResponseEntity<String> editMailAlarmInfo(@PathVariable String companyKey,

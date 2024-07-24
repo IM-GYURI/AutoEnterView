@@ -40,11 +40,11 @@ public class JobPostingController {
   /**
    * 채용 공고 생성하기
    *
-   * @param userDetails
-   * @param companyKey
-   * @param request
-   * @param image
-   * @return
+   * @param userDetails 로그인 된 사용자 정보
+   * @param companyKey 회사 PK
+   * @param request JobPostingDto.Request
+   * @param image MultipartFile
+   * @return JobPostingDto.Response
    */
   @Transactional
   @PostMapping("/companies/{companyKey}/job-postings")
@@ -72,10 +72,10 @@ public class JobPostingController {
   /**
    * 채용 공고 수정
    *
-   * @param jobPostingKey
-   * @param request
-   * @param image
-   * @return
+   * @param jobPostingKey 채용 공고 PK
+   * @param request JobPostingDto.Request
+   * @param image MultipartFile
+   * @return JobPostingDto.Response
    */
   @PutMapping("/job-postings/{jobPostingKey}")
   public ResponseEntity<JobPostingDto.Response> editJobPosting(
@@ -99,8 +99,8 @@ public class JobPostingController {
   /**
    * 채용 공고 삭제하기
    *
-   * @param jobPostingKey
-   * @return
+   * @param jobPostingKey 채용 공고 PK
+   * @return ResponseMessage
    */
   @Transactional
   @DeleteMapping("/job-postings/{jobPostingKey}")
@@ -117,8 +117,8 @@ public class JobPostingController {
   /**
    * 회사 본인이 등록한 채용공고 목록 조회
    *
-   * @param companyKey
-   * @return
+   * @param companyKey 회사 PK
+   * @return List<JobPostingInfoDto>
    */
   @GetMapping("/companies/{companyKey}/posted-job-postings")
   public ResponseEntity<List<JobPostingInfoDto>> getJobPostingsByCompanyKey(
@@ -129,9 +129,9 @@ public class JobPostingController {
   /**
    * (지원자) 채용 공고 지원하기
    *
-   * @param jobPostingKey
-   * @param userDetails
-   * @return
+   * @param jobPostingKey 채용 공고 PK
+   * @param userDetails 로그인 된 사용자 정보
+   * @return ResponseMessage
    */
   @PostMapping("/job-postings/{jobPostingKey}/apply")
   public ResponseEntity<String> applyJobPosting(

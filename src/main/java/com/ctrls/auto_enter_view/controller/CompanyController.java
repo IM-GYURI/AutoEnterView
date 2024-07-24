@@ -15,12 +15,17 @@ public class CompanyController {
 
   private final CompanyService companyService;
 
-  // 회원 가입
+  /**
+   * 회사 회원가입
+   *
+   * @param request SignUp.Request
+   * @return SignUp.Response
+   */
   @PostMapping("/companies/signup")
   public ResponseEntity<SignUpDto.Response> signUp(
-      @Validated @RequestBody SignUpDto.Request form) {
+      @Validated @RequestBody SignUpDto.Request request) {
 
-    SignUpDto.Response response = companyService.signUp(form);
+    SignUpDto.Response response = companyService.signUp(request);
 
     return ResponseEntity.ok(response);
   }

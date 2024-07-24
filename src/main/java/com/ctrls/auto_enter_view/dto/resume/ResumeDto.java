@@ -4,6 +4,7 @@ import com.ctrls.auto_enter_view.entity.ResumeEntity;
 import com.ctrls.auto_enter_view.enums.Education;
 import com.ctrls.auto_enter_view.enums.JobCategory;
 import com.ctrls.auto_enter_view.enums.TechStack;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -50,9 +51,16 @@ public class ResumeDto {
     private String schoolName;
 
     private List<TechStack> techStack;
+
+    @Valid
     private List<ExperienceDto> experience;
+
+    @Valid
     private List<CareerDto.Request> career;
+
+    @Valid
     private List<CertificateDto> certificates;
+
     private String portfolio;
 
     public ResumeEntity toEntity(String resumeKey, String candidateKey) {

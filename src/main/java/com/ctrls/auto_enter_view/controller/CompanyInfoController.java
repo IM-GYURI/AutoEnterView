@@ -25,6 +25,13 @@ public class CompanyInfoController {
 
   private final CompanyInfoService companyInfoService;
 
+  /**
+   * 회사 정보 생성하기
+   *
+   * @param companyKey 회사 PK
+   * @param request CreateCompanyInfoDto.Request
+   * @return ResponseMessage
+   */
   @PostMapping
   public ResponseEntity<String> createInfo(@AuthenticationPrincipal UserDetails userDetails,
       @PathVariable String companyKey, @RequestBody @Validated Request request
@@ -34,6 +41,12 @@ public class CompanyInfoController {
     return ResponseEntity.ok(ResponseMessage.SUCCESS_CREATE_COMPANY_INFO.getMessage());
   }
 
+  /**
+   * 회사 정보 조회하기
+   *
+   * @param companyKey 회사 PK
+   * @return ReadCompanyInfoDto.Response
+   */
   @GetMapping
   public ResponseEntity<Response> readInfo(
       @PathVariable String companyKey
@@ -43,6 +56,13 @@ public class CompanyInfoController {
     return ResponseEntity.ok(response);
   }
 
+  /**
+   * 회사 정보 수정하기
+   *
+   * @param companyKey 회사 PK
+   * @param request CreateCompanyInfoDto.Request
+   * @return ResponseMessage
+   */
   @PutMapping
   public ResponseEntity<String> updateInfo(@AuthenticationPrincipal UserDetails userDetails,
       @PathVariable String companyKey, @RequestBody @Validated Request request
@@ -52,6 +72,12 @@ public class CompanyInfoController {
     return ResponseEntity.ok(ResponseMessage.SUCCESS_UPDATE_COMPANY_INFO.getMessage());
   }
 
+  /**
+   * 회사 정보 삭제하기
+   *
+   * @param companyKey 회사 PK
+   * @return ResponseMessage
+   */
   @DeleteMapping
   public ResponseEntity<String> deleteInfo(@AuthenticationPrincipal UserDetails userDetails,
       @PathVariable String companyKey

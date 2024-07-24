@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Table(name = "job_posting_step")
-public class JobPostingStepEntity extends BaseEntity {
+public class JobPostingStepEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
