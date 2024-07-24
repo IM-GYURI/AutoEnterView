@@ -21,7 +21,13 @@ public class ResumeImageService {
   private final S3ImageUploadService s3ImageUploadService;
   private final ResumeRepository resumeRepository;
 
-  // 이미지 파일 업로드
+  /**
+   * 이미지 파일 업로드
+   *
+   * @param image     이미지 파일
+   * @param resumeKey 이력서 KEY
+   * @return 이력서 생성 DTO
+   */
   public ResumeDto.Response uploadImage(MultipartFile image, String resumeKey) {
 
     ResumeImageEntity resumeImage = resumeImageRepository.findByResumeKey(resumeKey)
@@ -41,9 +47,14 @@ public class ResumeImageService {
     return new ResumeDto.Response(resumeKey, imageUrl);
   }
 
-
-  // 기존 이미지 정보 반환 -> 업데이트 시 확인
+  /**
+   * 기존 이미지 정보 반환 -> 업데이트 시 확인
+   *
+   * @param resumeKey 이력서 KEY
+   * @return 이력서 생성 DTO
+   */
   public ResumeDto.Response getExistingResumeImage(String resumeKey) {
+
     Optional<ResumeImageEntity> resumeImageOpt = resumeImageRepository.findByResumeKey(resumeKey);
 
     if (resumeImageOpt.isPresent()) {
@@ -56,6 +67,7 @@ public class ResumeImageService {
 
   // 이미지 파일 삭제
   public void deleteImage(String candidateKey) {
+
     resumeRepository.findByCandidateKey(candidateKey)
         .ifPresent(resume -> {
           String resumeKey = resume.getResumeKey();
@@ -68,5 +80,4 @@ public class ResumeImageService {
               });
         });
   }
-
 }
