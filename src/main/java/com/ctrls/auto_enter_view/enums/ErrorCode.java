@@ -48,10 +48,10 @@ public enum ErrorCode {
   JOB_POSTING_EXPIRED(404, "마감일이 지난 채용 공고 입니다."),
   BLACKLIST_TOKEN_ADD_FAILED(500, "블랙리스트 토큰 추가에 실패했습니다."),
   SCHEDULE_FAILED(500, "스케줄링에 실패하였습니다."),
-  UNSCHEDULE_FAILED(500, "스케줄링 취소에 실패하였습니다.");
+  UNSCHEDULE_FAILED(500, "스케줄링 취소에 실패하였습니다."),
   FAILED_MAIL_SCHEDULING(500, "메일 예약 등록을 실패했습니다."),
   FAILED_MAIL_UNSCHEDULING(500, "메일 예약 취소를 실패했습니다.");
-  
+
   private final int status;
   private final String message;
 }
