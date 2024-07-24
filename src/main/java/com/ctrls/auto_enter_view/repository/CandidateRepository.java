@@ -10,8 +10,6 @@ public interface CandidateRepository extends JpaRepository<CandidateEntity, Stri
 
   boolean existsByEmail(String email);
 
-  boolean existsByCandidateKey(String candidateKey);
-
   Optional<CandidateEntity> findByEmail(String email);
 
   Optional<CandidateEntity> findByCandidateKey(String candidateKey);
