@@ -29,6 +29,7 @@ import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
+import com.ctrls.auto_enter_view.util.KeyGenerator;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +60,7 @@ public class JobPostingService {
   private final JobPostingImageService jobPostingImageService;
   private final FilteringService filteringService;
   private final MailComponent mailComponent;
+  private final KeyGenerator keyGenerator;
 
   /**
    * 채용 공고 생성하기
@@ -80,7 +82,9 @@ public class JobPostingService {
       throw new CustomException(NO_AUTHORITY);
     }
 
-    JobPostingEntity entity = Request.toEntity(companyKey, request);
+    String key = keyGenerator.generateKey();
+
+    JobPostingEntity entity = Request.toEntity(key, companyKey, request);
 
     // 스케줄링 코드
     filteringService.scheduleResumeScoringJob(entity.getJobPostingKey(), entity.getEndDate());

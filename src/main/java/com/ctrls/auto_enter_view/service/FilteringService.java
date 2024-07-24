@@ -56,15 +56,17 @@ public class FilteringService {
   private final CandidateListRepository candidateListRepository;
   private final JobPostingStepRepository jobPostingStepRepository;
   private final AppliedJobPostingRepository appliedJobPostingRepository;
+  private final KeyGenerator keyGenerator;
 
   /**
    * 스코어링 + 필터링 스케줄링
    *
    * @param jobPostingKey 채용 공고 PK
-   * @param endDate 채용 공고 마감일
+   * @param endDate       채용 공고 마감일
    * @throws CustomException SCHEDULE_FAILED : 스케줄링이 실패한 경우
    */
   public void scheduleResumeScoringJob(String jobPostingKey, LocalDate endDate) {
+
     try {
 //      마감일 다음 날 자정으로 설정
       LocalDateTime filteringDateTime = LocalDateTime.of(endDate.plusDays(1), LocalTime.MIDNIGHT);
@@ -131,6 +133,7 @@ public class FilteringService {
    * @throws CustomException UNSCHEDULE_FAILED : 스케줄링 취소에 실패한 경우
    */
   public void unscheduleResumeScoringJob(String jobPostingKey) {
+
     try {
       // 스코어링 작업과 필터링 작업의 트리거 취소
       TriggerKey scoringTriggerKey = TriggerKey.triggerKey("resumeScoringTrigger-" + jobPostingKey,
@@ -143,12 +146,10 @@ public class FilteringService {
 
       // 필터링 트리거 취소
       scheduler.unscheduleJob(filteringTriggerKey);
-
     } catch (SchedulerException e) {
       throw new CustomException(ErrorCode.UNSCHEDULE_FAILED);
     }
   }
-
 
   /**
    * 지원자를 점수가 높은 순서(같다면 지원한 시간이 빠른 순서)로 정렬하여 passingNumber만큼 candidateList에 저장시키기
@@ -161,6 +162,7 @@ public class FilteringService {
    */
   @Transactional
   public void filterCandidates(String jobPostingKey) {
+
     JobPostingEntity jobPosting = jobPostingRepository.findByJobPostingKey(jobPostingKey)
         .orElseThrow(() -> new CustomException(JOB_POSTING_NOT_FOUND));
 
@@ -183,7 +185,7 @@ public class FilteringService {
           .orElseThrow(() -> new CustomException(CANDIDATE_NOT_FOUND));
 
       CandidateListEntity candidateListEntity = CandidateListEntity.builder()
-          .candidateListKey(KeyGenerator.generateKey())
+          .candidateListKey(keyGenerator.generateKey())
           .jobPostingStepId(jobPostingStepEntity.getId())
           .jobPostingKey(jobPostingKey)
           .candidateKey(candidate.getCandidateKey())

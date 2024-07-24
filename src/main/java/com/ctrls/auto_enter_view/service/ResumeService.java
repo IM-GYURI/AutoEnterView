@@ -51,6 +51,7 @@ public class ResumeService {
   private final ResumeImageRepository resumeImageRepository;
   private final ResumeRepository resumeRepository;
   private final ResumeTechStackRepository resumeTechStackRepository;
+  private final KeyGenerator keyGenerator;
 
   /**
    * 이력서 생성
@@ -81,7 +82,7 @@ public class ResumeService {
       throw new CustomException(ErrorCode.ALREADY_EXISTS);
     }
 
-    String resumeKey = KeyGenerator.generateKey();
+    String resumeKey = keyGenerator.generateKey();
 
     ResumeEntity resumeEntity = request.toEntity(resumeKey, candidateKey);
 

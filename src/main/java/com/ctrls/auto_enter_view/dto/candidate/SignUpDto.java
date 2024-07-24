@@ -2,7 +2,6 @@ package com.ctrls.auto_enter_view.dto.candidate;
 
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.enums.UserRole;
-import com.ctrls.auto_enter_view.util.KeyGenerator;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -38,10 +37,10 @@ public class SignUpDto {
     @Pattern(regexp = "^\\d{2,3}-\\d{3,4}-\\d{4}$", message = "전화번호 형식이 올바르지 않습니다.")
     private String phoneNumber;
 
-    public CandidateEntity toEntity(Request request, String password) {
+    public CandidateEntity toEntity(String key, Request request, String password) {
 
       return CandidateEntity.builder()
-          .candidateKey(KeyGenerator.generateKey())
+          .candidateKey(key)
           .name(request.getName())
           .email(request.getEmail())
           .password(password)
