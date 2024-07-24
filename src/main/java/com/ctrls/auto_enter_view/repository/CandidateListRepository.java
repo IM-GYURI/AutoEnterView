@@ -26,5 +26,5 @@ public interface CandidateListRepository extends JpaRepository<CandidateListEnti
   @Query("SELECT c.candidateName FROM CandidateListEntity c WHERE c.candidateKey = :candidateKey")
   String findCandidateNameByCandidateKey(String candidateKey);
 
-  Optional<CandidateListEntity> findByCandidateKeyAndJobPostingKey(String candidateKey, String jobPostingKey);
+  List<CandidateListEntity> findAllByCandidateKeyInAndJobPostingKey(List<String> candidateKeys, String jobPostingKey);
 }

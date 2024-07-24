@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.repository;
 
+import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
 import java.util.List;
 import java.util.Optional;
@@ -19,5 +20,5 @@ public interface JobPostingStepRepository extends JpaRepository<JobPostingStepEn
 
   List<JobPostingStepEntity> findByJobPostingKey(String jobPostingKey);
 
-  Optional<JobPostingStepEntity> findByJobPostingKeyAndId(String jobPostingKey, Long nextStepId);
+  Optional<JobPostingStepEntity> findByJobPostingKeyAndId(String jobPostingKey, Long stepId);
 }

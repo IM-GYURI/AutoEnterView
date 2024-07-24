@@ -50,7 +50,7 @@ public class JobPostingStepController {
       @RequestBody @Validated EditJobPostingStepDto request,
       @PathVariable String jobPostingKey,
       @AuthenticationPrincipal UserDetails userDetails) {
-    jobPostingStepService.editStepId(request.getCurrentStepId(), request.getCandidateKey(),
+    jobPostingStepService.editStepId(request.getCurrentStepId(), request.getCandidateKeys(),
         jobPostingKey, userDetails);
     return ResponseEntity.ok(ResponseMessage.SUCCESS_STEP_MOVEMENT.getMessage());
   }
