@@ -30,6 +30,7 @@ import com.ctrls.auto_enter_view.repository.CandidateListRepository;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
+import com.ctrls.auto_enter_view.util.KeyGenerator;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -79,6 +80,9 @@ class FilteringServiceTest {
 
   @Mock
   private JobPostingStepRepository jobPostingStepRepository;
+
+  @Mock
+  private KeyGenerator keyGenerator;
 
   @InjectMocks
   private FilteringService filteringService;
