@@ -1,7 +1,9 @@
 package com.ctrls.auto_enter_view.service;
 
 import static com.ctrls.auto_enter_view.enums.ErrorCode.COMPANY_NOT_FOUND;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_HAS_CANDIDATES;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_NOT_FOUND;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_STEP_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.NO_AUTHORITY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -17,11 +19,7 @@ import static org.mockito.Mockito.when;
 
 import com.ctrls.auto_enter_view.component.MailComponent;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto;
-import com.ctrls.auto_enter_view.dto.common.JobPostingDetailDto;
-import com.ctrls.auto_enter_view.dto.common.MainJobPostingDto;
-import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto.Request;
-import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingInfoDto;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CandidateListEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
@@ -30,7 +28,6 @@ import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
 import com.ctrls.auto_enter_view.enums.Education;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.enums.JobCategory;
-import com.ctrls.auto_enter_view.enums.TechStack;
 import com.ctrls.auto_enter_view.enums.UserRole;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateListRepository;
@@ -38,12 +35,9 @@ import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
-import java.util.Collections;
 import com.ctrls.auto_enter_view.util.KeyGenerator;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -54,14 +48,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -89,8 +75,6 @@ class JobPostingServiceTest {
   @Mock
   private JobPostingTechStackService jobPostingTechStackService;
 
-  @Mock
-  private FilteringService filteringService;
 
   @Mock
   private JobPostingStepService jobPostingStepService;
@@ -230,7 +214,7 @@ class JobPostingServiceTest {
 
     assertEquals(ErrorCode.NO_AUTHORITY, customException.getErrorCode());
   }
-  
+
   @Test
   @DisplayName("채용 공고 수정하기 : 성공")
   void editJobPosting_Success() {
@@ -397,8 +381,8 @@ class JobPostingServiceTest {
 
     assertEquals(NO_AUTHORITY, exception.getErrorCode());
   }
-  
-   @Test
+
+  @Test
   @DisplayName("채용 공고 삭제 성공 테스트")
   void testDeleteJobPosting() {
     //given
