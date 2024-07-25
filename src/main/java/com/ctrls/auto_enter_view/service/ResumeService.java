@@ -25,7 +25,7 @@ import com.ctrls.auto_enter_view.repository.ResumeExperienceRepository;
 import com.ctrls.auto_enter_view.repository.ResumeImageRepository;
 import com.ctrls.auto_enter_view.repository.ResumeRepository;
 import com.ctrls.auto_enter_view.repository.ResumeTechStackRepository;
-import com.ctrls.auto_enter_view.component.KeyGenerator;
+import com.ctrls.auto_enter_view.util.KeyGenerator;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;

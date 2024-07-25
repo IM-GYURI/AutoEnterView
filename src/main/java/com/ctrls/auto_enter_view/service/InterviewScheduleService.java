@@ -11,7 +11,7 @@ import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.repository.InterviewScheduleRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
-import com.ctrls.auto_enter_view.component.KeyGenerator;
+import com.ctrls.auto_enter_view.util.KeyGenerator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

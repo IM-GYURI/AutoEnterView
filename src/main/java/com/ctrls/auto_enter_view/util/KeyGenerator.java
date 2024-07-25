@@ -1,4 +1,4 @@
-package com.ctrls.auto_enter_view.component;
+package com.ctrls.auto_enter_view.util;
 
 import java.util.UUID;
 import org.springframework.stereotype.Component;
