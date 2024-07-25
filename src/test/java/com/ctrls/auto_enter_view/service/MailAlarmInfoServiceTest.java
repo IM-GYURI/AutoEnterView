@@ -937,12 +937,13 @@ class MailAlarmInfoServiceTest {
 
   @Test
   @DisplayName("면접 일정 취소 이메일 발송 : 성공")
-  void sendCancellationMailToParticipants_Success() {
+  void sendInterviewCancellationMailToParticipants_Success() {
     String jobPostingKey = "jobPostingKey";
     String candidateKey = "candidateKey";
 
     InterviewScheduleEntity interviewScheduleEntity = InterviewScheduleEntity.builder()
         .jobPostingKey(jobPostingKey)
+        .firstInterviewDate(LocalDate.of(2024, 7, 25))
         .build();
 
     JobPostingEntity jobPostingEntity = JobPostingEntity.builder()
@@ -990,6 +991,67 @@ class MailAlarmInfoServiceTest {
                 + jobPostingEntity.getTitle() + " - " + jobPostingStepEntity.getStep()
                 + "<br> 취소된 면접 일시 : "
                 + participant.getInterviewStartDatetime().format(
+                DateTimeFormatter.ofPattern("yyyy-MM-dd EEEE HH:mm"))),
+        eq(true)
+    );
+  }
+
+  @Test
+  @DisplayName("과제 취소 이메일 발송 : 성공")
+  void sendTaskCancellationMailToParticipants_Success() {
+    String jobPostingKey = "jobPostingKey";
+    String candidateKey = "candidateKey";
+
+    InterviewScheduleEntity interviewScheduleEntity = InterviewScheduleEntity.builder()
+        .jobPostingKey(jobPostingKey)
+        .firstInterviewDate(null)  // 과제일 경우 firstInterviewDate가 null
+        .build();
+
+    JobPostingEntity jobPostingEntity = JobPostingEntity.builder()
+        .jobPostingKey(jobPostingKey)
+        .title("제목")
+        .build();
+
+    JobPostingStepEntity jobPostingStepEntity = JobPostingStepEntity.builder()
+        .id(1L)
+        .jobPostingKey(jobPostingKey)
+        .step("서류 단계")
+        .build();
+
+    InterviewScheduleParticipantsEntity participant = InterviewScheduleParticipantsEntity.builder()
+        .candidateKey(candidateKey)
+        .interviewEndDatetime(LocalDateTime.of(2025, 5, 1, 14, 0))
+        .jobPostingStepId(1L)
+        .build();
+
+    CandidateEntity candidate = CandidateEntity.builder()
+        .candidateKey(candidateKey)
+        .email("test@example.com")
+        .build();
+
+    when(jobPostingRepository.findByJobPostingKey(jobPostingKey))
+        .thenReturn(Optional.of(jobPostingEntity));
+    when(jobPostingStepRepository.findById(1L))
+        .thenReturn(Optional.of(jobPostingStepEntity));
+    when(candidateRepository.findByCandidateKey(candidateKey))
+        .thenReturn(Optional.of(candidate));
+
+    doNothing().when(mailComponent)
+        .sendHtmlMail(anyString(), anyString(), anyString(), anyBoolean());
+
+    mailAlarmInfoService.sendCancellationMailToParticipants(
+        interviewScheduleEntity,
+        Collections.singletonList(participant)
+    );
+
+    verify(mailComponent, times(1)).sendHtmlMail(
+        eq("test@example.com"),
+        eq("과제 취소 안내 : " + jobPostingEntity.getTitle()),
+        contains(
+            "과제 일정이 <strong>취소</strong>되었음을 안내드립니다.<br><br>취소된 과제 정보<br>"
+                + jobPostingEntity.getTitle() + " - " + jobPostingStepEntity.getStep()
+                + "<br> 취소된 과제 마감 일시 : "
+                + participant.getInterviewEndDatetime().format(
                 DateTimeFormatter.ofPattern("yyyy-MM-dd EEEE HH:mm"))),
         eq(true)
     );
