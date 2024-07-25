@@ -13,6 +13,7 @@ import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CandidateListEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
+import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.ApplicantRepository;
 import com.ctrls.auto_enter_view.repository.AppliedJobPostingRepository;
@@ -55,9 +56,17 @@ public class FilteringService {
   private final CandidateListRepository candidateListRepository;
   private final JobPostingStepRepository jobPostingStepRepository;
   private final AppliedJobPostingRepository appliedJobPostingRepository;
+  private final KeyGenerator keyGenerator;
 
-  // 스코어링 + 필터링 스케줄링
+  /**
+   * 스코어링 + 필터링 스케줄링
+   *
+   * @param jobPostingKey 채용 공고 PK
+   * @param endDate       채용 공고 마감일
+   * @throws CustomException SCHEDULE_FAILED : 스케줄링이 실패한 경우
+   */
   public void scheduleResumeScoringJob(String jobPostingKey, LocalDate endDate) {
+
     try {
 //      마감일 다음 날 자정으로 설정
       LocalDateTime filteringDateTime = LocalDateTime.of(endDate.plusDays(1), LocalTime.MIDNIGHT);
@@ -113,12 +122,18 @@ public class FilteringService {
 
       scheduler.scheduleJob(jobDetailB, triggerB);
     } catch (SchedulerException e) {
-      throw new RuntimeException("Failed to schedule resume scoring job", e);
+      throw new CustomException(ErrorCode.SCHEDULE_FAILED);
     }
   }
 
-  // 스케줄링 취소
+  /**
+   * 스케줄링 취소
+   *
+   * @param jobPostingKey 채용 공고 PK
+   * @throws CustomException UNSCHEDULE_FAILED : 스케줄링 취소에 실패한 경우
+   */
   public void unscheduleResumeScoringJob(String jobPostingKey) {
+
     try {
       // 스코어링 작업과 필터링 작업의 트리거 취소
       TriggerKey scoringTriggerKey = TriggerKey.triggerKey("resumeScoringTrigger-" + jobPostingKey,
@@ -131,19 +146,25 @@ public class FilteringService {
 
       // 필터링 트리거 취소
       scheduler.unscheduleJob(filteringTriggerKey);
-
     } catch (SchedulerException e) {
-      throw new RuntimeException("Failed to unschedule jobs", e);
+      throw new CustomException(ErrorCode.UNSCHEDULE_FAILED);
     }
   }
 
+  /**
+   * 지원자를 점수가 높은 순서(같다면 지원한 시간이 빠른 순서)로 정렬하여 passingNumber만큼 candidateList에 저장시키기
+   *
+   * @param jobPostingKey 채용 공고 PK
+   * @throws CustomException JOB_POSTING_NOT_FOUND : 채용 공고를 찾을 수 없는 경우
+   * @throws CustomException JOB_POSTING_STEP_NOT_FOUND : 해당 채용 공고의 단계를 찾을 수 없는 경우
+   * @throws CustomException CANDIDATE_NOT_FOUND : 지원자를 찾을 수 없는 경우
+   * @throws CustomException APPLY_NOT_FOUND : 지원 정보를 찾을 수 없는 경우
+   */
   @Transactional
-  // 지원자를 점수가 높은 순서(같다면 지원한 시간이 빠른 순서)로 정렬하여 passingNumber만큼 candidateList에 저장시키기
   public void filterCandidates(String jobPostingKey) {
+
     JobPostingEntity jobPosting = jobPostingRepository.findByJobPostingKey(jobPostingKey)
         .orElseThrow(() -> new CustomException(JOB_POSTING_NOT_FOUND));
-
-    int passingNumber = jobPosting.getPassingNumber();
 
     List<ApplicantEntity> applicants = applicantRepository.findAllByJobPostingKey(jobPostingKey);
 
@@ -151,7 +172,7 @@ public class FilteringService {
     List<ApplicantEntity> toApplicants = applicants.stream()
         .sorted(Comparator.comparingInt(ApplicantEntity::getScore).reversed()
             .thenComparing(ApplicantEntity::getCreatedAt))
-        .limit(passingNumber)
+        .limit(jobPosting.getPassingNumber())
         .toList();
 
     JobPostingStepEntity jobPostingStepEntity = jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(
@@ -164,7 +185,7 @@ public class FilteringService {
           .orElseThrow(() -> new CustomException(CANDIDATE_NOT_FOUND));
 
       CandidateListEntity candidateListEntity = CandidateListEntity.builder()
-          .candidateListKey(KeyGenerator.generateKey())
+          .candidateListKey(keyGenerator.generateKey())
           .jobPostingStepId(jobPostingStepEntity.getId())
           .jobPostingKey(jobPostingKey)
           .candidateKey(candidate.getCandidateKey())
@@ -173,15 +194,13 @@ public class FilteringService {
 
       candidateListRepository.save(candidateListEntity);
 
-      // applicant별로 AppliedJobPostingEntity의 stepName을 해당 채용 공고의 첫번째 단계명으로 업데이트해주기
+      // 지원자별로 AppliedJobPostingEntity의 stepName을 해당 채용 공고의 첫번째 단계명으로 업데이트해주기
       String currentStepName = jobPostingStepEntity.getStep();
       AppliedJobPostingEntity appliedJobPostingEntity = appliedJobPostingRepository.findByCandidateKey(
               applicant.getCandidateKey())
           .orElseThrow(() -> new CustomException(APPLY_NOT_FOUND));
 
       appliedJobPostingEntity.updateStepName(currentStepName);
-
-      log.info(currentStepName + " - " + appliedJobPostingEntity.getStepName());
     }
   }
 }

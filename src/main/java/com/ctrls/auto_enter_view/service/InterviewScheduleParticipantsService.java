@@ -31,30 +31,28 @@ import org.springframework.transaction.annotation.Transactional;
 public class InterviewScheduleParticipantsService {
 
   private final JobPostingRepository jobPostingRepository;
-
   private final CompanyRepository companyRepository;
-
   private final InterviewScheduleParticipantsRepository interviewScheduleParticipantsRepository;
-
   private final CandidateListRepository candidateListRepository;
-
   private final InterviewScheduleRepository interviewScheduleRepository;
-
   private final MailAlarmInfoRepository mailAlarmInfoRepository;
-
   private final MailAlarmInfoService mailAlarmInfoService;
 
   /**
    * 개인 면접 일정 생성
    *
-   * @param jobPostingKey
-   * @param stepId
-   * @param request
-   * @param userDetails
+   * @param jobPostingKey 채용 공고 PK
+   * @param stepId 채용 공고 단계 PK
+   * @param request List<InterviewScheduleDto.Request>
+   * @param userDetails 로그인 된 사용자 정보
+   * @throws CustomException JOB_POSTING_KEY_NOT_FOUND : 채용 공고 키를 찾을 수 없는 경우
+   * @throws CustomException CANDIDATE_INADEQUATE_ERROR : 생성 일정 수보다 지원자 수가 부족한 경우
+   * @throws CustomException COMPANY_NOT_FOUND : 회사를 찾을 수 없는 경우
+   * @throws CustomException JOB_POSTING_NOT_FOUND : 채용 공고를 찾을 수 없는 경우
+   * @throws CustomException NO_AUTHORITY : 로그인한 사용자의 회사키와 매개변수의 회사키가 일치하지 않는 경우
    */
   public void createInterviewSchedule(String jobPostingKey, Long stepId, List<Request> request,
       UserDetails userDetails) {
-
     checkOwner(userDetails, jobPostingKey);
 
     String interviewScheduleKey = interviewScheduleRepository.findInterviewScheduleKeyByJobPostingKey(
@@ -94,18 +92,19 @@ public class InterviewScheduleParticipantsService {
     }
   }
 
-
   /**
    * 개인 면접 일정 전체 조회
    *
-   * @param jobPostingKey
-   * @param stepId
-   * @param userDetails
-   * @return
+   * @param jobPostingKey 채용 공고 PK
+   * @param stepId 채용 단계 PK
+   * @param userDetails 로그인 된 사용자 정보
+   * @return List<InterviewScheduleParticipantsDto.Response>
+   * @throws CustomException COMPANY_NOT_FOUND : 회사를 찾을 수 없는 경우
+   * @throws CustomException JOB_POSTING_NOT_FOUND : 채용 공고를 찾을 수 없는 경우
+   * @throws CustomException NO_AUTHORITY : 로그인한 사용자의 회사키와 매개변수의 회사키가 일치하지 않는 경우
    */
   public List<Response> getAllInterviewSchedule(String jobPostingKey, Long stepId,
       UserDetails userDetails) {
-
     checkOwner(userDetails, jobPostingKey);
 
     List<InterviewScheduleParticipantsEntity> entities = interviewScheduleParticipantsRepository.findAllByJobPostingKeyAndJobPostingStepId(
@@ -118,15 +117,18 @@ public class InterviewScheduleParticipantsService {
   /**
    * 개인 면접 일정 수정
    *
-   * @param interviewScheduleKey
-   * @param candidateKey
-   * @param request
-   * @param userDetails
+   * @param interviewScheduleKey 면접 일정 PK
+   * @param candidateKey 지원자 PK
+   * @param request InterviewScheduleParticipantsDto.Request
+   * @param userDetails 로그인 된 사용자 정보
+   * @throws CustomException INTERVIEW_SCHEDULE_NOT_FOUND : 면접 일정을 찾을 수 없는 경우
+   * @throws CustomException COMPANY_NOT_FOUND : 회사를 찾을 수 없는 경우
+   * @throws CustomException JOB_POSTING_NOT_FOUND : 채용 공고를 찾을 수 없는 경우
+   * @throws CustomException NO_AUTHORITY : 로그인한 사용자의 회사키와 매개변수의 회사키가 일치하지 않는 경우
    */
   @Transactional
   public void updatePersonalInterviewSchedule(String interviewScheduleKey, String candidateKey,
       InterviewScheduleParticipantsDto.Request request, UserDetails userDetails) {
-
     checkOwnerByInterviewScheduleKey(userDetails, interviewScheduleKey);
 
     InterviewScheduleEntity interviewScheduleEntity = interviewScheduleRepository.findByInterviewScheduleKey(
@@ -148,15 +150,19 @@ public class InterviewScheduleParticipantsService {
     }
 
     participantsEntity.updateEntity(request);
-
   }
 
   /**
    * 개인 면접 일정 전체 삭제
    *
-   * @param jobPostingKey
-   * @param stepId
-   * @param userDetails
+   * @param jobPostingKey 채용 공고 PK
+   * @param stepId 채용 단계 PK
+   * @param userDetails 로그인 된 사용자 정보
+   * @throws CustomException INTERVIEW_SCHEDULE_NOT_FOUND : 면접 일정을 찾을 수 없는 경우
+   * @throws CustomException MAIL_ALARM_INFO_NOT_FOUND : 메일 알람 정보를 찾을 수 없는 경우
+   * @throws CustomException COMPANY_NOT_FOUND : 회사를 찾을 수 없는 경우
+   * @throws CustomException JOB_POSTING_NOT_FOUND : 채용 공고를 찾을 수 없는 경우
+   * @throws CustomException NO_AUTHORITY : 로그인한 사용자의 회사키와 매개변수의 회사키가 일치하지 않는 경우
    */
   @Transactional
   public void deleteAllInterviewSchedule(String jobPostingKey, Long stepId,
@@ -189,28 +195,43 @@ public class InterviewScheduleParticipantsService {
     interviewScheduleRepository.delete(interviewScheduleEntity);
   }
 
-  // 첫번째 인터뷰 날짜인지 확인
-  public boolean isFirstInterview(InterviewScheduleParticipantsEntity participantsEntity,
+  /**
+   * 첫번째 인터뷰 날짜인지 확인
+   *
+   * @param participantsEntity 면접 일정에 포함된 지원자 엔티티
+   * @param interviewScheduleEntity 면접 일정 엔티티
+   * @return boolean : 첫번째 인터뷰 날짜인 경우 true, 아닌 경우 false
+   */
+  private boolean isFirstInterview(InterviewScheduleParticipantsEntity participantsEntity,
       InterviewScheduleEntity interviewScheduleEntity) {
-
     return participantsEntity.getInterviewStartDatetime().toLocalDate()
         .isEqual(interviewScheduleEntity.getFirstInterviewDate());
   }
 
-  // 마지막 인터뷰 날짜인지 확인
-  public boolean isLastInterview(InterviewScheduleParticipantsEntity participantsEntity,
+  /**
+   * 마지막 인터뷰 날짜인지 확인
+   *
+   * @param participantsEntity 면접 일정에 포함된 지원자 엔티티
+   * @param interviewScheduleEntity 면접 일정 엔티티
+   * @return boolean : 마지막 인터뷰 날짜인 경우 true, 아닌 경우 false
+   */
+  private boolean isLastInterview(InterviewScheduleParticipantsEntity participantsEntity,
       InterviewScheduleEntity interviewScheduleEntity) {
-
     return participantsEntity.getInterviewEndDatetime().toLocalDate()
         .isEqual(interviewScheduleEntity.getLastInterviewDate());
   }
 
-  // 본인 회사인지 체크
+  /**
+   * 본인 회사인지 체크
+   *
+   * @param userDetails 로그인 된 사용자 정보
+   * @param jobPostingKey 채용 공고 PK
+   * @throws CustomException COMPANY_NOT_FOUND : 회사를 찾을 수 없는 경우
+   * @throws CustomException JOB_POSTING_NOT_FOUND : 채용 공고를 찾을 수 없는 경우
+   * @throws CustomException NO_AUTHORITY : 로그인한 사용자의 회사키와 매개변수의 회사키가 일치하지 않는 경우
+   */
   private void checkOwner(UserDetails userDetails, String jobPostingKey) {
-
-    String userEmail = userDetails.getUsername();
-
-    CompanyEntity companyEntity = companyRepository.findByEmail(userEmail)
+    CompanyEntity companyEntity = companyRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new CustomException(
             ErrorCode.COMPANY_NOT_FOUND));
 
@@ -222,18 +243,23 @@ public class InterviewScheduleParticipantsService {
     }
   }
 
-  // 본인 회사인지 체크
+  /**
+   * 본인 회사인지 체크
+   *
+   * @param userDetails 로그인 된 사용자 정보
+   * @param interviewScheduleKey 면접 일정 PK
+   * @throws CustomException COMPANY_NOT_FOUND : 회사를 찾을 수 없는 경우
+   * @throws CustomException JOB_POSTING_NOT_FOUND : 채용 공고를 찾을 수 없는 경우
+   * @throws CustomException NO_AUTHORITY : 로그인한 사용자의 회사키와 매개변수의 회사키가 일치하지 않는 경우
+   */
   private void checkOwnerByInterviewScheduleKey(UserDetails userDetails,
       String interviewScheduleKey) {
-
-    String userEmail = userDetails.getUsername();
-
-    CompanyEntity companyEntity = companyRepository.findByEmail(userEmail)
+    CompanyEntity companyEntity = companyRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new CustomException(
             ErrorCode.COMPANY_NOT_FOUND));
 
-    InterviewScheduleParticipantsEntity interviewScheduleParticipantsEntity = interviewScheduleParticipantsRepository.findByInterviewScheduleKey(
-        interviewScheduleKey);
+    InterviewScheduleParticipantsEntity interviewScheduleParticipantsEntity
+        = interviewScheduleParticipantsRepository.findByInterviewScheduleKey(interviewScheduleKey);
 
     JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(
             interviewScheduleParticipantsEntity.getJobPostingKey())
@@ -242,6 +268,5 @@ public class InterviewScheduleParticipantsService {
     if (!jobPostingEntity.getCompanyKey().equals(companyEntity.getCompanyKey())) {
       throw new CustomException(ErrorCode.NO_AUTHORITY);
     }
-
   }
 }

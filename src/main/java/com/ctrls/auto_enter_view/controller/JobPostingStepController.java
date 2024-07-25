@@ -32,10 +32,9 @@ public class JobPostingStepController {
    */
   @GetMapping("/candidates-list")
   public ResponseEntity<List<JobPostingEveryInfoDto>> getCandidatesList(
-      @PathVariable String jobPostingKey) {
-
+      @AuthenticationPrincipal UserDetails userDetails, @PathVariable String jobPostingKey) {
     return ResponseEntity.ok(
-        jobPostingStepService.getCandidatesListByStepId(jobPostingKey));
+        jobPostingStepService.getCandidatesListByStepId(userDetails, jobPostingKey));
   }
 
   /**
@@ -51,8 +50,7 @@ public class JobPostingStepController {
       @RequestBody @Validated EditJobPostingStepDto request,
       @PathVariable String jobPostingKey,
       @AuthenticationPrincipal UserDetails userDetails) {
-
-    jobPostingStepService.editStepId(request.getCurrentStepId(), request.getCandidateKey(),
+    jobPostingStepService.editStepId(request.getCurrentStepId(), request.getCandidateKeys(),
         jobPostingKey, userDetails);
     return ResponseEntity.ok(ResponseMessage.SUCCESS_STEP_MOVEMENT.getMessage());
   }

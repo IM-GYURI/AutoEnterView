@@ -22,11 +22,13 @@ public enum ErrorCode {
   JOB_POSTING_HAS_CANDIDATES(409, "채용 공고에 이미 지원한 지원자가 존재합니다."),
   NOT_FOUND(404, "페이지를 찾을 수 없습니다."),
   NO_AUTHORITY(401, "권한이 없습니다."),
+  INVALID_EMAIL_OR_PASSWORD(401, "이메일 또는 비밀번호가 일치하지 않습니다."),
   PASSWORD_NOT_MATCH(400, "비밀번호가 일치하지 않습니다."),
   APPLICANT_NOT_FOUND(404, "지원자를 찾을 수 없습니다."),
   RESUME_NOT_FOUND(404, "지원자의 이력서를 찾을 수 없습니다"),
   TOKEN_BLACKLISTED(401, "토큰이 블랙리스트에 존재하여 사용할 수 없는 토큰입니다."),
   USER_NOT_FOUND(404, "사용자를 찾을 수 없습니다."),
+  KEY_NOT_MATCH(400, "키가 일치하지 않습니다."),
   USER_NOT_FOUND_BY_NAME_AND_PHONE(404, "입력한 이름과 전화번호로 등록된 사용자를 찾을 수 없습니다."),
   ALREADY_APPLIED(409, "이미 지원한 채용 공고입니다."),
   APPLY_NOT_FOUND(404, "채용 공고에 지원한 정보를 찾을 수 없습니다."),
@@ -43,7 +45,12 @@ public enum ErrorCode {
   CANDIDATE_INADEQUATE_ERROR(404, "일정 생성 수 보다 지원자가 부족합니다."),
   JOB_POSTING_KEY_NOT_FOUND(404, "채용 공고 KEY 를 찾지 못했습니다."),
   NEXT_STEP_NOT_FOUND(404, "다음 단계가 존재하지 않습니다."),
-  JOB_POSTING_EXPIRED(404, "마감일이 지난 채용 공고 입니다.");
+  JOB_POSTING_EXPIRED(404, "마감일이 지난 채용 공고 입니다."),
+  BLACKLIST_TOKEN_ADD_FAILED(500, "블랙리스트 토큰 추가에 실패했습니다."),
+  SCHEDULE_FAILED(500, "스케줄링에 실패하였습니다."),
+  UNSCHEDULE_FAILED(500, "스케줄링 취소에 실패하였습니다."),
+  FAILED_MAIL_SCHEDULING(500, "메일 예약 등록을 실패했습니다."),
+  FAILED_MAIL_UNSCHEDULING(500, "메일 예약 취소를 실패했습니다.");
 
   private final int status;
   private final String message;

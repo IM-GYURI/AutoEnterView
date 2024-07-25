@@ -6,7 +6,6 @@ import com.ctrls.auto_enter_view.entity.JobPostingTechStackEntity;
 import com.ctrls.auto_enter_view.enums.Education;
 import com.ctrls.auto_enter_view.enums.JobCategory;
 import com.ctrls.auto_enter_view.enums.TechStack;
-import com.ctrls.auto_enter_view.util.KeyGenerator;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -66,11 +65,11 @@ public class JobPostingDto {
     @Min(value = 1, message = "구인수는 1명 이상이어야 합니다.")
     private int passingNumber;
 
-    public static JobPostingEntity toEntity(String companyKey, Request request) {
+    public static JobPostingEntity toEntity(String key, String companyKey, Request request) {
 
       return JobPostingEntity.builder()
           .companyKey(companyKey)
-          .jobPostingKey(KeyGenerator.generateKey())
+          .jobPostingKey(key)
           .title(request.getTitle())
           .jobCategory(request.getJobCategory())
           .career(request.getCareer())

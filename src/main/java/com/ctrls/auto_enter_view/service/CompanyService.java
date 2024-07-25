@@ -20,8 +20,18 @@ public class CompanyService {
 
   private final CompanyRepository companyRepository;
   private final PasswordEncoder passwordEncoder;
+  private final KeyGenerator keyGenerator;
 
   // 회원 가입
+
+  /**
+   * 회사 회원 가입
+   *
+   * @param request SignUpDto.Request
+   * @return SignUpDto.Response
+   * @throws CustomException EMAIL_DUPLICATION : 이메일이 중복된 경우
+   * @throws CustomException COMPANY_NUMBER_DUPLICATION : 회사 전화번호가 중복된 경우
+   */
   public SignUpDto.Response signUp(SignUpDto.Request request) {
 
     // 이메일 중복 체크
@@ -35,7 +45,7 @@ public class CompanyService {
     }
 
     // 키 생성
-    String companyKey = KeyGenerator.generateKey();
+    String companyKey = keyGenerator.generateKey();
 
     CompanyEntity companyEntity = request.toEntity(companyKey,
         passwordEncoder.encode(request.getPassword()));
@@ -48,5 +58,4 @@ public class CompanyService {
         .name(saved.getCompanyName())
         .build();
   }
-
 }

@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.service;
 
+import com.ctrls.auto_enter_view.component.S3ImageUpload;
 import com.ctrls.auto_enter_view.dto.resume.ResumeDto;
 import com.ctrls.auto_enter_view.entity.ResumeImageEntity;
 import com.ctrls.auto_enter_view.repository.ResumeImageRepository;
@@ -18,10 +19,16 @@ import org.springframework.web.multipart.MultipartFile;
 public class ResumeImageService {
 
   private final ResumeImageRepository resumeImageRepository;
-  private final S3ImageUploadService s3ImageUploadService;
+  private final S3ImageUpload s3ImageUpload;
   private final ResumeRepository resumeRepository;
 
-  // 이미지 파일 업로드
+  /**
+   * 이미지 파일 업로드
+   *
+   * @param image     이미지 파일
+   * @param resumeKey 이력서 KEY
+   * @return 이력서 생성 DTO
+   */
   public ResumeDto.Response uploadImage(MultipartFile image, String resumeKey) {
 
     ResumeImageEntity resumeImage = resumeImageRepository.findByResumeKey(resumeKey)
@@ -31,19 +38,24 @@ public class ResumeImageService {
 
     // 기존 이미지가 있고, 새 이미지가 제공된 경우에만 기존 이미지 삭제
     if (resumeImage.getResumeImageUrl() != null) {
-      s3ImageUploadService.deleteImage(resumeImage.getResumeImageUrl());
+      s3ImageUpload.deleteImage(resumeImage.getResumeImageUrl());
     }
 
-    String imageUrl = s3ImageUploadService.uploadImage(image, "resume-images");
+    String imageUrl = s3ImageUpload.uploadImage(image, "resume-images");
     resumeImage.updateResumeImageUrl(imageUrl);
     resumeImageRepository.save(resumeImage);
 
     return new ResumeDto.Response(resumeKey, imageUrl);
   }
 
-
-  // 기존 이미지 정보 반환 -> 업데이트 시 확인
+  /**
+   * 기존 이미지 정보 반환 -> 업데이트 시 확인
+   *
+   * @param resumeKey 이력서 KEY
+   * @return 이력서 생성 DTO
+   */
   public ResumeDto.Response getExistingResumeImage(String resumeKey) {
+
     Optional<ResumeImageEntity> resumeImageOpt = resumeImageRepository.findByResumeKey(resumeKey);
 
     if (resumeImageOpt.isPresent()) {
@@ -56,6 +68,7 @@ public class ResumeImageService {
 
   // 이미지 파일 삭제
   public void deleteImage(String candidateKey) {
+
     resumeRepository.findByCandidateKey(candidateKey)
         .ifPresent(resume -> {
           String resumeKey = resume.getResumeKey();
@@ -63,10 +76,9 @@ public class ResumeImageService {
           resumeImageRepository.findByResumeKey(resumeKey)
               .ifPresent(image -> {
                 String imageUrl = image.getResumeImageUrl();
-                s3ImageUploadService.deleteImage(imageUrl);
+                s3ImageUpload.deleteImage(imageUrl);
                 resumeImageRepository.delete(image);
               });
         });
   }
-
 }

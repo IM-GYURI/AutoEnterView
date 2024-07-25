@@ -29,6 +29,7 @@ import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
+import com.ctrls.auto_enter_view.util.KeyGenerator;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,8 +39,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,16 +60,19 @@ public class JobPostingService {
   private final JobPostingImageService jobPostingImageService;
   private final FilteringService filteringService;
   private final MailComponent mailComponent;
+  private final KeyGenerator keyGenerator;
 
   /**
    * 채용 공고 생성하기
    *
-   * @param companyKey
-   * @param request
-   * @return
+   * @param companyKey 회사 KEY
+   * @param request    채용공고 생성 DTO
+   * @return 채용공고 ENTITY
+   * @throws CustomException COMPANY_NOT_FOUND 회사 계정 없음
+   * @throws CustomException NO_AUTHORITY 권한 없음
    */
-  public JobPostingEntity createJobPosting(UserDetails userDetails, String companyKey, Request request) {
-
+  public JobPostingEntity createJobPosting(UserDetails userDetails, String companyKey,
+      Request request) {
     // 회사 정보 조회
     CompanyEntity company = companyRepository.findByCompanyKey(companyKey)
         .orElseThrow(() -> new CustomException(COMPANY_NOT_FOUND));
@@ -80,7 +82,9 @@ public class JobPostingService {
       throw new CustomException(NO_AUTHORITY);
     }
 
-    JobPostingEntity entity = Request.toEntity(companyKey, request);
+    String key = keyGenerator.generateKey();
+
+    JobPostingEntity entity = Request.toEntity(key, companyKey, request);
 
     // 스케줄링 코드
     filteringService.scheduleResumeScoringJob(entity.getJobPostingKey(), entity.getEndDate());
@@ -91,10 +95,14 @@ public class JobPostingService {
   /**
    * 채용 공고 수정하기
    *
-   * @param jobPostingKey
-   * @param request
+   * @param userDetails   사용자 정보
+   * @param jobPostingKey 채용공고 KEY
+   * @param request       채용공고 수정 DTO
+   * @throws CustomException JOB_POSTING_NOT_FOUND 채용공고 없음
+   * @throws CustomException COMPANY_NOT_FOUND 회사 계정 없음
+   * @throws CustomException NO_AUTHORITY 권한 없음
    */
-  public void editJobPosting(String jobPostingKey, Request request) {
+  public void editJobPosting(UserDetails userDetails, String jobPostingKey, Request request) {
 
     JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(jobPostingKey)
         .orElseThrow(() -> new CustomException(JOB_POSTING_NOT_FOUND));
@@ -103,9 +111,7 @@ public class JobPostingService {
     List<CandidateListEntity> candidateListEntityList = candidateListRepository.findAllByJobPostingKeyAndJobPostingStepId(
         jobPostingKey, getJobPostingStepEntity(jobPostingKey).getId());
 
-    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-    CompanyEntity companyEntity = companyRepository.findByEmail(principal.getUsername())
+    CompanyEntity companyEntity = companyRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new CustomException(COMPANY_NOT_FOUND));
 
     if (!companyEntity.getCompanyKey().equals(jobPostingEntity.getCompanyKey())) {
@@ -128,17 +134,19 @@ public class JobPostingService {
   /**
    * 채용 공고 삭제하기
    *
-   * @param jobPostingKey
+   * @param jobPostingKey 채용공고 KEY
+   * @throws CustomException JOB_POSTING_HAS_CANDIDATES 채용공고에 지원자가 있음
+   * @throws CustomException COMPANY_NOT_FOUND 회사 계정 없음
+   * @throws CustomException JOB_POSTING_NOT_FOUND 채용공고 없음
+   * @throws CustomException NO_AUTHORITY 권한 없음
    */
-  public void deleteJobPosting(String jobPostingKey) {
+  public void deleteJobPosting(UserDetails userDetails, String jobPostingKey) {
 
     if (verifyExistsByJobPostingKey(jobPostingKey)) {
       throw new CustomException(JOB_POSTING_HAS_CANDIDATES);
     }
 
-    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-    CompanyEntity companyEntity = companyRepository.findByEmail(principal.getUsername())
+    CompanyEntity companyEntity = companyRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new CustomException(COMPANY_NOT_FOUND));
 
     JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(jobPostingKey)
@@ -155,14 +163,13 @@ public class JobPostingService {
   /**
    * 회사 본인이 등록한 채용공고 목록 조회
    *
-   * @param companyKey
-   * @return
+   * @param companyKey 회사 KEY
+   * @return 회사의 채용공고 정보 리스트
    */
-  public List<JobPostingInfoDto> getJobPostingsByCompanyKey(
+  public List<JobPostingInfoDto> getJobPostingsByCompanyKey(UserDetails userDetails,
       String companyKey) {
 
-    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    CompanyEntity company = findCompanyByPrincipal(principal);
+    CompanyEntity company = findCompanyByPrincipal(userDetails);
 
     verifyCompanyOwnership(company, companyKey);
 
@@ -174,20 +181,20 @@ public class JobPostingService {
         .collect(Collectors.toList());
   }
 
-
   /**
    * Main 화면 채용 공고 조회
    *
-   * @param page
-   * @param size
-   * @return
+   * @param page 페이지
+   * @param size 페이지에 담길 개수
+   * @return 채용공고 페이지
    */
   public MainJobPostingDto.Response getAllJobPosting(int page, int size) {
 
     Pageable pageable = PageRequest.of(page - 1, size);
     LocalDate currentDate = LocalDate.now();
 
-    Page<JobPostingEntity> jobPostingPage = jobPostingRepository.findByEndDateGreaterThanEqual(currentDate, pageable);
+    Page<JobPostingEntity> jobPostingPage = jobPostingRepository.findByEndDateGreaterThanEqual(
+        currentDate, pageable);
     List<MainJobPostingDto.JobPostingMainInfo> jobPostingMainInfoList = new ArrayList<>();
 
     for (JobPostingEntity entity : jobPostingPage.getContent()) {
@@ -206,8 +213,10 @@ public class JobPostingService {
   /**
    * 채용 공고 상세 보기
    *
-   * @param jobPostingKey
-   * @return
+   * @param jobPostingKey 채용공고 KEY
+   * @return 채용공고 상세 조회 DTO
+   * @throws CustomException JOB_POSTING_NOT_FOUND 채용공고 없음
+   * @throws CustomException JOB_POSTING_EXPIRED 채용공고 마감됨
    */
   public JobPostingDetailDto.Response getJobPostingDetail(String jobPostingKey) {
 
@@ -217,7 +226,8 @@ public class JobPostingService {
         .orElseThrow(() -> new CustomException(JOB_POSTING_NOT_FOUND));
 
     // 마감일 지났는지 체크
-    if (!jobPostingRepository.existsByJobPostingKeyAndEndDateGreaterThanEqual(jobPostingKey, currentDate)) {
+    if (!jobPostingRepository.existsByJobPostingKeyAndEndDateGreaterThanEqual(jobPostingKey,
+        currentDate)) {
       throw new CustomException(ErrorCode.JOB_POSTING_EXPIRED);
     }
 
@@ -231,8 +241,10 @@ public class JobPostingService {
   /**
    * 채용 공고 지원하기
    *
-   * @param jobPostingKey
-   * @param candidateKey
+   * @param jobPostingKey 채용공고 KEY
+   * @param candidateKey  지원자 KEY
+   * @throws CustomException JOB_POSTING_NOT_FOUND 채용공고 없음
+   * @throws CustomException ALREADY_APPLIED 이미 지원한 채용공고
    */
   @Transactional
   public void applyJobPosting(String jobPostingKey, String candidateKey) {
@@ -270,14 +282,13 @@ public class JobPostingService {
 
     appliedJobPostingRepository.save(appliedJobPostingEntity);
     log.info("AppliedJobPosting 추가 완료");
-
   }
 
   /**
    * 이미지 URL 가져오기
    *
-   * @param jobPostingKey
-   * @return
+   * @param jobPostingKey 채용공고 KEY
+   * @return S3 리소스 URL
    */
   private String getImageUrl(String jobPostingKey) {
 
@@ -288,8 +299,9 @@ public class JobPostingService {
 
   /**
    * 채용 공고 단계 중 맨 처음 단계 가져오기
-   * @param jobPostingKey
-   * @return
+   *
+   * @param jobPostingKey 채용공고 KEY
+   * @return 채용 단계 ENTITY
    */
   private JobPostingStepEntity getJobPostingStepEntity(String jobPostingKey) {
 
@@ -300,20 +312,20 @@ public class JobPostingService {
   /**
    * 사용자 인증 정보로 회사 entity 찾기
    *
-   * @param principal
-   * @return
+   * @param userDetails 사용자 정보
+   * @return 회사 ENTITY
    */
-  private CompanyEntity findCompanyByPrincipal(User principal) {
+  private CompanyEntity findCompanyByPrincipal(UserDetails userDetails) {
 
-    return companyRepository.findByEmail(principal.getUsername())
+    return companyRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
   }
 
   /**
    * 회사 본인인지 확인
    *
-   * @param company
-   * @param companyKey
+   * @param company    회사 ENTITY
+   * @param companyKey 회사 KEY
    */
   private void verifyCompanyOwnership(CompanyEntity company, String companyKey) {
 
@@ -325,8 +337,8 @@ public class JobPostingService {
   /**
    * 채용 공고에 지원한 지원자가 존재하는지 확인 : 채용 공고의 첫번째 단계에 해당하는 지원자 목록 확인
    *
-   * @param jobPostingKey
-   * @return
+   * @param jobPostingKey 채용공고 KEY
+   * @return 지원자 존재시 TRUE, 없을 시 FALSE
    */
   private boolean verifyExistsByJobPostingKey(String jobPostingKey) {
 
@@ -339,8 +351,8 @@ public class JobPostingService {
   /**
    * 전체 체용 공고 List 들어갈 정보
    *
-   * @param entity
-   * @return
+   * @param entity 채용공고 ENTITY
+   * @return 채용공고 정보 DTO
    */
   private JobPostingMainInfo createJobPostingMainInfo(JobPostingEntity entity) {
 
@@ -353,8 +365,8 @@ public class JobPostingService {
   /**
    * 회사 이름 가져오기
    *
-   * @param companyKey
-   * @return
+   * @param companyKey 회사 KEY
+   * @return 회사 이름 STRING
    */
   private String getCompanyName(String companyKey) {
 
@@ -369,8 +381,8 @@ public class JobPostingService {
   /**
    * 기술 스택 가져오기
    *
-   * @param jobPostingKey
-   * @return
+   * @param jobPostingKey 채용공고 KEY
+   * @return 기술스택 리스트
    */
   private List<TechStack> getTechStack(String jobPostingKey) {
 
@@ -381,10 +393,10 @@ public class JobPostingService {
   }
 
   /**
-   * 채용 일정 가져오기
+   * 채용 단계 가져오기
    *
-   * @param jobPostingKey
-   * @return
+   * @param jobPostingKey 채용공고 KEY
+   * @return 채용 단계 리스트
    */
   private List<String> getStep(String jobPostingKey) {
 
@@ -396,8 +408,8 @@ public class JobPostingService {
   /**
    * 지원자에게 이메일 보내기 메서드
    *
-   * @param candidates
-   * @param jobPostingEntity
+   * @param candidates       지원자 리스트
+   * @param jobPostingEntity 채용공고 ENTITY
    */
   private void notifyCandidates(List<CandidateListEntity> candidates,
       JobPostingEntity jobPostingEntity) {
