@@ -63,9 +63,6 @@ class CommonUserServiceTest {
   private ValueOperations<String, String> valueOperations;
 
   @Mock
-  private JwtTokenProvider jwtTokenProvider;
-
-  @Mock
   private BlacklistTokenService blacklistTokenService;
 
   @Mock
