@@ -25,7 +25,6 @@ import com.ctrls.auto_enter_view.enums.UserRole;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
-import com.ctrls.auto_enter_view.security.JwtTokenProvider;
 import com.ctrls.auto_enter_view.util.KeyGenerator;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -60,9 +59,6 @@ class CommonUserServiceTest {
 
   @Mock
   private ValueOperations<String, String> valueOperations;
-
-  @Mock
-  private JwtTokenProvider jwtTokenProvider;
 
   @Mock
   private BlacklistTokenService blacklistTokenService;
