@@ -1,7 +1,10 @@
 package com.ctrls.auto_enter_view.service;
 
+import static com.ctrls.auto_enter_view.enums.ErrorCode.COMPANY_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_HAS_CANDIDATES;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_STEP_NOT_FOUND;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.NO_AUTHORITY;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -465,7 +468,7 @@ class JobPostingServiceTest {
 
   }
 
-//  @Test
+  //  @Test
 //  @DisplayName("채용 공고 수정 성공 테스트")
 //  void testEditJobPosting() {
 //    // given
@@ -592,108 +595,249 @@ class JobPostingServiceTest {
 //        "지원해주신 <strong>[edit title]</strong>의 공고 내용이 수정되었습니다. 확인 부탁드립니다.<br><br><a href=\"http://localhost:8080/common/job-postings/JobPostingKey\">수정된 채용 공고 확인하기</a>"));
 //  }
 //
-//  @Test
-//  @DisplayName("채용 공고 삭제 성공 테스트")
-//  void testDeleteJobPosting() {
-//    //given
-//    String jobPostingKey = "jobPostingKey";
-//    String companyKey = "companyKey";
-//
-//    JobPostingEntity jobPostingEntity = JobPostingEntity.builder()
-//        .jobPostingKey(jobPostingKey)
-//        .companyKey(companyKey)
-//        .title("title")
-//        .jobCategory("jobCategory")
-//        .career(3)
-//        .workLocation("workLocation")
-//        .education("education")
-//        .employmentType("employmentType")
-//        .salary(3000L)
-//        .workTime("workTime")
-//        .startDate(LocalDate.of(2024, 7, 15))
-//        .endDate(LocalDate.of(2024, 7, 20))
-//        .jobPostingContent("content")
-//        .build();
-//
-//    JobPostingStepEntity jobPostingStep = JobPostingStepEntity.builder()
-//        .jobPostingKey(jobPostingKey)
-//        .id(1L)
-//        .build();
-//
-//    CompanyEntity companyEntity = CompanyEntity.builder()
-//        .companyKey(companyKey)
-//        .email("email")
-//        .password("password")
-//        .companyName("companyName")
-//        .companyNumber("02-333-3333")
-//        .role(UserRole.ROLE_COMPANY)
-//        .build();
-//
-//    UserDetails userDetails = User.withUsername(companyEntity.getEmail())
-//        .password(companyEntity.getPassword())
-//        .roles("COMPANY").build();
-//    SecurityContextHolder.setContext(securityContext);
-//
-//    when(jobPostingRepository.findByJobPostingKey(jobPostingKey))
-//        .thenReturn(Optional.of(jobPostingEntity));
-//    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey))
-//        .thenReturn(Optional.of(jobPostingStep));
-//    when(candidateListRepository.existsByJobPostingKeyAndJobPostingStepId(jobPostingKey, 1L))
-//        .thenReturn(false);
-//
-//    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
-//        Optional.of(companyEntity));
-//    when(securityContext.getAuthentication()).thenReturn(
-//        new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(),
-//            userDetails.getAuthorities()));
-//
-//    //when
-//    jobPostingService.deleteJobPosting(jobPostingKey);
-//
-//    //then
-//    verify(jobPostingRepository, times(1)).deleteByJobPostingKey(jobPostingKey);
-//  }
-//
-//  @Test
-//  @DisplayName("채용 공고 삭제 실패 테스트 - 지원자가 있는 경우")
-//  void testDeleteJobPostingWithCandidates() {
-//    //given
-//    String jobPostingKey = "jobPostingKey";
-//    JobPostingStepEntity jobPostingStep = JobPostingStepEntity.builder()
-//        .jobPostingKey(jobPostingKey)
-//        .id(1L)
-//        .build();
-//    CandidateListEntity candidate = new CandidateListEntity();
-//
-//    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey))
-//        .thenReturn(Optional.of(jobPostingStep));
-//    when(candidateListRepository.existsByJobPostingKeyAndJobPostingStepId(jobPostingKey, 1L))
-//        .thenReturn(true);
-//
-//    //when, then
-//    CustomException exception = assertThrows(CustomException.class, () -> {
-//      jobPostingService.deleteJobPosting(jobPostingKey);
-//    });
-//
-//    assertEquals(JOB_POSTING_HAS_CANDIDATES, exception.getErrorCode());
-//    verify(jobPostingRepository, never()).deleteByJobPostingKey(jobPostingKey);
-//  }
-//
-//  @Test
-//  @DisplayName("채용 공고 삭제 실패 테스트 - 첫번째 단계가 없는 경우")
-//  void testDeleteJobPostingWithoutFirstStep() {
-//    //given
-//    String jobPostingKey = "jobPostingKey";
-//
-//    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey))
-//        .thenReturn(Optional.empty());
-//
-//    //when, then
-//    CustomException exception = assertThrows(CustomException.class, () -> {
-//      jobPostingService.deleteJobPosting(jobPostingKey);
-//    });
-//
-//    assertEquals(JOB_POSTING_STEP_NOT_FOUND, exception.getErrorCode());
-//    verify(jobPostingRepository, never()).deleteByJobPostingKey(jobPostingKey);
-//  }
+  @Test
+  @DisplayName("채용 공고 삭제 성공 테스트")
+  void testDeleteJobPosting() {
+    //given
+    String email = "email";
+    String password = "password";
+    String jobPostingKey = "jobPostingKey";
+    String companyKey = "companyKey";
+
+    JobPostingEntity jobPostingEntity = JobPostingEntity.builder()
+        .jobPostingKey(jobPostingKey)
+        .companyKey(companyKey)
+        .build();
+
+    JobPostingStepEntity jobPostingStepEntity = JobPostingStepEntity.builder()
+        .id(1L)
+        .build();
+
+    CompanyEntity companyEntity = CompanyEntity.builder()
+        .companyKey(companyKey)
+        .build();
+
+    UserDetails userDetails = User.withUsername(email)
+        .password(password)
+        .roles("COMPANY").build();
+
+    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
+        Optional.of(companyEntity));
+
+    when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(
+        Optional.of(jobPostingEntity));
+
+    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey)).thenReturn(
+        Optional.of(jobPostingStepEntity));
+
+    //when
+    jobPostingService.deleteJobPosting(userDetails, jobPostingKey);
+
+    //then
+    verify(jobPostingRepository, times(1)).deleteByJobPostingKey(jobPostingKey);
+    assertEquals(companyEntity.getCompanyKey(), jobPostingEntity.getCompanyKey());
+
+  }
+
+
+  @Test
+  @DisplayName("채용 공고 삭제 실패 테스트 -> JOB_POSTING_HAS_CANDIDATES")
+  void deleteFailTestJobPostingHasCandidatesError() {
+    // given
+    String email = "email";
+    String password = "password";
+    String jobPostingKey = "jobPostingKey";
+
+    UserDetails userDetails = User.withUsername(email)
+        .password(password)
+        .roles("COMPANY").build();
+
+    JobPostingStepEntity jobPostingStepEntity = JobPostingStepEntity.builder()
+        .id(1L)
+        .build();
+
+    Long firstStep = jobPostingStepEntity.getId();
+
+    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey)).thenReturn(
+        Optional.of(jobPostingStepEntity));
+
+    when(candidateListRepository.existsByJobPostingKeyAndJobPostingStepId(jobPostingKey,
+        firstStep)).thenReturn(true);
+
+    // when
+    CustomException customException = assertThrows(CustomException.class,
+        () -> jobPostingService.deleteJobPosting(userDetails, jobPostingKey));
+
+    // then
+    verify(jobPostingStepRepository, times(1)).findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey);
+    verify(candidateListRepository, times(1)).existsByJobPostingKeyAndJobPostingStepId(
+        jobPostingKey, firstStep);
+
+    assertEquals(JOB_POSTING_HAS_CANDIDATES, customException.getErrorCode());
+  }
+
+  @Test
+  @DisplayName("채용 공고 삭제 실패 테스트 -> JOB_POSTING_STEP_NOT_FOUND")
+  void deleteFailTestJobPostingStepNotFoundError() {
+    // given
+    String email = "email";
+    String password = "password";
+    String jobPostingKey = "jobPostingKey";
+
+    UserDetails userDetails = User.withUsername(email)
+        .password(password)
+        .roles("COMPANY").build();
+
+    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey)).thenReturn(
+        Optional.empty());
+
+    // when
+    CustomException customException = assertThrows(CustomException.class,
+        () -> jobPostingService.deleteJobPosting(userDetails, jobPostingKey));
+
+    // then
+    verify(jobPostingStepRepository, times(1)).findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey);
+
+    assertEquals(JOB_POSTING_STEP_NOT_FOUND, customException.getErrorCode());
+  }
+
+  @Test
+  @DisplayName("채용 공고 삭제 실패 테스트 -> COMPANY_NOT_FOUND")
+  void deleteFailTestCompanyNotFoundError() {
+    // given
+    String email = "email";
+    String password = "password";
+    String jobPostingKey = "jobPostingKey";
+
+    UserDetails userDetails = User.withUsername(email)
+        .password(password)
+        .roles("COMPANY").build();
+
+    JobPostingStepEntity jobPostingStepEntity = JobPostingStepEntity.builder()
+        .id(1L)
+        .build();
+
+    Long firstStep = jobPostingStepEntity.getId();
+
+    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey)).thenReturn(
+        Optional.of(jobPostingStepEntity));
+
+    when(candidateListRepository.existsByJobPostingKeyAndJobPostingStepId(jobPostingKey,
+        firstStep)).thenReturn(false);
+
+    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(Optional.empty());
+
+    // when
+    CustomException customException = assertThrows(CustomException.class,
+        () -> jobPostingService.deleteJobPosting(userDetails, jobPostingKey));
+
+    // then
+    verify(jobPostingStepRepository, times(1)).findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey);
+    verify(candidateListRepository, times(1)).existsByJobPostingKeyAndJobPostingStepId(
+        jobPostingKey, firstStep);
+    verify(companyRepository, times(1)).findByEmail(userDetails.getUsername());
+
+    assertEquals(COMPANY_NOT_FOUND, customException.getErrorCode());
+  }
+
+
+  @Test
+  @DisplayName("채용 공고 삭제 실패 테스트 -> JOB_POSTING_NOT_FOUND")
+  void deleteFailTestJobPostingyNotFoundError() {
+    // given
+    String email = "email";
+    String password = "password";
+    String jobPostingKey = "jobPostingKey";
+
+    UserDetails userDetails = User.withUsername(email)
+        .password(password)
+        .roles("COMPANY").build();
+
+    JobPostingStepEntity jobPostingStepEntity = JobPostingStepEntity.builder()
+        .id(1L)
+        .build();
+
+    Long firstStep = jobPostingStepEntity.getId();
+
+    CompanyEntity companyEntity = new CompanyEntity();
+
+    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey)).thenReturn(
+        Optional.of(jobPostingStepEntity));
+
+    when(candidateListRepository.existsByJobPostingKeyAndJobPostingStepId(jobPostingKey,
+        firstStep)).thenReturn(false);
+
+    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
+        Optional.of(companyEntity));
+
+    when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(Optional.empty());
+
+    // when
+    CustomException customException = assertThrows(CustomException.class,
+        () -> jobPostingService.deleteJobPosting(userDetails, jobPostingKey));
+
+    // then
+    verify(jobPostingStepRepository, times(1)).findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey);
+    verify(candidateListRepository, times(1)).existsByJobPostingKeyAndJobPostingStepId(
+        jobPostingKey, firstStep);
+    verify(companyRepository, times(1)).findByEmail(userDetails.getUsername());
+    verify(jobPostingRepository, times(1)).findByJobPostingKey(jobPostingKey);
+
+    assertEquals(JOB_POSTING_NOT_FOUND, customException.getErrorCode());
+  }
+
+  @Test
+  @DisplayName("채용 공고 삭제 실패 테스트 -> NO_AUTHORITY")
+  void deleteFailTestNoAuthorityError() {
+    // given
+    String email = "email";
+    String password = "password";
+    String jobPostingKey = "jobPostingKey";
+    String companyKey = "companyKey";
+
+    UserDetails userDetails = User.withUsername(email)
+        .password(password)
+        .roles("COMPANY").build();
+
+    JobPostingStepEntity jobPostingStepEntity = JobPostingStepEntity.builder()
+        .id(1L)
+        .build();
+
+    Long firstStep = jobPostingStepEntity.getId();
+
+    CompanyEntity companyEntity = CompanyEntity.builder()
+        .companyKey(companyKey)
+        .build();
+
+    JobPostingEntity jobPostingEntity = JobPostingEntity.builder()
+        .companyKey("companyKey2")
+        .build();
+
+    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey)).thenReturn(
+        Optional.of(jobPostingStepEntity));
+
+    when(candidateListRepository.existsByJobPostingKeyAndJobPostingStepId(jobPostingKey,
+        firstStep)).thenReturn(false);
+
+    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
+        Optional.of(companyEntity));
+
+    when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(
+        Optional.of(jobPostingEntity));
+
+    // when
+    CustomException customException = assertThrows(CustomException.class,
+        () -> jobPostingService.deleteJobPosting(userDetails, jobPostingKey));
+
+    // then
+    verify(jobPostingStepRepository, times(1)).findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey);
+    verify(candidateListRepository, times(1)).existsByJobPostingKeyAndJobPostingStepId(
+        jobPostingKey, firstStep);
+    verify(companyRepository, times(1)).findByEmail(userDetails.getUsername());
+    verify(jobPostingRepository, times(1)).findByJobPostingKey(jobPostingKey);
+
+    assertEquals(NO_AUTHORITY, customException.getErrorCode());
+  }
+
+
 }
