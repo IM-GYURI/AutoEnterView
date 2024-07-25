@@ -30,11 +30,13 @@ public class AppliedJobPostingEntity {
   @Column(nullable = false)
   private String candidateKey;
 
-  private LocalDate startDate;
+  private LocalDate appliedDate;
+  private LocalDate endDate;
   private String stepName;
   private String title;
 
   public void updateStepName(String newStepName) {
+
     this.stepName = newStepName;
   }
 }

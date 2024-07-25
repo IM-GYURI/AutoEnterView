@@ -71,6 +71,7 @@ public class JobPostingService {
    * @throws CustomException COMPANY_NOT_FOUND 회사 계정 없음
    * @throws CustomException NO_AUTHORITY 권한 없음
    */
+  @Transactional
   public JobPostingEntity createJobPosting(UserDetails userDetails, String companyKey,
       Request request) {
     // 회사 정보 조회
@@ -102,6 +103,7 @@ public class JobPostingService {
    * @throws CustomException COMPANY_NOT_FOUND 회사 계정 없음
    * @throws CustomException NO_AUTHORITY 권한 없음
    */
+  @Transactional
   public void editJobPosting(UserDetails userDetails, String jobPostingKey, Request request) {
 
     JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(jobPostingKey)
@@ -121,6 +123,9 @@ public class JobPostingService {
     // 이전에 스케줄된 작업 취소
     filteringService.unscheduleResumeScoringJob(jobPostingKey);
 
+    // 마감날짜 변경하는 지 확인
+    boolean willChangeEndDate = !jobPostingEntity.getEndDate().isEqual(request.getEndDate());
+
     // 채용 공고 수정
     jobPostingEntity.updateEntity(request);
 
@@ -129,6 +134,12 @@ public class JobPostingService {
 
     // 지원자 목록을 순회하며 이메일 보내기
     notifyCandidates(candidateListEntityList, jobPostingEntity);
+
+    // 지원한 공고 목록 마감날짜 업데이트 하기
+    if (willChangeEndDate) {
+      appliedJobPostingRepository.updateEndDateByJobPostingKey(
+          jobPostingEntity.getEndDate(), jobPostingKey);
+    }
   }
 
   /**
@@ -140,6 +151,7 @@ public class JobPostingService {
    * @throws CustomException JOB_POSTING_NOT_FOUND 채용공고 없음
    * @throws CustomException NO_AUTHORITY 권한 없음
    */
+  @Transactional
   public void deleteJobPosting(UserDetails userDetails, String jobPostingKey) {
 
     if (verifyExistsByJobPostingKey(jobPostingKey)) {
@@ -166,6 +178,7 @@ public class JobPostingService {
    * @param companyKey 회사 KEY
    * @return 회사의 채용공고 정보 리스트
    */
+  @Transactional(readOnly = true)
   public List<JobPostingInfoDto> getJobPostingsByCompanyKey(UserDetails userDetails,
       String companyKey) {
 
@@ -189,6 +202,7 @@ public class JobPostingService {
    * @return 채용공고 페이지
    */
   // TODO : 회사가 탈퇴했을 때, 발생하는 문제점 해결하기 - 탈퇴한 회사 이름을 가져오지 못해 에러 발생 상황이 있었음
+  @Transactional(readOnly = true)
   public MainJobPostingDto.Response getAllJobPosting(int page, int size) {
 
     Pageable pageable = PageRequest.of(page - 1, size);
@@ -225,6 +239,7 @@ public class JobPostingService {
    * @throws CustomException JOB_POSTING_NOT_FOUND 채용공고 없음
    * @throws CustomException JOB_POSTING_EXPIRED 채용공고 마감됨
    */
+  @Transactional(readOnly = true)
   public JobPostingDetailDto.Response getJobPostingDetail(String jobPostingKey) {
 
     LocalDate currentDate = LocalDate.now();
@@ -282,7 +297,8 @@ public class JobPostingService {
     AppliedJobPostingEntity appliedJobPostingEntity = AppliedJobPostingEntity.builder()
         .jobPostingKey(jobPostingKey)
         .candidateKey(candidateKey)
-        .startDate(LocalDate.now())
+        .appliedDate(LocalDate.now())
+        .endDate(jobPostingEntity.getEndDate())
         .stepName("지원 완료")
         .title(jobPostingEntity.getTitle())
         .build();
@@ -376,6 +392,7 @@ public class JobPostingService {
    * @return 회사 이름 STRING, 회사를 찾지 못한 경우 대체 문자열 반환
    */
   private String getCompanyName(String companyKey) {
+
     return companyRepository.findByCompanyKey(companyKey)
         .map(CompanyEntity::getCompanyName)
         .orElseGet(() -> {
@@ -383,6 +400,7 @@ public class JobPostingService {
           return "탈퇴한 회사";
         });
   }
+
   /**
    * 기술 스택 가져오기
    *
