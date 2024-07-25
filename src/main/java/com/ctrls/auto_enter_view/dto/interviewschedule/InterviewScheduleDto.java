@@ -2,7 +2,6 @@ package com.ctrls.auto_enter_view.dto.interviewschedule;
 
 import com.ctrls.auto_enter_view.entity.InterviewScheduleEntity;
 import com.ctrls.auto_enter_view.entity.InterviewScheduleParticipantsEntity;
-import com.ctrls.auto_enter_view.util.KeyGenerator;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -34,14 +33,14 @@ public class InterviewScheduleDto {
     @Min(value = 1, message = "횟수는 1분 이상이어야 합니다.")
     private int times;
 
-    public static InterviewScheduleEntity toEntity(String jobPostingKey, Long stepId,
+    public static InterviewScheduleEntity toEntity(String key, String jobPostingKey, Long stepId,
         List<Request> request) {
 
       LocalDate firstDate = request.get(0).getStartDate();
       LocalDate lastDate = request.get(request.size() - 1).getStartDate();
 
       return InterviewScheduleEntity.builder()
-          .interviewScheduleKey(KeyGenerator.generateKey())
+          .interviewScheduleKey(key)
           .jobPostingStepId(stepId)
           .jobPostingKey(jobPostingKey)
           .firstInterviewDate(firstDate)
@@ -84,11 +83,11 @@ public class InterviewScheduleDto {
     @NotNull(message = "종료일자는 필수 입력값 입니다.")
     private LocalDate endDate;
 
-    public static InterviewScheduleEntity toEntity(String jobPostingKey, Long stepId,
+    public static InterviewScheduleEntity toEntity(String key, String jobPostingKey, Long stepId,
         TaskRequest taskRequest) {
 
       return InterviewScheduleEntity.builder()
-          .interviewScheduleKey(KeyGenerator.generateKey())
+          .interviewScheduleKey(key)
           .jobPostingStepId(stepId)
           .jobPostingKey(jobPostingKey)
           .lastInterviewDate(taskRequest.getEndDate())
