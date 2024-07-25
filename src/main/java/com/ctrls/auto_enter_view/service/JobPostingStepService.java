@@ -56,7 +56,7 @@ public class JobPostingStepService {
   /**
    * 채용 공고 단계 생성하기
    *
-   * @param entity JobPostingEntity
+   * @param entity  JobPostingEntity
    * @param request JobPostingDto.Request
    */
   public void createJobPostingStep(JobPostingEntity entity, JobPostingDto.Request request) {
@@ -74,7 +74,7 @@ public class JobPostingStepService {
   }
 
   /**
-   * 전체 채용 단계의 지원자 리스트 조회 채용단계 ID - 지원자 key, 지원자 이름, 이력서 key, 기술 스택 리스트, 면접 일시?
+   * 전체 채용 단계의 지원자 리스트 조회 채용단계 ID - 지원자 key, 지원자 이름, 이력서 key, 기술 스택 리스트, 면접 일시
    *
    * @param jobPostingKey 채용공고 KEY
    * @return 채용 단계의 모든 정보 리스트
@@ -188,8 +188,7 @@ public class JobPostingStepService {
    * @return JobPostingEntity
    * @throws CustomException JOB_POSTING_NOT_FOUND : 채용 공고를 찾을 수 없는 경우
    */
-  public JobPostingEntity findJobPostingEntityByJobPostingKey(String jobPostingKey) {
-
+  private JobPostingEntity findJobPostingEntityByJobPostingKey(String jobPostingKey) {
     return jobPostingRepository.findByJobPostingKey(jobPostingKey)
         .orElseThrow(() -> new CustomException(JOB_POSTING_NOT_FOUND));
   }
@@ -202,7 +201,6 @@ public class JobPostingStepService {
    * @throws CustomException USER_NOT_FOUND : 사용자를 찾을 수 없는 경우
    */
   private CompanyEntity findCompanyByPrincipal(UserDetails userDetails) {
-
     return companyRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
   }
@@ -210,12 +208,11 @@ public class JobPostingStepService {
   /**
    * 채용 공고를 올린 회사 본인인지 확인
    *
-   * @param company CompanyEntity
+   * @param company    CompanyEntity
    * @param jobPosting JobPostingEntity
    * @throws CustomException USER_NOT_FOUND : 사용자를 찾을 수 없는 경우
    */
   private void verifyCompanyOwnership(CompanyEntity company, JobPostingEntity jobPosting) {
-
     if (!company.getCompanyKey().equals(jobPosting.getCompanyKey())) {
       throw new CustomException(USER_NOT_FOUND);
     }
@@ -225,11 +222,10 @@ public class JobPostingStepService {
    * 해당 채용공고에 지정된 단계에 속하는 지원자 목록 조회
    *
    * @param jobPostingKey 채용 공고 PK
-   * @param stepId 채용 단계 PK
+   * @param stepId        채용 단계 PK
    * @return List<CandidateListEntity>
    */
   private List<CandidateListEntity> getCandidateList(String jobPostingKey, Long stepId) {
-
     return candidateListRepository.findAllByJobPostingKeyAndJobPostingStepId(jobPostingKey, stepId);
   }
 
@@ -241,7 +237,6 @@ public class JobPostingStepService {
    * @throws CustomException RESUME_NOT_FOUND : 이력서를 찾을 수 없는 경우
    */
   private ResumeEntity findResumeEntityByCandidateKey(String candidateKey) {
-
     return resumeRepository.findByCandidateKey(candidateKey)
         .orElseThrow(() -> new CustomException(RESUME_NOT_FOUND));
   }
@@ -253,7 +248,6 @@ public class JobPostingStepService {
    * @return List<TechStack>
    */
   private List<TechStack> findTechStackByResumeKey(String resumeKey) {
-
     return resumeTechStackRepository.findAllByResumeKey(resumeKey)
         .stream()
         .map(ResumeTechStackEntity::getTechStackName)
@@ -264,12 +258,11 @@ public class JobPostingStepService {
    * 면접 : CandidateListEntity & stepId -> CandidateTechStackInterviewInfoDto 매핑
    *
    * @param candidateListEntity CandidateListEntity
-   * @param stepId 채용 공고 단계 PK
+   * @param stepId              채용 공고 단계 PK
    * @return CandidateTechStackInterviewInfoDto.Response
    */
   private CandidateTechStackInterviewInfoDto mapToCandidateTechStackListDtoInterview(
       CandidateListEntity candidateListEntity, Long stepId) {
-
     ResumeEntity resumeEntity = findResumeEntityByCandidateKey(
         candidateListEntity.getCandidateKey());
 
@@ -292,12 +285,11 @@ public class JobPostingStepService {
    * CandidateListEntity & stepId -> CandidateTechStackInterviewInfoDto 매핑
    *
    * @param candidateListEntity CandidateListEntity
-   * @param stepId 채용 공고 단계 PK
+   * @param stepId              채용 공고 단계 PK
    * @return CandidateTechStackInterviewInfoDto.Response
    */
   private CandidateTechStackInterviewInfoDto mapToCandidateTechStackListDtoTask(
       CandidateListEntity candidateListEntity, Long stepId) {
-
     ResumeEntity resumeEntity = findResumeEntityByCandidateKey(
         candidateListEntity.getCandidateKey());
 
@@ -332,7 +324,6 @@ public class JobPostingStepService {
    */
   private CandidateTechStackInterviewInfoDto mapToCandidateTechStackListDtoNothing(
       CandidateListEntity candidateListEntity) {
-
     ResumeEntity resumeEntity = findResumeEntityByCandidateKey(
         candidateListEntity.getCandidateKey());
 
@@ -348,7 +339,7 @@ public class JobPostingStepService {
   }
 
   /**
-   *채용 공고 단계 삭제하기
+   * 채용 공고 단계 삭제하기
    *
    * @param jobPostingKey 채용 공고 PK
    */
@@ -363,8 +354,9 @@ public class JobPostingStepService {
    * @param currentStepId 현재 채용 공고 단계 ID (PK)
    * @param candidateKeys 지원자 PK
    * @param jobPostingKey 채용 공고 PK
-   * @param userDetails 로그인 된 사용자 정보
-   * @throws CustomException COMPANY_NOT_FOUND, JOB_POSTING_NOT_FOUND, NO_AUTHORITY, NEXT_STEP_NOT_FOUND, CANDIDATE_NOT_FOUND
+   * @param userDetails   로그인 된 사용자 정보
+   * @throws CustomException COMPANY_NOT_FOUND, JOB_POSTING_NOT_FOUND, NO_AUTHORITY,
+   *                         NEXT_STEP_NOT_FOUND, CANDIDATE_NOT_FOUND
    */
   @Transactional
   public void editStepId(Long currentStepId, List<String> candidateKeys, String jobPostingKey,
@@ -385,7 +377,8 @@ public class JobPostingStepService {
     Long nextStepId = currentStepId + 1;
 
     // 다음 단계가 존재하는지 확인
-    Optional<JobPostingStepEntity> nextStepOptional = jobPostingStepRepository.findByJobPostingKeyAndId(jobPostingEntity.getJobPostingKey(), nextStepId);
+    Optional<JobPostingStepEntity> nextStepOptional = jobPostingStepRepository.findByJobPostingKeyAndId(
+        jobPostingEntity.getJobPostingKey(), nextStepId);
 
     if (nextStepOptional.isEmpty()) {
       throw new CustomException(ErrorCode.NEXT_STEP_NOT_FOUND);
