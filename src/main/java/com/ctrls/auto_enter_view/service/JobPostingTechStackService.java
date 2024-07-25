@@ -6,7 +6,6 @@ import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingTechStackEntity;
 import com.ctrls.auto_enter_view.enums.TechStack;
 import com.ctrls.auto_enter_view.repository.JobPostingTechStackRepository;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -36,26 +35,6 @@ public class JobPostingTechStackService {
         .collect(Collectors.toList());
 
     jobPostingTechStackRepository.saveAll(entities);
-  }
-
-  /**
-   * 채용 공고 key -> 기술 스택 조회
-   *
-   * @param jobPostingKey 채용공고 KEY
-   * @return 기술스택 리스트
-   */
-  public List<TechStack> getTechStackByJobPostingKey(String jobPostingKey) {
-
-    List<JobPostingTechStackEntity> entities = jobPostingTechStackRepository.findAllByJobPostingKey(
-        jobPostingKey);
-    List<TechStack> techStack = new ArrayList<>();
-
-    for (JobPostingTechStackEntity entity : entities) {
-      techStack.add(entity.getTechName());
-    }
-
-    log.info("techStack 가져오기 성공 {}", techStack);
-    return techStack;
   }
 
   /**

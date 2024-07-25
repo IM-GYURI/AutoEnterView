@@ -349,25 +349,6 @@ public class JobPostingStepService {
   }
 
   /**
-   * 채용 공고 key -> 채용 단계 조회
-   *
-   * @param jobPostingKey 채용 공고 PK
-   * @return 채용 단계 리스트 List<step>
-   */
-  public List<String> getStepByJobPostingKey(String jobPostingKey) {
-
-    List<JobPostingStepEntity> entities = jobPostingStepRepository.findByJobPostingKey(
-        jobPostingKey);
-    List<String> step = new ArrayList<>();
-
-    for (JobPostingStepEntity entity : entities) {
-      step.add(entity.getStep());
-    }
-    log.info("step 가져오기 성공 {}", step);
-    return step;
-  }
-
-  /**
    * 채용 단계 올리기
    *
    * @param currentStepId 현재 채용 공고 단계 ID (PK)

@@ -18,7 +18,9 @@ import com.ctrls.auto_enter_view.entity.AppliedJobPostingEntity;
 import com.ctrls.auto_enter_view.entity.CandidateListEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
+import com.ctrls.auto_enter_view.entity.JobPostingImageEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
+import com.ctrls.auto_enter_view.entity.JobPostingTechStackEntity;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.enums.TechStack;
 import com.ctrls.auto_enter_view.exception.CustomException;
@@ -27,12 +29,15 @@ import com.ctrls.auto_enter_view.repository.AppliedJobPostingRepository;
 import com.ctrls.auto_enter_view.repository.CandidateListRepository;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
+import com.ctrls.auto_enter_view.repository.JobPostingImageRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
+import com.ctrls.auto_enter_view.repository.JobPostingTechStackRepository;
 import com.ctrls.auto_enter_view.util.KeyGenerator;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,11 +58,10 @@ public class JobPostingService {
   private final CompanyRepository companyRepository;
   private final CandidateListRepository candidateListRepository;
   private final CandidateRepository candidateRepository;
-  private final JobPostingTechStackService jobPostingTechStackService;
+  private final JobPostingTechStackRepository jobPostingTechStackRepository;
   private final JobPostingStepRepository jobPostingStepRepository;
   private final AppliedJobPostingRepository appliedJobPostingRepository;
-  private final JobPostingStepService jobPostingStepService;
-  private final JobPostingImageService jobPostingImageService;
+  private final JobPostingImageRepository jobPostingImageRepository;
   private final FilteringService filteringService;
   private final MailComponent mailComponent;
   private final KeyGenerator keyGenerator;
@@ -313,12 +317,14 @@ public class JobPostingService {
    * @param jobPostingKey 채용공고 KEY
    * @return S3 리소스 URL
    */
-  private String getImageUrl(String jobPostingKey) {
+  public String getImageUrl(String jobPostingKey) {
 
-    String imageUrl = jobPostingImageService.getImageUrl(jobPostingKey);
-    log.info("이미지 URL 조회 완료 : {}", imageUrl);
-    return imageUrl;
+    Optional<JobPostingImageEntity> imageEntityOpt = jobPostingImageRepository.findByJobPostingKey(
+        jobPostingKey);
+
+    return imageEntityOpt.map(JobPostingImageEntity::getCompanyImageUrl).orElse(null);
   }
+
 
   /**
    * 채용 공고 단계 중 맨 처음 단계 가져오기
@@ -402,29 +408,41 @@ public class JobPostingService {
   }
 
   /**
-   * 기술 스택 가져오기
+   * 채용 공고 key -> 기술 스택 조회
    *
    * @param jobPostingKey 채용공고 KEY
-   * @return 기술스택 리스트
+   * @return 기술스택 리스트 List<TechStack>
    */
   private List<TechStack> getTechStack(String jobPostingKey) {
 
-    List<TechStack> techStack = jobPostingTechStackService.getTechStackByJobPostingKey(
+    List<JobPostingTechStackEntity> entities = jobPostingTechStackRepository.findAllByJobPostingKey(
         jobPostingKey);
-    log.info("기술 스택 조회 완료 : {}", techStack);
+    List<TechStack> techStack = new ArrayList<>();
+
+    for (JobPostingTechStackEntity entity : entities) {
+      techStack.add(entity.getTechName());
+    }
+
+    log.info("techStack 가져오기 성공 {}", techStack);
     return techStack;
   }
 
   /**
-   * 채용 단계 가져오기
+   * 채용 공고 key -> 채용 단계 조회
    *
-   * @param jobPostingKey 채용공고 KEY
-   * @return 채용 단계 리스트
+   * @param jobPostingKey 채용 공고 PK
+   * @return 채용 단계 리스트 List<step>
    */
-  private List<String> getStep(String jobPostingKey) {
+  public List<String> getStep(String jobPostingKey) {
 
-    List<String> step = jobPostingStepService.getStepByJobPostingKey(jobPostingKey);
-    log.info("채용 단계 조회 완료 : {}", step);
+    List<JobPostingStepEntity> entities = jobPostingStepRepository.findByJobPostingKey(
+        jobPostingKey);
+    List<String> step = new ArrayList<>();
+
+    for (JobPostingStepEntity entity : entities) {
+      step.add(entity.getStep());
+    }
+    log.info("채용 단계 가져오기 성공 {}", step);
     return step;
   }
 
