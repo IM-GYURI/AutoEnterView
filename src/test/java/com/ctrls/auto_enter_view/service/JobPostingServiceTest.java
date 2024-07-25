@@ -1,108 +1,120 @@
-//package com.ctrls.auto_enter_view.service;
-//
-//import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_HAS_CANDIDATES;
-//import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_STEP_NOT_FOUND;
-//import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
-//import static org.junit.jupiter.api.Assertions.assertEquals;
-//import static org.junit.jupiter.api.Assertions.assertThrows;
-//import static org.junit.jupiter.api.Assertions.assertTrue;
-//import static org.mockito.ArgumentMatchers.anyString;
-//import static org.mockito.ArgumentMatchers.eq;
-//import static org.mockito.Mockito.doNothing;
-//import static org.mockito.Mockito.never;
-//import static org.mockito.Mockito.times;
-//import static org.mockito.Mockito.verify;
-//import static org.mockito.Mockito.when;
-//
-//import com.ctrls.auto_enter_view.component.MailComponent;
-//import com.ctrls.auto_enter_view.dto.common.JobPostingDetailDto;
-//import com.ctrls.auto_enter_view.dto.common.MainJobPostingDto;
-//import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto;
-//import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto.Request;
-//import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingInfoDto;
-//import com.ctrls.auto_enter_view.entity.CandidateEntity;
-//import com.ctrls.auto_enter_view.entity.CandidateListEntity;
-//import com.ctrls.auto_enter_view.entity.CompanyEntity;
-//import com.ctrls.auto_enter_view.entity.JobPostingEntity;
-//import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
-//import com.ctrls.auto_enter_view.enums.ErrorCode;
-//import com.ctrls.auto_enter_view.enums.TechStack;
-//import com.ctrls.auto_enter_view.enums.UserRole;
-//import com.ctrls.auto_enter_view.exception.CustomException;
-//import com.ctrls.auto_enter_view.repository.CandidateListRepository;
-//import com.ctrls.auto_enter_view.repository.CandidateRepository;
-//import com.ctrls.auto_enter_view.repository.CompanyRepository;
-//import com.ctrls.auto_enter_view.repository.JobPostingRepository;
-//import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
-//import java.time.LocalDate;
-//import java.util.ArrayList;
-//import java.util.Arrays;
-//import java.util.List;
-//import java.util.Optional;
-//import org.junit.jupiter.api.DisplayName;
-//import org.junit.jupiter.api.Test;
-//import org.junit.jupiter.api.extension.ExtendWith;
-//import org.mockito.ArgumentCaptor;
-//import org.mockito.Captor;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.junit.jupiter.MockitoExtension;
-//import org.springframework.data.domain.Page;
-//import org.springframework.data.domain.PageImpl;
-//import org.springframework.data.domain.PageRequest;
-//import org.springframework.data.domain.Pageable;
-//import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-//import org.springframework.security.core.Authentication;
-//import org.springframework.security.core.context.SecurityContext;
-//import org.springframework.security.core.context.SecurityContextHolder;
-//import org.springframework.security.core.userdetails.User;
-//import org.springframework.security.core.userdetails.UserDetails;
-//
-//@ExtendWith(MockitoExtension.class)
-//class JobPostingServiceTest {
-//
-//  @Mock
-//  private JobPostingRepository jobPostingRepository;
-//
-//  @Mock
-//  private CompanyRepository companyRepository;
-//
-//  @Mock
-//  private CandidateListRepository candidateListRepository;
-//
-//  @Mock
-//  private CandidateRepository candidateRepository;
-//
-//  @Mock
-//  private JobPostingStepRepository jobPostingStepRepository;
-//
-//  @Mock
-//  private JobPostingTechStackService jobPostingTechStackService;
-//
-//  @Mock
-//  private JobPostingStepService jobPostingStepService;
-//
-//  @Mock
-//  private CandidateService candidateService;
-//
-//  @Mock
-//  private MailComponent mailComponent;
-//
-//  @Mock
-//  private SecurityContext securityContext;
-//
-//  @Captor
-//  private ArgumentCaptor<String> toCaptor;
-//
-//  @Captor
-//  private ArgumentCaptor<String> subjectCaptor;
-//
-//  @Captor
-//  private ArgumentCaptor<String> textCaptor;
-//
-//  @InjectMocks
-//  private JobPostingService jobPostingService;
-//
+package com.ctrls.auto_enter_view.service;
+
+import static com.ctrls.auto_enter_view.enums.ErrorCode.COMPANY_NOT_FOUND;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_HAS_CANDIDATES;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_NOT_FOUND;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_STEP_NOT_FOUND;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.NO_AUTHORITY;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.ctrls.auto_enter_view.component.MailComponent;
+import com.ctrls.auto_enter_view.dto.common.JobPostingDetailDto;
+import com.ctrls.auto_enter_view.dto.common.MainJobPostingDto;
+import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto;
+import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto.Request;
+import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingInfoDto;
+import com.ctrls.auto_enter_view.entity.CandidateEntity;
+import com.ctrls.auto_enter_view.entity.CandidateListEntity;
+import com.ctrls.auto_enter_view.entity.CompanyEntity;
+import com.ctrls.auto_enter_view.entity.JobPostingEntity;
+import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
+import com.ctrls.auto_enter_view.enums.Education;
+import com.ctrls.auto_enter_view.enums.ErrorCode;
+import com.ctrls.auto_enter_view.enums.JobCategory;
+import com.ctrls.auto_enter_view.enums.TechStack;
+import com.ctrls.auto_enter_view.enums.UserRole;
+import com.ctrls.auto_enter_view.exception.CustomException;
+import com.ctrls.auto_enter_view.repository.CandidateListRepository;
+import com.ctrls.auto_enter_view.repository.CandidateRepository;
+import com.ctrls.auto_enter_view.repository.CompanyRepository;
+import com.ctrls.auto_enter_view.repository.JobPostingRepository;
+import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
+import com.ctrls.auto_enter_view.util.KeyGenerator;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+
+@ExtendWith(MockitoExtension.class)
+class JobPostingServiceTest {
+
+  @Mock
+  private JobPostingRepository jobPostingRepository;
+
+  @Mock
+  private CompanyRepository companyRepository;
+
+  @Mock
+  private FilteringService filteringService;
+
+  @Mock
+  private CandidateListRepository candidateListRepository;
+
+  @Mock
+  private CandidateRepository candidateRepository;
+
+  @Mock
+  private JobPostingStepRepository jobPostingStepRepository;
+
+  @Mock
+  private JobPostingTechStackService jobPostingTechStackService;
+
+  @Mock
+  private JobPostingStepService jobPostingStepService;
+
+  @Mock
+  private CandidateService candidateService;
+
+  @Mock
+  private MailComponent mailComponent;
+
+  @Mock
+  private SecurityContext securityContext;
+
+  @Mock
+  private KeyGenerator keyGenerator;
+
+  @Captor
+  private ArgumentCaptor<String> toCaptor;
+
+  @Captor
+  private ArgumentCaptor<String> subjectCaptor;
+
+  @Captor
+  private ArgumentCaptor<String> textCaptor;
+
+  @InjectMocks
+  private JobPostingService jobPostingService;
+
 //  @Test
 //  @DisplayName("회사 키로 채용 공고 목록 조회 - 성공")
 //  void testGetJobPostingsByCompanyKey() {
@@ -339,70 +351,124 @@
 //    verify(candidateListRepository, times(1)).existsByCandidateKeyAndJobPostingKey(candidateKey,
 //        jobPostingKey);
 //  }
-//
-//  @DisplayName("채용 공고 등록 성공 테스트")
-//  void testCreateJobPosting() {
-//    //given
-//    String companyKey = "companyKey";
-//
-//    String jobPostingKey = "JobPostingKey";
-//
-//    JobPostingDto.Request request = Request.builder()
-//        .title("title")
-//        .jobCategory("jobCategory")
-//        .career(3)
-//        .workLocation("workLocation")
-//        .education("education")
-//        .employmentType("employmentType")
-//        .salary(3000L)
-//        .workTime("workTime")
-//        .startDate(LocalDate.of(2024, 7, 15))
-//        .endDate(LocalDate.of(2024, 7, 20))
-//        .jobPostingContent("content")
-//        .build();
-//
-//    JobPostingEntity jobPostingEntity = JobPostingEntity.builder()
-//        .jobPostingKey(jobPostingKey)
-//        .companyKey(companyKey)
-//        .title("title")
-//        .jobCategory("jobCategory")
-//        .career(3)
-//        .workLocation("workLocation")
-//        .education("education")
-//        .employmentType("employmentType")
-//        .salary(3000L)
-//        .workTime("workTime")
-//        .startDate(LocalDate.of(2024, 7, 15))
-//        .endDate(LocalDate.of(2024, 7, 20))
-//        .jobPostingContent("content")
-//        .build();
-//
-//    when(jobPostingRepository.save(jobPostingEntity)).thenReturn(jobPostingEntity);
-//
-//    ArgumentCaptor<JobPostingEntity> captor = ArgumentCaptor.forClass(JobPostingEntity.class);
-//
-//    //when
-//    jobPostingService.createJobPosting(companyKey, request);
-//
-//    //then
-//    verify(jobPostingRepository, times(1)).save(captor.capture());
-//    JobPostingEntity captorValue = captor.getValue();
-//
-//    assertEquals(companyKey, captorValue.getCompanyKey());
-//    assertEquals(request.getTitle(), captorValue.getTitle());
-//    assertEquals(request.getJobCategory(), captorValue.getJobCategory());
-//    assertEquals(request.getCareer(), captorValue.getCareer());
-//    assertEquals(request.getWorkLocation(), captorValue.getWorkLocation());
-//    assertEquals(request.getEducation(), captorValue.getEducation());
-//    assertEquals(request.getEmploymentType(), captorValue.getEmploymentType());
-//    assertEquals(request.getSalary(), captorValue.getSalary());
-//    assertEquals(request.getWorkTime(), captorValue.getWorkTime());
-//    assertEquals(request.getStartDate(), captorValue.getStartDate());
-//    assertEquals(request.getEndDate(), captorValue.getEndDate());
-//    assertEquals(request.getJobPostingContent(), captorValue.getJobPostingContent());
-//  }
-//
-//  @Test
+
+  @Test
+  @DisplayName("채용 공고 등록 성공 테스트")
+  void testCreateJobPosting() {
+    //given
+    String email = "email";
+    String password = "password";
+    String companyKey = "companyKey";
+
+    JobPostingDto.Request request = Request.builder()
+        .title("title")
+        .jobCategory(JobCategory.BACKEND)
+        .career(3)
+        .workLocation("workLocation")
+        .education(Education.BACHELOR)
+        .employmentType("employmentType")
+        .salary(3000L)
+        .workTime("workTime")
+        .startDate(LocalDate.of(2024, 7, 15))
+        .endDate(LocalDate.of(2024, 7, 20))
+        .jobPostingContent("content")
+        .passingNumber(10)
+        .build();
+
+    UserDetails userDetails = User.withUsername("email").password(password)
+        .roles("COMPANY").build();
+
+    CompanyEntity companyEntity = CompanyEntity.builder()
+        .email(email)
+        .build();
+
+    when(companyRepository.findByCompanyKey(companyKey)).thenReturn(
+        Optional.of(companyEntity));
+
+    ArgumentCaptor<JobPostingEntity> captor = ArgumentCaptor.forClass(JobPostingEntity.class);
+
+    //when
+    jobPostingService.createJobPosting(userDetails, companyKey, request);
+
+    //then
+    verify(jobPostingRepository, times(1)).save(captor.capture());
+    JobPostingEntity captorValue = captor.getValue();
+
+    assertEquals(companyKey, captorValue.getCompanyKey());
+    assertEquals(request.getTitle(), captorValue.getTitle());
+    assertEquals(request.getJobCategory(), captorValue.getJobCategory());
+    assertEquals(request.getCareer(), captorValue.getCareer());
+    assertEquals(request.getWorkLocation(), captorValue.getWorkLocation());
+    assertEquals(request.getEducation(), captorValue.getEducation());
+    assertEquals(request.getEmploymentType(), captorValue.getEmploymentType());
+    assertEquals(request.getSalary(), captorValue.getSalary());
+    assertEquals(request.getWorkTime(), captorValue.getWorkTime());
+    assertEquals(request.getStartDate(), captorValue.getStartDate());
+    assertEquals(request.getEndDate(), captorValue.getEndDate());
+    assertEquals(request.getJobPostingContent(), captorValue.getJobPostingContent());
+    assertEquals(request.getPassingNumber(), captorValue.getPassingNumber());
+  }
+
+
+  @Test
+  @DisplayName("채용 공고 등록 실패 테스트 -> COMPANY_NOT_FOUND")
+  void failTestCompanyNotFoundError() {
+    // given
+    String email = "email";
+    String password = "password";
+    String companyKey = "companyKey";
+
+    UserDetails userDetails = User.withUsername(email).password(password)
+        .roles("COMPANY").build();
+
+    Request request = new Request();
+
+    when(companyRepository.findByCompanyKey(companyKey)).thenReturn(Optional.empty());
+
+    // when
+    CustomException customException = assertThrows(CustomException.class,
+        () -> jobPostingService.createJobPosting(userDetails, companyKey, request));
+
+    // then
+    verify(companyRepository, times(1)).findByCompanyKey(companyKey);
+
+    assertEquals(ErrorCode.COMPANY_NOT_FOUND, customException.getErrorCode());
+
+
+  }
+
+  @Test
+  @DisplayName("채용 공고 등록 실패 테스트 -> NO_AUTHORITY")
+  void failTestNoAuthorityError() {
+    // given
+    String email = "email";
+    String password = "password";
+    String companyKey = "companyKey";
+    String companyName = "name";
+    String companyNumber = "number";
+
+    UserDetails userDetails = User.withUsername("email2").password(password)
+        .roles("COMPANY").build();
+
+    CompanyEntity companyEntity = new CompanyEntity(companyKey, email, password, companyName,
+        companyNumber, UserRole.ROLE_COMPANY);
+
+    Request request = new Request();
+
+    when(companyRepository.findByCompanyKey(companyKey)).thenReturn(Optional.of(companyEntity));
+
+    // when
+    CustomException customException = assertThrows(CustomException.class,
+        () -> jobPostingService.createJobPosting(userDetails, companyKey, request));
+
+    // then
+    verify(companyRepository, times(1)).findByCompanyKey(companyKey);
+
+    assertEquals(ErrorCode.NO_AUTHORITY, customException.getErrorCode());
+
+  }
+
+  //  @Test
 //  @DisplayName("채용 공고 수정 성공 테스트")
 //  void testEditJobPosting() {
 //    // given
@@ -529,108 +595,249 @@
 //        "지원해주신 <strong>[edit title]</strong>의 공고 내용이 수정되었습니다. 확인 부탁드립니다.<br><br><a href=\"http://localhost:8080/common/job-postings/JobPostingKey\">수정된 채용 공고 확인하기</a>"));
 //  }
 //
-//  @Test
-//  @DisplayName("채용 공고 삭제 성공 테스트")
-//  void testDeleteJobPosting() {
-//    //given
-//    String jobPostingKey = "jobPostingKey";
-//    String companyKey = "companyKey";
-//
-//    JobPostingEntity jobPostingEntity = JobPostingEntity.builder()
-//        .jobPostingKey(jobPostingKey)
-//        .companyKey(companyKey)
-//        .title("title")
-//        .jobCategory("jobCategory")
-//        .career(3)
-//        .workLocation("workLocation")
-//        .education("education")
-//        .employmentType("employmentType")
-//        .salary(3000L)
-//        .workTime("workTime")
-//        .startDate(LocalDate.of(2024, 7, 15))
-//        .endDate(LocalDate.of(2024, 7, 20))
-//        .jobPostingContent("content")
-//        .build();
-//
-//    JobPostingStepEntity jobPostingStep = JobPostingStepEntity.builder()
-//        .jobPostingKey(jobPostingKey)
-//        .id(1L)
-//        .build();
-//
-//    CompanyEntity companyEntity = CompanyEntity.builder()
-//        .companyKey(companyKey)
-//        .email("email")
-//        .password("password")
-//        .companyName("companyName")
-//        .companyNumber("02-333-3333")
-//        .role(UserRole.ROLE_COMPANY)
-//        .build();
-//
-//    UserDetails userDetails = User.withUsername(companyEntity.getEmail())
-//        .password(companyEntity.getPassword())
-//        .roles("COMPANY").build();
-//    SecurityContextHolder.setContext(securityContext);
-//
-//    when(jobPostingRepository.findByJobPostingKey(jobPostingKey))
-//        .thenReturn(Optional.of(jobPostingEntity));
-//    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey))
-//        .thenReturn(Optional.of(jobPostingStep));
-//    when(candidateListRepository.existsByJobPostingKeyAndJobPostingStepId(jobPostingKey, 1L))
-//        .thenReturn(false);
-//
-//    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
-//        Optional.of(companyEntity));
-//    when(securityContext.getAuthentication()).thenReturn(
-//        new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(),
-//            userDetails.getAuthorities()));
-//
-//    //when
-//    jobPostingService.deleteJobPosting(jobPostingKey);
-//
-//    //then
-//    verify(jobPostingRepository, times(1)).deleteByJobPostingKey(jobPostingKey);
-//  }
-//
-//  @Test
-//  @DisplayName("채용 공고 삭제 실패 테스트 - 지원자가 있는 경우")
-//  void testDeleteJobPostingWithCandidates() {
-//    //given
-//    String jobPostingKey = "jobPostingKey";
-//    JobPostingStepEntity jobPostingStep = JobPostingStepEntity.builder()
-//        .jobPostingKey(jobPostingKey)
-//        .id(1L)
-//        .build();
-//    CandidateListEntity candidate = new CandidateListEntity();
-//
-//    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey))
-//        .thenReturn(Optional.of(jobPostingStep));
-//    when(candidateListRepository.existsByJobPostingKeyAndJobPostingStepId(jobPostingKey, 1L))
-//        .thenReturn(true);
-//
-//    //when, then
-//    CustomException exception = assertThrows(CustomException.class, () -> {
-//      jobPostingService.deleteJobPosting(jobPostingKey);
-//    });
-//
-//    assertEquals(JOB_POSTING_HAS_CANDIDATES, exception.getErrorCode());
-//    verify(jobPostingRepository, never()).deleteByJobPostingKey(jobPostingKey);
-//  }
-//
-//  @Test
-//  @DisplayName("채용 공고 삭제 실패 테스트 - 첫번째 단계가 없는 경우")
-//  void testDeleteJobPostingWithoutFirstStep() {
-//    //given
-//    String jobPostingKey = "jobPostingKey";
-//
-//    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey))
-//        .thenReturn(Optional.empty());
-//
-//    //when, then
-//    CustomException exception = assertThrows(CustomException.class, () -> {
-//      jobPostingService.deleteJobPosting(jobPostingKey);
-//    });
-//
-//    assertEquals(JOB_POSTING_STEP_NOT_FOUND, exception.getErrorCode());
-//    verify(jobPostingRepository, never()).deleteByJobPostingKey(jobPostingKey);
-//  }
-//}
+  @Test
+  @DisplayName("채용 공고 삭제 성공 테스트")
+  void testDeleteJobPosting() {
+    //given
+    String email = "email";
+    String password = "password";
+    String jobPostingKey = "jobPostingKey";
+    String companyKey = "companyKey";
+
+    JobPostingEntity jobPostingEntity = JobPostingEntity.builder()
+        .jobPostingKey(jobPostingKey)
+        .companyKey(companyKey)
+        .build();
+
+    JobPostingStepEntity jobPostingStepEntity = JobPostingStepEntity.builder()
+        .id(1L)
+        .build();
+
+    CompanyEntity companyEntity = CompanyEntity.builder()
+        .companyKey(companyKey)
+        .build();
+
+    UserDetails userDetails = User.withUsername(email)
+        .password(password)
+        .roles("COMPANY").build();
+
+    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
+        Optional.of(companyEntity));
+
+    when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(
+        Optional.of(jobPostingEntity));
+
+    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey)).thenReturn(
+        Optional.of(jobPostingStepEntity));
+
+    //when
+    jobPostingService.deleteJobPosting(userDetails, jobPostingKey);
+
+    //then
+    verify(jobPostingRepository, times(1)).deleteByJobPostingKey(jobPostingKey);
+    assertEquals(companyEntity.getCompanyKey(), jobPostingEntity.getCompanyKey());
+
+  }
+
+
+  @Test
+  @DisplayName("채용 공고 삭제 실패 테스트 -> JOB_POSTING_HAS_CANDIDATES")
+  void deleteFailTestJobPostingHasCandidatesError() {
+    // given
+    String email = "email";
+    String password = "password";
+    String jobPostingKey = "jobPostingKey";
+
+    UserDetails userDetails = User.withUsername(email)
+        .password(password)
+        .roles("COMPANY").build();
+
+    JobPostingStepEntity jobPostingStepEntity = JobPostingStepEntity.builder()
+        .id(1L)
+        .build();
+
+    Long firstStep = jobPostingStepEntity.getId();
+
+    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey)).thenReturn(
+        Optional.of(jobPostingStepEntity));
+
+    when(candidateListRepository.existsByJobPostingKeyAndJobPostingStepId(jobPostingKey,
+        firstStep)).thenReturn(true);
+
+    // when
+    CustomException customException = assertThrows(CustomException.class,
+        () -> jobPostingService.deleteJobPosting(userDetails, jobPostingKey));
+
+    // then
+    verify(jobPostingStepRepository, times(1)).findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey);
+    verify(candidateListRepository, times(1)).existsByJobPostingKeyAndJobPostingStepId(
+        jobPostingKey, firstStep);
+
+    assertEquals(JOB_POSTING_HAS_CANDIDATES, customException.getErrorCode());
+  }
+
+  @Test
+  @DisplayName("채용 공고 삭제 실패 테스트 -> JOB_POSTING_STEP_NOT_FOUND")
+  void deleteFailTestJobPostingStepNotFoundError() {
+    // given
+    String email = "email";
+    String password = "password";
+    String jobPostingKey = "jobPostingKey";
+
+    UserDetails userDetails = User.withUsername(email)
+        .password(password)
+        .roles("COMPANY").build();
+
+    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey)).thenReturn(
+        Optional.empty());
+
+    // when
+    CustomException customException = assertThrows(CustomException.class,
+        () -> jobPostingService.deleteJobPosting(userDetails, jobPostingKey));
+
+    // then
+    verify(jobPostingStepRepository, times(1)).findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey);
+
+    assertEquals(JOB_POSTING_STEP_NOT_FOUND, customException.getErrorCode());
+  }
+
+  @Test
+  @DisplayName("채용 공고 삭제 실패 테스트 -> COMPANY_NOT_FOUND")
+  void deleteFailTestCompanyNotFoundError() {
+    // given
+    String email = "email";
+    String password = "password";
+    String jobPostingKey = "jobPostingKey";
+
+    UserDetails userDetails = User.withUsername(email)
+        .password(password)
+        .roles("COMPANY").build();
+
+    JobPostingStepEntity jobPostingStepEntity = JobPostingStepEntity.builder()
+        .id(1L)
+        .build();
+
+    Long firstStep = jobPostingStepEntity.getId();
+
+    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey)).thenReturn(
+        Optional.of(jobPostingStepEntity));
+
+    when(candidateListRepository.existsByJobPostingKeyAndJobPostingStepId(jobPostingKey,
+        firstStep)).thenReturn(false);
+
+    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(Optional.empty());
+
+    // when
+    CustomException customException = assertThrows(CustomException.class,
+        () -> jobPostingService.deleteJobPosting(userDetails, jobPostingKey));
+
+    // then
+    verify(jobPostingStepRepository, times(1)).findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey);
+    verify(candidateListRepository, times(1)).existsByJobPostingKeyAndJobPostingStepId(
+        jobPostingKey, firstStep);
+    verify(companyRepository, times(1)).findByEmail(userDetails.getUsername());
+
+    assertEquals(COMPANY_NOT_FOUND, customException.getErrorCode());
+  }
+
+
+  @Test
+  @DisplayName("채용 공고 삭제 실패 테스트 -> JOB_POSTING_NOT_FOUND")
+  void deleteFailTestJobPostingNotFoundError() {
+    // given
+    String email = "email";
+    String password = "password";
+    String jobPostingKey = "jobPostingKey";
+
+    UserDetails userDetails = User.withUsername(email)
+        .password(password)
+        .roles("COMPANY").build();
+
+    JobPostingStepEntity jobPostingStepEntity = JobPostingStepEntity.builder()
+        .id(1L)
+        .build();
+
+    Long firstStep = jobPostingStepEntity.getId();
+
+    CompanyEntity companyEntity = new CompanyEntity();
+
+    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey)).thenReturn(
+        Optional.of(jobPostingStepEntity));
+
+    when(candidateListRepository.existsByJobPostingKeyAndJobPostingStepId(jobPostingKey,
+        firstStep)).thenReturn(false);
+
+    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
+        Optional.of(companyEntity));
+
+    when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(Optional.empty());
+
+    // when
+    CustomException customException = assertThrows(CustomException.class,
+        () -> jobPostingService.deleteJobPosting(userDetails, jobPostingKey));
+
+    // then
+    verify(jobPostingStepRepository, times(1)).findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey);
+    verify(candidateListRepository, times(1)).existsByJobPostingKeyAndJobPostingStepId(
+        jobPostingKey, firstStep);
+    verify(companyRepository, times(1)).findByEmail(userDetails.getUsername());
+    verify(jobPostingRepository, times(1)).findByJobPostingKey(jobPostingKey);
+
+    assertEquals(JOB_POSTING_NOT_FOUND, customException.getErrorCode());
+  }
+
+  @Test
+  @DisplayName("채용 공고 삭제 실패 테스트 -> NO_AUTHORITY")
+  void deleteFailTestNoAuthorityError() {
+    // given
+    String email = "email";
+    String password = "password";
+    String jobPostingKey = "jobPostingKey";
+    String companyKey = "companyKey";
+
+    UserDetails userDetails = User.withUsername(email)
+        .password(password)
+        .roles("COMPANY").build();
+
+    JobPostingStepEntity jobPostingStepEntity = JobPostingStepEntity.builder()
+        .id(1L)
+        .build();
+
+    Long firstStep = jobPostingStepEntity.getId();
+
+    CompanyEntity companyEntity = CompanyEntity.builder()
+        .companyKey(companyKey)
+        .build();
+
+    JobPostingEntity jobPostingEntity = JobPostingEntity.builder()
+        .companyKey("companyKey2")
+        .build();
+
+    when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey)).thenReturn(
+        Optional.of(jobPostingStepEntity));
+
+    when(candidateListRepository.existsByJobPostingKeyAndJobPostingStepId(jobPostingKey,
+        firstStep)).thenReturn(false);
+
+    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
+        Optional.of(companyEntity));
+
+    when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(
+        Optional.of(jobPostingEntity));
+
+    // when
+    CustomException customException = assertThrows(CustomException.class,
+        () -> jobPostingService.deleteJobPosting(userDetails, jobPostingKey));
+
+    // then
+    verify(jobPostingStepRepository, times(1)).findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey);
+    verify(candidateListRepository, times(1)).existsByJobPostingKeyAndJobPostingStepId(
+        jobPostingKey, firstStep);
+    verify(companyRepository, times(1)).findByEmail(userDetails.getUsername());
+    verify(jobPostingRepository, times(1)).findByJobPostingKey(jobPostingKey);
+
+    assertEquals(NO_AUTHORITY, customException.getErrorCode());
+  }
+
+
+}
