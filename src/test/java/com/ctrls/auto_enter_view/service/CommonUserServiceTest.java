@@ -17,10 +17,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ctrls.auto_enter_view.component.KeyGenerator;
 import com.ctrls.auto_enter_view.component.MailComponent;
 import com.ctrls.auto_enter_view.dto.common.SignInDto;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
+import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.enums.UserRole;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
@@ -65,6 +67,9 @@ class CommonUserServiceTest {
 
   @Mock
   private BlacklistTokenService blacklistTokenService;
+
+  @Mock
+  private KeyGenerator keyGenerator;
 
   @InjectMocks
   private CommonUserService commonUserService;
@@ -329,25 +334,28 @@ class CommonUserServiceTest {
     String companyName = "TestCompany";
     String password = "password123#";
     String encodedPassword = "encodedPassword";
-    String generatedToken = "generatedToken";
+    String mockedCompanyKey = "companyKey";
+
+    when(keyGenerator.generateKey()).thenReturn(mockedCompanyKey);
+    String companyKey = keyGenerator.generateKey();
 
     CompanyEntity company = CompanyEntity.builder()
         .email(email)
         .companyName(companyName)
         .password(encodedPassword)
         .role(UserRole.ROLE_COMPANY)
+        .companyKey(companyKey)
         .build();
 
     when(companyRepository.findByEmail(email)).thenReturn(Optional.of(company));
     when(passwordEncoder.matches(password, encodedPassword)).thenReturn(true);
-    when(jwtTokenProvider.generateToken(email, UserRole.ROLE_COMPANY)).thenReturn(generatedToken);
 
     // when
     SignInDto.Response response = commonUserService.loginUser(email, password);
 
     // then
     assertEquals(email, response.getEmail());
-    assertEquals(company.getCompanyKey(), response.getKey());
+    assertEquals(companyKey, response.getKey());
     assertEquals(companyName, response.getName());
     assertEquals(UserRole.ROLE_COMPANY, response.getRole());
   }
@@ -360,25 +368,29 @@ class CommonUserServiceTest {
     String name = "TestCandidate";
     String password = "password123#";
     String encodedPassword = "encodedPassword";
-    String generatedToken = "generatedToken";
+    String mockedCandidateKey = "candidateKey";
+
+    // KeyGenerator mock 설정
+    when(keyGenerator.generateKey()).thenReturn(mockedCandidateKey);
+    String candidateKey = keyGenerator.generateKey();
 
     CandidateEntity candidate = CandidateEntity.builder()
         .email(email)
         .name(name)
         .password(encodedPassword)
         .role(ROLE_CANDIDATE)
+        .candidateKey(candidateKey)
         .build();
 
     when(candidateRepository.findByEmail(email)).thenReturn(Optional.of(candidate));
     when(passwordEncoder.matches(password, encodedPassword)).thenReturn(true);
-    when(jwtTokenProvider.generateToken(email, ROLE_CANDIDATE)).thenReturn(generatedToken);
 
     // when
     SignInDto.Response response = commonUserService.loginUser(email, password);
 
     // then
     assertEquals(email, response.getEmail());
-    assertEquals(candidate.getCandidateKey(), response.getKey());
+    assertEquals(candidateKey, response.getKey());
     assertEquals(name, response.getName());
     assertEquals(ROLE_CANDIDATE, response.getRole());
   }
@@ -423,7 +435,7 @@ class CommonUserServiceTest {
         () -> commonUserService.loginUser(email, password));
 
     // then
-    assertEquals("이메일 또는 비밀번호가 일치하지 않습니다.", exception.getMessage());
+    assertEquals(ErrorCode.INVALID_EMAIL_OR_PASSWORD, exception.getErrorCode());
   }
 
   @Test
