@@ -293,6 +293,12 @@ public class MailAlarmInfoService {
    */
   public void sendCancellationMailToParticipants(InterviewScheduleEntity interviewScheduleEntity,
       List<InterviewScheduleParticipantsEntity> participants) {
+    // 과제인지 면접인지 구분
+    // 과제라면 firstInterviewDate가 null
+    // 면접이라면 firstInterviewDate가 null이 아님
+    // isTask = true -> 과제
+    // isTask = false -> 면접
+    boolean isTask = interviewScheduleEntity.getFirstInterviewDate() == null;
 
     JobPostingEntity jobPostingEntity = jobPostingRepository.findByJobPostingKey(
             interviewScheduleEntity.getJobPostingKey())
@@ -302,17 +308,35 @@ public class MailAlarmInfoService {
             participants.get(0).getJobPostingStepId())
         .orElseThrow(() -> new CustomException(JOB_POSTING_STEP_NOT_FOUND));
 
-    for (InterviewScheduleParticipantsEntity participant : participants) {
-      String to = candidateRepository.findByCandidateKey(participant.getCandidateKey())
-          .orElseThrow(() -> new CustomException(USER_NOT_FOUND)).getEmail();
+    if (isTask) {
+      // 과제일 경우
+      for (InterviewScheduleParticipantsEntity participant : participants) {
+        String to = candidateRepository.findByCandidateKey(participant.getCandidateKey())
+            .orElseThrow(() -> new CustomException(USER_NOT_FOUND)).getEmail();
 
-      String subject = "면접 일정 취소 안내 : " + jobPostingEntity.getTitle();
-      String text = "예정되었던 면접 일정이 <strong>취소</strong>되었음을 안내드립니다.<br><br>"
-          + "취소된 면접 정보<br>" + jobPostingEntity.getTitle() + " - " + jobPostingStep.getStep()
-          + "<br> 취소된 면접 일시 : " + participant.getInterviewStartDatetime()
-          .format(DateTimeFormatter.ofPattern("yyyy-MM-dd EEEE HH:mm"));
+        String subject = "과제 취소 안내 : " + jobPostingEntity.getTitle();
+        String text = "과제 일정이 <strong>취소</strong>되었음을 안내드립니다.<br><br>"
+            + "취소된 과제 정보<br>" + jobPostingEntity.getTitle() + " - " + jobPostingStep.getStep()
+            + "<br> 취소된 과제 마감 일시 : " + participant.getInterviewEndDatetime()
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd EEEE HH:mm"))
+            + "<br><br>";
 
-      mailComponent.sendHtmlMail(to, subject, text, true);
+        mailComponent.sendHtmlMail(to, subject, text, true);
+      }
+    } else {
+      // 면접일 경우
+      for (InterviewScheduleParticipantsEntity participant : participants) {
+        String to = candidateRepository.findByCandidateKey(participant.getCandidateKey())
+            .orElseThrow(() -> new CustomException(USER_NOT_FOUND)).getEmail();
+
+        String subject = "면접 일정 취소 안내 : " + jobPostingEntity.getTitle();
+        String text = "예정되었던 면접 일정이 <strong>취소</strong>되었음을 안내드립니다.<br><br>"
+            + "취소된 면접 정보<br>" + jobPostingEntity.getTitle() + " - " + jobPostingStep.getStep()
+            + "<br> 취소된 면접 일시 : " + participant.getInterviewStartDatetime()
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd EEEE HH:mm"));
+
+        mailComponent.sendHtmlMail(to, subject, text, true);
+      }
     }
   }
 
