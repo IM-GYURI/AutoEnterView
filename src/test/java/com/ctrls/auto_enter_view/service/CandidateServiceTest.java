@@ -105,7 +105,7 @@ public class CandidateServiceTest {
   }
 
   @Test
-  @DisplayName("회원가입 실패 테스트 -> Email Duplication Exception")
+  @DisplayName("회원가입 실패 테스트 -> EMAIL_DUPLICATION")
   void emailDuplicationExceptionTest() {
     // given
     SignUpDto.Request request = SignUpDto.Request.builder()

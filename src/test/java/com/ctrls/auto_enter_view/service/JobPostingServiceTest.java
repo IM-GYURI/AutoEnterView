@@ -743,7 +743,7 @@ class JobPostingServiceTest {
 
   @Test
   @DisplayName("채용 공고 삭제 실패 테스트 -> JOB_POSTING_NOT_FOUND")
-  void deleteFailTestJobPostingyNotFoundError() {
+  void deleteFailTestJobPostingNotFoundError() {
     // given
     String email = "email";
     String password = "password";
