@@ -177,7 +177,7 @@ class JobPostingServiceTest {
     List<JobPostingEntity> jobPostings = Collections.singletonList(jobPosting);
     Page<JobPostingEntity> jobPostingPage = new PageImpl<>(jobPostings, pageable, jobPostings.size());
 
-    List<TechStack> techStacks = Arrays.asList(TechStack.HTML5, TechStack.PYTHON);
+//    List<TechStack> techStacks = Arrays.asList(TechStack.HTML5, TechStack.PYTHON);
 
     when(jobPostingRepository.findByEndDateGreaterThanEqual(currentDate, pageable)).thenReturn(jobPostingPage);
     when(companyRepository.findByCompanyKey("withdrawnCompanyKey")).thenReturn(Optional.empty());
