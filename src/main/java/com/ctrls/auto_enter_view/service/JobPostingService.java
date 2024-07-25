@@ -188,6 +188,7 @@ public class JobPostingService {
    * @param size 페이지에 담길 개수
    * @return 채용공고 페이지
    */
+  // TODO : 회사가 탈퇴했을 때, 발생하는 문제점 해결하기 - 탈퇴한 회사 이름을 가져오지 못해 에러 발생 상황이 있었음
   public MainJobPostingDto.Response getAllJobPosting(int page, int size) {
 
     Pageable pageable = PageRequest.of(page - 1, size);
@@ -199,14 +200,20 @@ public class JobPostingService {
 
     for (JobPostingEntity entity : jobPostingPage.getContent()) {
       JobPostingMainInfo jobPostingMainInfo = createJobPostingMainInfo(entity);
-      jobPostingMainInfoList.add(jobPostingMainInfo);
+
+      if (!"탈퇴한 회사".equals(jobPostingMainInfo.getCompanyName())) {
+        jobPostingMainInfoList.add(jobPostingMainInfo);
+      }
     }
 
-    log.info("총 {}개의 채용 공고 조회 완료", jobPostingMainInfoList.size());
+    long totalValidElements = jobPostingMainInfoList.size();
+    int totalValidPages = (int) Math.ceil((double) totalValidElements / size);
+
+    log.info("총 {}개의 채용 공고 조회 완료", totalValidElements);
     return MainJobPostingDto.Response.builder()
         .jobPostingsList(jobPostingMainInfoList)
-        .totalPages(jobPostingPage.getTotalPages())
-        .totalElements(jobPostingPage.getTotalElements())
+        .totalPages(totalValidPages)
+        .totalElements(totalValidElements)
         .build();
   }
 
@@ -366,18 +373,16 @@ public class JobPostingService {
    * 회사 이름 가져오기
    *
    * @param companyKey 회사 KEY
-   * @return 회사 이름 STRING
+   * @return 회사 이름 STRING, 회사를 찾지 못한 경우 대체 문자열 반환
    */
   private String getCompanyName(String companyKey) {
-
-    CompanyEntity companyEntity = companyRepository.findByCompanyKey(companyKey)
-        .orElseThrow(() -> new CustomException(ErrorCode.COMPANY_NOT_FOUND));
-
-    String companyName = companyEntity.getCompanyName();
-    log.info("회사명 조회 완료 : {}", companyName);
-    return companyName;
+    return companyRepository.findByCompanyKey(companyKey)
+        .map(CompanyEntity::getCompanyName)
+        .orElseGet(() -> {
+          log.warn("탈퇴한 회사 KEY: {}", companyKey);
+          return "탈퇴한 회사";
+        });
   }
-
   /**
    * 기술 스택 가져오기
    *
