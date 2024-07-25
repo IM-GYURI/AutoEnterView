@@ -1,8 +1,10 @@
 package com.ctrls.auto_enter_view.service;
 
+import static com.ctrls.auto_enter_view.enums.UserRole.ROLE_COMPANY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,7 +14,6 @@ import com.ctrls.auto_enter_view.dto.company.ReadCompanyInfoDto.Response;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.entity.CompanyInfoEntity;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
-import com.ctrls.auto_enter_view.enums.UserRole;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CompanyInfoRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
@@ -51,7 +52,7 @@ class CompanyInfoServiceTest {
 
   // setup
   private final UserDetails companyDetails = new User("company@naver.com", "testPassword",
-      List.of(new SimpleGrantedAuthority(UserRole.ROLE_COMPANY.name())));
+      List.of(new SimpleGrantedAuthority(ROLE_COMPANY.name())));
 
   private final String testKey = "testKey";
   private final String companyKey = "companyKey";
@@ -194,5 +195,67 @@ class CompanyInfoServiceTest {
 
     // then
     assertEquals(ErrorCode.EMAIL_NOT_FOUND, exception.getErrorCode());
+  }
+
+  @Test
+  @DisplayName("회사정보 조회_성공_Empty")
+  void readInfo_Success_Empty() {
+    // given
+    String companyKey = "companyKey";
+
+    // when
+    when(companyInfoRepository.findByCompanyKey(companyKey)).thenReturn(Optional.empty());
+
+    // execute
+    Response response = companyInfoService.readInfo(companyKey);
+
+    // then
+    assertEquals(0, response.getEmployees());
+  }
+
+  @Test
+  @DisplayName("회사 정보 삭제 : 실패 - 회사 계정을 찾을 수 없음")
+  void testDeleteInfo_CompanyNotFoundFailure() {
+
+    String companyKey = "companyKey";
+    String email = "test@example.com";
+
+    UserDetails userDetails = mock(UserDetails.class);
+    when(userDetails.getUsername()).thenReturn(email);
+    when(companyRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+    CustomException exception = assertThrows(CustomException.class, () ->
+        companyInfoService.deleteInfo(userDetails, companyKey)
+    );
+
+    assertEquals("가입된 사용자 이메일이 없습니다.", exception.getMessage());
+  }
+
+  @Test
+  @DisplayName("회사 정보 삭제 : 실패 - 권한 없음")
+  void testDeleteInfo_NoAuthorityFailure() {
+
+    String companyKey1 = "companyKey1";
+    String email = "test@example.com";
+    String companyKey2 = "companyKey2";
+
+    CompanyEntity companyEntity = CompanyEntity.builder()
+        .email(email)
+        .companyKey(companyKey2)
+        .companyName("TestCompany")
+        .role(ROLE_COMPANY)
+        .companyNumber("02-0000-0000")
+        .password("Password123!")
+        .build();
+
+    UserDetails userDetails = mock(UserDetails.class);
+    when(userDetails.getUsername()).thenReturn(email);
+    when(companyRepository.findByEmail(email)).thenReturn(Optional.of(companyEntity));
+
+    CustomException exception = assertThrows(CustomException.class, () ->
+        companyInfoService.deleteInfo(userDetails, companyKey1)
+    );
+
+    assertEquals("권한이 없습니다.", exception.getMessage());
   }
 }
