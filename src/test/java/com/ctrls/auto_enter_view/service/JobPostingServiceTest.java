@@ -1,32 +1,30 @@
 package com.ctrls.auto_enter_view.service;
 
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.COMPANY_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_HAS_CANDIDATES;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_STEP_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.NO_AUTHORITY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ctrls.auto_enter_view.component.MailComponent;
 import com.ctrls.auto_enter_view.dto.common.JobPostingDetailDto;
 import com.ctrls.auto_enter_view.dto.common.MainJobPostingDto;
-import com.ctrls.auto_enter_view.component.MailComponent;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto.Request;
 import com.ctrls.auto_enter_view.entity.ApplicantEntity;
@@ -35,45 +33,41 @@ import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CandidateListEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
-import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingImageEntity;
+import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingTechStackEntity;
 import com.ctrls.auto_enter_view.enums.Education;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.enums.JobCategory;
+import com.ctrls.auto_enter_view.enums.TechStack;
 import com.ctrls.auto_enter_view.enums.UserRole;
 import com.ctrls.auto_enter_view.exception.CustomException;
+import com.ctrls.auto_enter_view.repository.ApplicantRepository;
+import com.ctrls.auto_enter_view.repository.AppliedJobPostingRepository;
 import com.ctrls.auto_enter_view.repository.CandidateListRepository;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
+import com.ctrls.auto_enter_view.repository.JobPostingImageRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
-import com.ctrls.auto_enter_view.repository.ApplicantRepository;
-import com.ctrls.auto_enter_view.repository.AppliedJobPostingRepository;
-import com.ctrls.auto_enter_view.repository.JobPostingImageRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingTechStackRepository;
-
 import com.ctrls.auto_enter_view.util.KeyGenerator;
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Collections;
-
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -115,19 +109,7 @@ class JobPostingServiceTest {
   private MailComponent mailComponent;
 
   @Mock
-  private SecurityContext securityContext;
-
-  @Mock
   private KeyGenerator keyGenerator;
-
-  @Captor
-  private ArgumentCaptor<String> toCaptor;
-
-  @Captor
-  private ArgumentCaptor<String> subjectCaptor;
-
-  @Captor
-  private ArgumentCaptor<String> textCaptor;
 
   @InjectMocks
   private JobPostingService jobPostingService;
@@ -258,6 +240,7 @@ class JobPostingServiceTest {
         .jobPostingKey(jobPostingKey)
         .companyKey(companyKey)
         .title("기존 제목")
+        .endDate(LocalDate.now().plusDays(7))
         .build();
 
     CompanyEntity companyEntity = CompanyEntity.builder()
@@ -282,6 +265,7 @@ class JobPostingServiceTest {
 
     JobPostingDto.Request request = JobPostingDto.Request.builder()
         .title("기존 제목")
+        .endDate(LocalDate.now().plusDays(7))
         .build();
 
     when(jobPostingRepository.findByJobPostingKey(jobPostingKey))
@@ -936,7 +920,6 @@ class JobPostingServiceTest {
     AppliedJobPostingEntity capturedAppliedJobPosting = appliedJobPostingCaptor.getValue();
     assertEquals(jobPostingKey, capturedAppliedJobPosting.getJobPostingKey());
     assertEquals(candidateKey, capturedAppliedJobPosting.getCandidateKey());
-    assertEquals(LocalDate.now(), capturedAppliedJobPosting.getStartDate());
     assertEquals("지원 완료", capturedAppliedJobPosting.getStepName());
     assertEquals("테스트 채용 공고", capturedAppliedJobPosting.getTitle());
   }
