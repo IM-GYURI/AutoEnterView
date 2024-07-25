@@ -18,5 +18,5 @@ public interface CandidateRepository extends JpaRepository<CandidateEntity, Stri
   Optional<CandidateEntity> findByNameAndPhoneNumber(String name, String phoneNumber);
 
   @Query("SELECT c.name FROM CandidateEntity c WHERE c.candidateKey = :candidateKey")
-  String findCandidateNameByCandidateKey(String e);
+  String findCandidateNameByCandidateKey(String candidateKey);
 }
