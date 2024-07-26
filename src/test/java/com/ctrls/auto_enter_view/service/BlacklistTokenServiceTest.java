@@ -1,11 +1,17 @@
 package com.ctrls.auto_enter_view.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ctrls.auto_enter_view.enums.ErrorCode;
+import com.ctrls.auto_enter_view.exception.CustomException;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,7 +41,7 @@ class BlacklistTokenServiceTest {
   }
 
   @Test
-  @DisplayName("블랙리스트에 토큰 추가 테스트")
+  @DisplayName("블랙리스트에 토큰 추가하기 - 성공")
   void addToBlacklist() {
     // given
     String token = "Bearer testToken";
@@ -50,7 +56,24 @@ class BlacklistTokenServiceTest {
   }
 
   @Test
-  @DisplayName("블랙리스트에 토큰 존재여부 확인 테스트")
+  @DisplayName("블랙리스트에 토큰 추가하기 - 실패")
+  void addToBlacklistException() {
+    // given
+    String token = "Bearer testToken";
+    String substringToken = "testToken";
+    doThrow(new RuntimeException()).when(valueOperations).set(substringToken, "logout", 60, TimeUnit.MINUTES);
+
+    // when
+    CustomException exception = assertThrows(CustomException.class, () -> blacklistTokenService.addToBlacklist(token));
+
+    // then
+    assertNotNull(exception);
+    assertEquals(ErrorCode.BLACKLIST_TOKEN_ADD_FAILED, exception.getErrorCode());
+    verify(valueOperations, times(1)).set(substringToken, "logout", 60, TimeUnit.MINUTES);
+  }
+
+  @Test
+  @DisplayName("블랙리스트에 토큰 존재여부 확인")
   void isTokenBlacklist() {
     // given
     String token = "testToken";

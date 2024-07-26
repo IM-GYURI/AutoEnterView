@@ -12,6 +12,7 @@ import com.ctrls.auto_enter_view.entity.MailAlarmInfoEntity;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateListRepository;
+import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.repository.InterviewScheduleParticipantsRepository;
 import com.ctrls.auto_enter_view.repository.InterviewScheduleRepository;
@@ -37,14 +38,15 @@ public class InterviewScheduleParticipantsService {
   private final InterviewScheduleRepository interviewScheduleRepository;
   private final MailAlarmInfoRepository mailAlarmInfoRepository;
   private final MailAlarmInfoService mailAlarmInfoService;
+  private final CandidateRepository candidateRepository;
 
   /**
    * 개인 면접 일정 생성
    *
    * @param jobPostingKey 채용 공고 PK
-   * @param stepId 채용 공고 단계 PK
-   * @param request List<InterviewScheduleDto.Request>
-   * @param userDetails 로그인 된 사용자 정보
+   * @param stepId        채용 공고 단계 PK
+   * @param request       List<InterviewScheduleDto.Request>
+   * @param userDetails   로그인 된 사용자 정보
    * @throws CustomException JOB_POSTING_KEY_NOT_FOUND : 채용 공고 키를 찾을 수 없는 경우
    * @throws CustomException CANDIDATE_INADEQUATE_ERROR : 생성 일정 수보다 지원자 수가 부족한 경우
    * @throws CustomException COMPANY_NOT_FOUND : 회사를 찾을 수 없는 경우
@@ -64,7 +66,7 @@ public class InterviewScheduleParticipantsService {
     List<CandidateListDto> candidateListDtoList = candidateKeyList.stream()
         .map(e -> CandidateListDto.builder()
             .candidateKey(e)
-            .candidateName(candidateListRepository.findCandidateNameByCandidateKey(e))
+            .candidateName(candidateRepository.findCandidateNameByCandidateKey(e))
             .build())
         .toList();
 
@@ -96,8 +98,8 @@ public class InterviewScheduleParticipantsService {
    * 개인 면접 일정 전체 조회
    *
    * @param jobPostingKey 채용 공고 PK
-   * @param stepId 채용 단계 PK
-   * @param userDetails 로그인 된 사용자 정보
+   * @param stepId        채용 단계 PK
+   * @param userDetails   로그인 된 사용자 정보
    * @return List<InterviewScheduleParticipantsDto.Response>
    * @throws CustomException COMPANY_NOT_FOUND : 회사를 찾을 수 없는 경우
    * @throws CustomException JOB_POSTING_NOT_FOUND : 채용 공고를 찾을 수 없는 경우
@@ -118,9 +120,9 @@ public class InterviewScheduleParticipantsService {
    * 개인 면접 일정 수정
    *
    * @param interviewScheduleKey 면접 일정 PK
-   * @param candidateKey 지원자 PK
-   * @param request InterviewScheduleParticipantsDto.Request
-   * @param userDetails 로그인 된 사용자 정보
+   * @param candidateKey         지원자 PK
+   * @param request              InterviewScheduleParticipantsDto.Request
+   * @param userDetails          로그인 된 사용자 정보
    * @throws CustomException INTERVIEW_SCHEDULE_NOT_FOUND : 면접 일정을 찾을 수 없는 경우
    * @throws CustomException COMPANY_NOT_FOUND : 회사를 찾을 수 없는 경우
    * @throws CustomException JOB_POSTING_NOT_FOUND : 채용 공고를 찾을 수 없는 경우
@@ -156,8 +158,8 @@ public class InterviewScheduleParticipantsService {
    * 개인 면접 일정 전체 삭제
    *
    * @param jobPostingKey 채용 공고 PK
-   * @param stepId 채용 단계 PK
-   * @param userDetails 로그인 된 사용자 정보
+   * @param stepId        채용 단계 PK
+   * @param userDetails   로그인 된 사용자 정보
    * @throws CustomException INTERVIEW_SCHEDULE_NOT_FOUND : 면접 일정을 찾을 수 없는 경우
    * @throws CustomException MAIL_ALARM_INFO_NOT_FOUND : 메일 알람 정보를 찾을 수 없는 경우
    * @throws CustomException COMPANY_NOT_FOUND : 회사를 찾을 수 없는 경우
@@ -198,7 +200,7 @@ public class InterviewScheduleParticipantsService {
   /**
    * 첫번째 인터뷰 날짜인지 확인
    *
-   * @param participantsEntity 면접 일정에 포함된 지원자 엔티티
+   * @param participantsEntity      면접 일정에 포함된 지원자 엔티티
    * @param interviewScheduleEntity 면접 일정 엔티티
    * @return boolean : 첫번째 인터뷰 날짜인 경우 true, 아닌 경우 false
    */
@@ -211,7 +213,7 @@ public class InterviewScheduleParticipantsService {
   /**
    * 마지막 인터뷰 날짜인지 확인
    *
-   * @param participantsEntity 면접 일정에 포함된 지원자 엔티티
+   * @param participantsEntity      면접 일정에 포함된 지원자 엔티티
    * @param interviewScheduleEntity 면접 일정 엔티티
    * @return boolean : 마지막 인터뷰 날짜인 경우 true, 아닌 경우 false
    */
@@ -224,7 +226,7 @@ public class InterviewScheduleParticipantsService {
   /**
    * 본인 회사인지 체크
    *
-   * @param userDetails 로그인 된 사용자 정보
+   * @param userDetails   로그인 된 사용자 정보
    * @param jobPostingKey 채용 공고 PK
    * @throws CustomException COMPANY_NOT_FOUND : 회사를 찾을 수 없는 경우
    * @throws CustomException JOB_POSTING_NOT_FOUND : 채용 공고를 찾을 수 없는 경우
@@ -246,7 +248,7 @@ public class InterviewScheduleParticipantsService {
   /**
    * 본인 회사인지 체크
    *
-   * @param userDetails 로그인 된 사용자 정보
+   * @param userDetails          로그인 된 사용자 정보
    * @param interviewScheduleKey 면접 일정 PK
    * @throws CustomException COMPANY_NOT_FOUND : 회사를 찾을 수 없는 경우
    * @throws CustomException JOB_POSTING_NOT_FOUND : 채용 공고를 찾을 수 없는 경우

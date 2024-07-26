@@ -4,6 +4,8 @@ import static com.ctrls.auto_enter_view.enums.ErrorCode.APPLY_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.CANDIDATE_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_STEP_NOT_FOUND;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.SCHEDULE_FAILED;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.UNSCHEDULE_FAILED;
 
 import com.ctrls.auto_enter_view.component.FilteringJob;
 import com.ctrls.auto_enter_view.component.ScoringJob;
@@ -13,7 +15,6 @@ import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CandidateListEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
-import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.ApplicantRepository;
 import com.ctrls.auto_enter_view.repository.AppliedJobPostingRepository;
@@ -21,7 +22,7 @@ import com.ctrls.auto_enter_view.repository.CandidateListRepository;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
-import com.ctrls.auto_enter_view.util.KeyGenerator;
+import com.ctrls.auto_enter_view.component.KeyGenerator;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -70,8 +71,8 @@ public class FilteringService {
     try {
 //      마감일 다음 날 자정으로 설정
       LocalDateTime filteringDateTime = LocalDateTime.of(endDate.plusDays(1), LocalTime.MIDNIGHT);
-//       테스트용 5분 후 스케줄링
-//      LocalDateTime filteringDateTime = LocalDateTime.now().plusMinutes(5);
+//       테스트용 3분 후 스케줄링
+//      LocalDateTime filteringDateTime = LocalDateTime.now().plusMinutes(3);
 
       // 기존 작업이 있는지 확인하고 제거
       JobKey jobKeyA = JobKey.jobKey("resumeScoringJob", "group1");
@@ -122,7 +123,7 @@ public class FilteringService {
 
       scheduler.scheduleJob(jobDetailB, triggerB);
     } catch (SchedulerException e) {
-      throw new CustomException(ErrorCode.SCHEDULE_FAILED);
+      throw new CustomException(SCHEDULE_FAILED);
     }
   }
 
@@ -147,7 +148,7 @@ public class FilteringService {
       // 필터링 트리거 취소
       scheduler.unscheduleJob(filteringTriggerKey);
     } catch (SchedulerException e) {
-      throw new CustomException(ErrorCode.UNSCHEDULE_FAILED);
+      throw new CustomException(UNSCHEDULE_FAILED);
     }
   }
 
@@ -196,8 +197,8 @@ public class FilteringService {
 
       // 지원자별로 AppliedJobPostingEntity의 stepName을 해당 채용 공고의 첫번째 단계명으로 업데이트해주기
       String currentStepName = jobPostingStepEntity.getStep();
-      AppliedJobPostingEntity appliedJobPostingEntity = appliedJobPostingRepository.findByCandidateKey(
-              applicant.getCandidateKey())
+      AppliedJobPostingEntity appliedJobPostingEntity = appliedJobPostingRepository.findByCandidateKeyAndJobPostingKey(
+              applicant.getCandidateKey(), applicant.getJobPostingKey())
           .orElseThrow(() -> new CustomException(APPLY_NOT_FOUND));
 
       appliedJobPostingEntity.updateStepName(currentStepName);

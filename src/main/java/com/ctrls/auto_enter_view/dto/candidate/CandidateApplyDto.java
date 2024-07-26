@@ -25,7 +25,8 @@ public class CandidateApplyDto {
   public static class ApplyInfo {
 
     private String jobPostingKey;
-    private LocalDate startDate;
+    private LocalDate appliedDate;
+    private LocalDate endDate;
     private String stepName;
     private String title;
 
@@ -33,7 +34,8 @@ public class CandidateApplyDto {
 
       return ApplyInfo.builder()
           .jobPostingKey(appliedJobPostingEntity.getJobPostingKey())
-          .startDate(appliedJobPostingEntity.getStartDate())
+          .appliedDate(appliedJobPostingEntity.getAppliedDate())
+          .endDate(appliedJobPostingEntity.getEndDate())
           .stepName(appliedJobPostingEntity.getStepName())
           .title(appliedJobPostingEntity.getTitle())
           .build();
