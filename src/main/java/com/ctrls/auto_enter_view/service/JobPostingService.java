@@ -208,30 +208,25 @@ public class JobPostingService {
   // TODO : 회사가 탈퇴했을 때, 발생하는 문제점 해결하기 - 탈퇴한 회사 이름을 가져오지 못해 에러 발생 상황이 있었음
   @Transactional(readOnly = true)
   public MainJobPostingDto.Response getAllJobPosting(int page, int size) {
-
     Pageable pageable = PageRequest.of(page - 1, size);
     LocalDate currentDate = LocalDate.now();
-
     Page<JobPostingEntity> jobPostingPage = jobPostingRepository.findByEndDateGreaterThanEqual(
         currentDate, pageable);
-    List<MainJobPostingDto.JobPostingMainInfo> jobPostingMainInfoList = new ArrayList<>();
 
-    for (JobPostingEntity entity : jobPostingPage.getContent()) {
-      JobPostingMainInfo jobPostingMainInfo = createJobPostingMainInfo(entity);
+    int totalPages = jobPostingPage.getTotalPages();
+    long totalElements = jobPostingPage.getTotalElements();
 
-      if (!"탈퇴한 회사".equals(jobPostingMainInfo.getCompanyName())) {
-        jobPostingMainInfoList.add(jobPostingMainInfo);
-      }
-    }
+    List<MainJobPostingDto.JobPostingMainInfo> jobPostingMainInfoList = jobPostingPage.getContent()
+        .stream()
+        .map(this::createJobPostingMainInfo)
+        .collect(Collectors.toList());
 
-    long totalValidElements = jobPostingMainInfoList.size();
-    int totalValidPages = (int) Math.ceil((double) totalValidElements / size);
+    log.info("총 {}개의 채용 공고 조회 완료", totalElements);
 
-    log.info("총 {}개의 채용 공고 조회 완료", totalValidElements);
     return MainJobPostingDto.Response.builder()
         .jobPostingsList(jobPostingMainInfoList)
-        .totalPages(totalValidPages)
-        .totalElements(totalValidElements)
+        .totalPages(totalPages)
+        .totalElements(totalElements)
         .build();
   }
 

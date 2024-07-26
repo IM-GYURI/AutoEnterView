@@ -1,6 +1,8 @@
 package com.ctrls.auto_enter_view.service;
 
 import static com.ctrls.auto_enter_view.enums.ErrorCode.EMAIL_SEND_FAILURE;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.INVALID_VERIFICATION_CODE;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.UserRole.ROLE_CANDIDATE;
 import static com.ctrls.auto_enter_view.enums.UserRole.ROLE_COMPANY;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -12,20 +14,25 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ctrls.auto_enter_view.component.KeyGenerator;
 import com.ctrls.auto_enter_view.component.MailComponent;
 import com.ctrls.auto_enter_view.dto.common.SignInDto;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
+import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.enums.UserRole;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
+import com.ctrls.auto_enter_view.repository.CompanyInfoRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.component.KeyGenerator;
+import com.ctrls.auto_enter_view.repository.ResumeRepository;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
@@ -37,10 +44,18 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 class CommonUserServiceTest {
+
+  @Mock
+  private CompanyInfoRepository companyInfoRepository;
+
+  @Mock
+  private ResumeRepository resumeRepository;
 
   @Mock
   private CompanyRepository companyRepository;
@@ -89,11 +104,11 @@ class CommonUserServiceTest {
 
     when(companyRepository.existsByEmail(testEmail)).thenReturn(true);
 
-    CustomException exception = assertThrows(CustomException.class, () -> {
+    CustomException thrownException = assertThrows(CustomException.class, () -> {
       commonUserService.checkDuplicateEmail(testEmail);
     });
 
-    assertEquals("이메일이 중복됩니다.", exception.getMessage());
+    assertEquals("이메일이 중복됩니다.", thrownException.getMessage());
   }
 
   @Test
@@ -134,9 +149,11 @@ class CommonUserServiceTest {
     doThrow(new RuntimeException("Mail send failure")).when(mailComponent)
         .sendVerificationCode(email, verificationCode);
 
-    assertThrows(CustomException.class, () -> {
+    CustomException thrownException = assertThrows(CustomException.class, () -> {
       commonUserService.sendVerificationCode(email);
     });
+
+    assertEquals(EMAIL_SEND_FAILURE, thrownException.getErrorCode());
   }
 
   @Test
@@ -149,13 +166,15 @@ class CommonUserServiceTest {
     doThrow(new RuntimeException("Redis failure")).when(valueOperations)
         .set(email, verificationCode, 5, TimeUnit.MINUTES);
 
-    assertThrows(CustomException.class, () -> {
+    CustomException thrownException = assertThrows(CustomException.class, () -> {
       commonUserService.sendVerificationCode(email);
     });
+
+    assertEquals(EMAIL_SEND_FAILURE, thrownException.getErrorCode());
   }
 
   @Test
-  @DisplayName("인증 코드 확인 : 성공 - 유효한 코드")
+  @DisplayName("인증 코드 확인 : 성공")
   public void testVerifyEmailVerificationCode_Success() {
 
     String testEmail = "test@example.com";
@@ -179,10 +198,10 @@ class CommonUserServiceTest {
     when(redisTemplate.opsForValue()).thenReturn(valueOperations);
     when(valueOperations.get(testEmail)).thenReturn(correctVerificationCode);
 
-    CustomException exception = assertThrows(CustomException.class,
+    CustomException thrownException = assertThrows(CustomException.class,
         () -> commonUserService.verifyEmailVerificationCode(testEmail, incorrectVerificationCode));
 
-    assertEquals("유효하지 않은 인증 코드입니다.", exception.getMessage());
+    assertEquals(INVALID_VERIFICATION_CODE, thrownException.getErrorCode());
   }
 
   @Test
@@ -195,10 +214,10 @@ class CommonUserServiceTest {
     when(redisTemplate.opsForValue()).thenReturn(valueOperations);
     when(valueOperations.get(testEmail)).thenReturn(null);
 
-    CustomException exception = assertThrows(CustomException.class,
+    CustomException thrownException = assertThrows(CustomException.class,
         () -> commonUserService.verifyEmailVerificationCode(testEmail, correctVerificationCode));
 
-    assertEquals("유효하지 않은 인증 코드입니다.", exception.getMessage());
+    assertEquals(INVALID_VERIFICATION_CODE, thrownException.getErrorCode());
   }
 
   @Test
@@ -266,7 +285,7 @@ class CommonUserServiceTest {
   }
 
   @Test
-  @DisplayName("임시 비밀번호 전송 : 실패 - 회사 계정을 찾을 수 없음")
+  @DisplayName("임시 비밀번호 전송 : 실패 - 회사 USER_NOT_FOUND")
   public void testSendTemporaryPassword_CompanyNotFound() {
     String testEmail = "test@company.com";
     String testCompanyName = "TestCompany";
@@ -274,25 +293,29 @@ class CommonUserServiceTest {
     when(companyRepository.existsByEmail(testEmail)).thenReturn(true);
     when(companyRepository.findByEmail(testEmail)).thenReturn(Optional.empty());
 
-    assertThrows(CustomException.class, () ->
+    CustomException thrownException = assertThrows(CustomException.class, () ->
         commonUserService.sendTemporaryPassword(testEmail, testCompanyName));
+
+    assertEquals(USER_NOT_FOUND, thrownException.getErrorCode());
   }
 
   @Test
-  @DisplayName("임시 비밀번호 전송 : 실패 - 지원자 계정을 찾을 수 없음")
+  @DisplayName("임시 비밀번호 전송 : 실패 - 지원자 USER_NOT_FOUND")
   public void testSendTemporaryPassword_CandidateNotFound() {
     String testEmail = "test@company.com";
-    String testCompanyName = "TestCompany";
+    String testCandidateName = "testCandidate";
 
-    when(companyRepository.existsByEmail(testEmail)).thenReturn(true);
-    when(companyRepository.findByEmail(testEmail)).thenReturn(Optional.empty());
+    when(candidateRepository.existsByEmail(testEmail)).thenReturn(true);
+    when(candidateRepository.findByEmail(testEmail)).thenReturn(Optional.empty());
 
-    assertThrows(CustomException.class, () ->
-        commonUserService.sendTemporaryPassword(testEmail, testCompanyName));
+    CustomException thrownException = assertThrows(CustomException.class, () ->
+        commonUserService.sendTemporaryPassword(testEmail, testCandidateName));
+
+    assertEquals(USER_NOT_FOUND, thrownException.getErrorCode());
   }
 
   @Test
-  @DisplayName("임시 비밀번호 전송 : 실패 - 이메일 전송 실패")
+  @DisplayName("임시 비밀번호 전송 : 실패 - EMAIL_SEND_FAILURE")
   public void testSendTemporaryPassword_EmailSendFailure() {
     String testEmail = "test@company.com";
     String testCompanyName = "TestCompany";
@@ -317,8 +340,10 @@ class CommonUserServiceTest {
     CommonUserService spyService = spy(commonUserService);
     doReturn(temporaryPassword).when(spyService).generateTemporaryPassword();
 
-    assertThrows(CustomException.class, () ->
+    CustomException thrownException = assertThrows(CustomException.class, () ->
         spyService.sendTemporaryPassword(testEmail, testCompanyName));
+
+    assertEquals(EMAIL_SEND_FAILURE, thrownException.getErrorCode());
   }
 
   @Test
@@ -447,4 +472,166 @@ class CommonUserServiceTest {
     // then
     verify(blacklistTokenService, times(1)).addToBlacklist(token);
   }
+
+  @Test
+  @DisplayName("회원 탈퇴 성공 테스트 (지원자)")
+  void candidateWithdrawTest() {
+    //given
+    String email = "email";
+    String password = "password";
+    String key = "key";
+
+    UserDetails userDetails = User.withUsername(email).password(password)
+        .roles("CANDIDATE").build();
+
+    CandidateEntity candidateEntity = CandidateEntity.builder()
+        .candidateKey(key)
+        .build();
+
+    when(candidateRepository.findByEmail(userDetails.getUsername())).thenReturn(
+        Optional.of(candidateEntity));
+
+    // when
+    commonUserService.withdraw(userDetails, key);
+
+    //then
+    verify(candidateRepository, times(1)).delete(candidateEntity);
+    verify(resumeRepository, times(1)).deleteByCandidateKey(key);
+
+  }
+
+
+  @Test
+  @DisplayName("회원 탈퇴 성공 테스트 (회사)")
+  void companyWithdrawTest() {
+    //given
+    String email = "email";
+    String password = "password";
+    String key = "key";
+
+    UserDetails userDetails = User.withUsername(email).password(password)
+        .roles("COMPANY").build();
+
+    CompanyEntity companyEntity = CompanyEntity.builder()
+        .companyKey(key)
+        .build();
+
+    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
+        Optional.of(companyEntity));
+
+    // when
+    commonUserService.withdraw(userDetails, key);
+
+    //then
+    verify(companyRepository, times(1)).delete(companyEntity);
+    verify(companyInfoRepository, times(1)).deleteByCompanyKey(key);
+
+  }
+
+
+  @Test
+  @DisplayName("회원 탈퇴 실패 테스트 (지원자) -> KEY_NOT_MATCH")
+  void candidateWithdrawFailTestKeyNotMatch() {
+    //given
+    String email = "email";
+    String password = "password";
+    String key = "key";
+
+    UserDetails userDetails = User.withUsername(email).password(password)
+        .roles("CANDIDATE").build();
+
+    CandidateEntity candidateEntity = CandidateEntity.builder()
+        .candidateKey("key2")
+        .build();
+
+    when(candidateRepository.findByEmail(userDetails.getUsername())).thenReturn(
+        Optional.of(candidateEntity));
+
+    // when
+    CustomException customException = assertThrows(CustomException.class,
+        () -> commonUserService.withdraw(userDetails, key));
+
+    //then
+    verify(candidateRepository, times(1)).findByEmail(userDetails.getUsername());
+    assertEquals(ErrorCode.KEY_NOT_MATCH, customException.getErrorCode());
+
+  }
+
+  @Test
+  @DisplayName("회원 탈퇴 실패 테스트 (지원자) -> USER_NOT_FOUND")
+  void candidateWithdrawFailTestUserNotFound() {
+    //given
+    String email = "email";
+    String password = "password";
+    String key = "key";
+
+    UserDetails userDetails = User.withUsername(email).password(password)
+        .roles("CANDIDATE").build();
+
+    when(candidateRepository.findByEmail(userDetails.getUsername())).thenReturn(
+        Optional.empty());
+
+    // when
+    CustomException customException = assertThrows(CustomException.class,
+        () -> commonUserService.withdraw(userDetails, key));
+
+    //then
+    verify(candidateRepository, times(1)).findByEmail(userDetails.getUsername());
+    assertEquals(ErrorCode.USER_NOT_FOUND, customException.getErrorCode());
+
+  }
+
+  @Test
+  @DisplayName("회원 탈퇴 실패 테스트 (회사) -> KEY_NOT_MATCH")
+  void companyWithdrawFailTestKeyNotMatch() {
+    //given
+    String email = "email";
+    String password = "password";
+    String key = "key";
+
+    UserDetails userDetails = User.withUsername(email).password(password)
+        .roles("COMPANY").build();
+
+    CompanyEntity companyEntity = CompanyEntity.builder()
+        .companyKey("key2")
+        .build();
+
+    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
+        Optional.of(companyEntity));
+
+    // when
+    CustomException customException = assertThrows(CustomException.class,
+        () -> commonUserService.withdraw(userDetails, key));
+
+    //then
+    verify(companyRepository, times(1)).findByEmail(userDetails.getUsername());
+    assertEquals(ErrorCode.KEY_NOT_MATCH, customException.getErrorCode());
+
+  }
+
+
+  @Test
+  @DisplayName("회원 탈퇴 실패 테스트 (회사) -> USER_NOT_FOUND")
+  void companyWithdrawFailTestUserNotFound() {
+    //given
+    String email = "email";
+    String password = "password";
+    String key = "key";
+
+    UserDetails userDetails = User.withUsername(email).password(password)
+        .roles("COMPANY").build();
+
+    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
+        Optional.empty());
+
+    // when
+    CustomException customException = assertThrows(CustomException.class,
+        () -> commonUserService.withdraw(userDetails, key));
+
+    //then
+    verify(companyRepository, times(1)).findByEmail(userDetails.getUsername());
+    assertEquals(ErrorCode.USER_NOT_FOUND, customException.getErrorCode());
+
+  }
+
 }

@@ -50,7 +50,8 @@ public enum ErrorCode {
   SCHEDULE_FAILED(500, "스케줄링에 실패하였습니다."),
   UNSCHEDULE_FAILED(500, "스케줄링 취소에 실패하였습니다."),
   FAILED_MAIL_SCHEDULING(500, "메일 예약 등록을 실패했습니다."),
-  FAILED_MAIL_UNSCHEDULING(500, "메일 예약 취소를 실패했습니다.");
+  FAILED_MAIL_UNSCHEDULING(500, "메일 예약 취소를 실패했습니다."),
+  INVALID_CURRENT_STEP_ID(400, "잘못된 채용 공고 단계 입니다.");
 
   private final int status;
   private final String message;

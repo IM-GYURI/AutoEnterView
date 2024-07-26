@@ -57,8 +57,9 @@ public class InterviewScheduleParticipantsService {
       UserDetails userDetails) {
     checkOwner(userDetails, jobPostingKey);
 
-    String interviewScheduleKey = interviewScheduleRepository.findInterviewScheduleKeyByJobPostingKey(
-        jobPostingKey).orElseThrow(() -> new CustomException(ErrorCode.JOB_POSTING_KEY_NOT_FOUND));
+    String interviewScheduleKey = interviewScheduleRepository.findInterviewScheduleKeyByJobPostingKeyAndStepId(
+            jobPostingKey, stepId)
+        .orElseThrow(() -> new CustomException(ErrorCode.JOB_POSTING_KEY_NOT_FOUND));
 
     List<String> candidateKeyList = candidateListRepository.findCandidateKeyByJobPostingKeyAndJobPostingStepId(
         jobPostingKey, stepId);

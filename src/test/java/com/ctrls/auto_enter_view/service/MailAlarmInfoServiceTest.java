@@ -3,7 +3,12 @@ package com.ctrls.auto_enter_view.service;
 import static com.ctrls.auto_enter_view.enums.Education.BACHELOR;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.FAILED_MAIL_SCHEDULING;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.INTERVIEW_SCHEDULE_NOT_FOUND;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.FAILED_MAIL_UNSCHEDULING;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.INTERVIEW_SCHEDULE_NOT_FOUND;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_NOT_FOUND;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_STEP_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.MAIL_ALARM_INFO_NOT_FOUND;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.MAIL_ALARM_TIME_BEFORE_NOW;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.JobCategory.BACKEND;
 import static com.ctrls.auto_enter_view.enums.UserRole.ROLE_CANDIDATE;
@@ -187,15 +192,34 @@ class MailAlarmInfoServiceTest {
           userDetails);
     });
 
-    assertEquals("해당 면접 일정을 찾을 수 없습니다.", thrownException.getMessage());
+    assertEquals(INTERVIEW_SCHEDULE_NOT_FOUND, thrownException.getErrorCode());
   }
 
   @Test
   @DisplayName("메일 예약 생성 : 실패 - MAIL_ALARM_TIME_BEFORE_NOW")
   void createMailAlarmInfo_MailAlarmTimeBeforeNowFailure() {
     String companyKey = "companyKey";
+    String jobPostingKey = "jobPostingKey";
     String interviewScheduleKey = "interviewScheduleKey";
     Long stepId = 1L;
+
+    UserDetails userDetails = mock(UserDetails.class);
+    when(userDetails.getUsername()).thenReturn("test@example.com");
+
+    CompanyEntity companyEntity = CompanyEntity.builder()
+        .companyKey(companyKey)
+        .email("test@example.com")
+        .build();
+
+    InterviewScheduleEntity interviewScheduleEntity = InterviewScheduleEntity.builder()
+        .interviewScheduleKey(interviewScheduleKey)
+        .lastInterviewDate(LocalDate.of(2025, 5, 1))
+        .build();
+
+    when(companyRepository.findByEmail(userDetails.getUsername()))
+        .thenReturn(Optional.of(companyEntity));
+    when(interviewScheduleRepository.findByJobPostingKeyAndJobPostingStepId(jobPostingKey, stepId))
+        .thenReturn(Optional.of(interviewScheduleEntity));
 
     MailAlarmInfoDto mailAlarmInfoDto = MailAlarmInfoDto.builder()
         .mailContent("메일 안내문")
@@ -203,10 +227,10 @@ class MailAlarmInfoServiceTest {
         .build();
 
     CustomException thrownException = assertThrows(CustomException.class, () ->
-        mailAlarmInfoService.createMailAlarmInfo(companyKey, interviewScheduleKey, stepId,
+        mailAlarmInfoService.createMailAlarmInfo(companyKey, jobPostingKey, stepId,
             mailAlarmInfoDto, userDetails));
 
-    assertEquals("사용자를 찾을 수 없습니다.", thrownException.getMessage());
+    assertEquals(MAIL_ALARM_TIME_BEFORE_NOW, thrownException.getErrorCode());
   }
 
   @Test
@@ -491,7 +515,7 @@ class MailAlarmInfoServiceTest {
           userDetails);
     });
 
-    assertEquals("해당 면접 일정을 찾을 수 없습니다.", thrownException.getMessage());
+    assertEquals(INTERVIEW_SCHEDULE_NOT_FOUND, thrownException.getErrorCode());
   }
 
   @Test
@@ -537,7 +561,7 @@ class MailAlarmInfoServiceTest {
           userDetails);
     });
 
-    assertEquals("예약된 메일 내역을 찾을 수 없습니다.", thrownException.getMessage());
+    assertEquals(MAIL_ALARM_INFO_NOT_FOUND, thrownException.getErrorCode());
   }
 
   @Test
@@ -591,7 +615,7 @@ class MailAlarmInfoServiceTest {
           userDetails);
     });
 
-    assertEquals("메일 예약 발송 시간은 현재 이후여야 합니다.", thrownException.getMessage());
+    assertEquals(MAIL_ALARM_TIME_BEFORE_NOW, thrownException.getErrorCode());
   }
 
   @Test
@@ -650,7 +674,7 @@ class MailAlarmInfoServiceTest {
           userDetails);
     });
 
-    assertEquals("메일 예약 등록을 실패했습니다.", thrownException.getMessage());
+    assertEquals(FAILED_MAIL_SCHEDULING, thrownException.getErrorCode());
   }
 
   @Test
@@ -692,7 +716,7 @@ class MailAlarmInfoServiceTest {
       mailAlarmInfoService.unscheduleMailJob(mailAlarmInfoEntity);
     });
 
-    assertEquals("메일 예약 취소를 실패했습니다.", thrownException.getMessage());
+    assertEquals(FAILED_MAIL_UNSCHEDULING, thrownException.getErrorCode());
   }
 
   @Test
@@ -806,7 +830,7 @@ class MailAlarmInfoServiceTest {
           Collections.singletonList(participant), mailAlarmInfoEntity);
     });
 
-    assertEquals("채용 공고를 찾을 수 없습니다.", thrownException.getMessage());
+    assertEquals(JOB_POSTING_NOT_FOUND, thrownException.getErrorCode());
   }
 
   @Test
@@ -839,7 +863,8 @@ class MailAlarmInfoServiceTest {
       mailAlarmInfoService.sendInterviewMailToCandidates(
           Collections.singletonList(participant), mailAlarmInfoEntity);
     });
-    assertEquals("채용 공고의 해당 단계를 찾을 수 없습니다.", thrownException.getMessage());
+
+    assertEquals(JOB_POSTING_STEP_NOT_FOUND, thrownException.getErrorCode());
   }
 
   @Test
@@ -880,7 +905,7 @@ class MailAlarmInfoServiceTest {
       mailAlarmInfoService.sendInterviewMailToCandidates(
           Collections.singletonList(participant), mailAlarmInfoEntity);
     });
-    assertEquals("사용자를 찾을 수 없습니다.", thrownException.getMessage());
+    assertEquals(USER_NOT_FOUND, thrownException.getErrorCode());
   }
 
   @Test
@@ -977,7 +1002,7 @@ class MailAlarmInfoServiceTest {
           Collections.singletonList(participant), mailAlarmInfoEntity);
     });
 
-    assertEquals("채용 공고를 찾을 수 없습니다.", thrownException.getMessage());
+    assertEquals(JOB_POSTING_NOT_FOUND, thrownException.getErrorCode());
   }
 
   @Test
@@ -1009,7 +1034,53 @@ class MailAlarmInfoServiceTest {
           Collections.singletonList(participant), mailAlarmInfoEntity);
     });
 
-    assertEquals("채용 공고의 해당 단계를 찾을 수 없습니다.", thrownException.getMessage());
+    assertEquals(JOB_POSTING_STEP_NOT_FOUND, thrownException.getErrorCode());
+  }
+
+  @Test
+  @DisplayName("과제 일정 이메일 발송 : 실패 - INTERVIEW_SCHEDULE_NOT_FOUND")
+  void sendTaskMailToCandidates_InterviewScheduleNotFoundFailure() {
+    String jobPostingKey = "jobPostingKey";
+    String interviewScheduleKey = "interviewScheduleKey";
+    String candidateKey = "candidateKey";
+
+    MailAlarmInfoEntity mailAlarmInfoEntity = MailAlarmInfoEntity.builder()
+        .jobPostingKey(jobPostingKey)
+        .jobPostingStepId(1L)
+        .interviewScheduleKey(interviewScheduleKey)
+        .mailContent("메일 내용")
+        .build();
+
+    JobPostingEntity jobPostingEntity = JobPostingEntity.builder()
+        .jobPostingKey(jobPostingKey)
+        .title("제목")
+        .build();
+
+    JobPostingStepEntity jobPostingStepEntity = JobPostingStepEntity.builder()
+        .id(1L)
+        .jobPostingKey(jobPostingKey)
+        .step("서류 단계")
+        .build();
+
+    CandidateListEntity participant = CandidateListEntity.builder()
+        .candidateKey(candidateKey)
+        .build();
+
+    when(jobPostingRepository.findByJobPostingKey(mailAlarmInfoEntity.getJobPostingKey()))
+        .thenReturn(Optional.of(jobPostingEntity));
+    when(jobPostingStepRepository.findById(mailAlarmInfoEntity.getJobPostingStepId()))
+        .thenReturn(Optional.of(jobPostingStepEntity));
+    when(interviewScheduleRepository.findByInterviewScheduleKey(
+        mailAlarmInfoEntity.getInterviewScheduleKey()))
+        .thenReturn(Optional.empty());
+
+    CustomException thrownException = assertThrows(CustomException.class, () ->
+        mailAlarmInfoService.sendTaskMailToCandidates(
+            Collections.singletonList(participant), mailAlarmInfoEntity
+        )
+    );
+
+    assertEquals(INTERVIEW_SCHEDULE_NOT_FOUND, thrownException.getErrorCode());
   }
 
   @Test
@@ -1063,7 +1134,7 @@ class MailAlarmInfoServiceTest {
         )
     );
 
-    assertEquals("사용자를 찾을 수 없습니다.", thrownException.getMessage());
+    assertEquals(USER_NOT_FOUND, thrownException.getErrorCode());
   }
 
   @Test
@@ -1135,7 +1206,7 @@ class MailAlarmInfoServiceTest {
 
     InterviewScheduleEntity interviewScheduleEntity = InterviewScheduleEntity.builder()
         .jobPostingKey(jobPostingKey)
-        .firstInterviewDate(null)  // 과제일 경우 firstInterviewDate가 null
+        .firstInterviewDate(null)
         .build();
 
     JobPostingEntity jobPostingEntity = JobPostingEntity.builder()
@@ -1212,7 +1283,7 @@ class MailAlarmInfoServiceTest {
         )
     );
 
-    assertEquals("채용 공고를 찾을 수 없습니다.", thrownException.getMessage());
+    assertEquals(JOB_POSTING_NOT_FOUND, thrownException.getErrorCode());
   }
 
   @Test
@@ -1246,7 +1317,7 @@ class MailAlarmInfoServiceTest {
         )
     );
 
-    assertEquals("채용 공고의 해당 단계를 찾을 수 없습니다.", thrownException.getMessage());
+    assertEquals(JOB_POSTING_STEP_NOT_FOUND, thrownException.getErrorCode());
   }
 
   @Test
@@ -1290,6 +1361,6 @@ class MailAlarmInfoServiceTest {
         )
     );
 
-    assertEquals("사용자를 찾을 수 없습니다.", thrownException.getMessage());
+    assertEquals(USER_NOT_FOUND, thrownException.getErrorCode());
   }
 }
