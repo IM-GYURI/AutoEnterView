@@ -54,6 +54,9 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            BACKUP_FILE="/usr/bin/backup/backup_$(date +'%Y%m%d_%H%M%S').sql"
+            sudo docker exec ubuntu-db-1 /usr/bin/mysqldump -u root --password='${{ secrets.DB_ROOT_PASSWORD }}' auto_enter_view > $BACKUP_FILE
             docker-compose down
             docker pull eunsun0101/auto_enter_view
             docker-compose up -d
+            docker image prune -f
