@@ -9,6 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ctrls.auto_enter_view.component.KeyGenerator;
 import com.ctrls.auto_enter_view.dto.company.CreateCompanyInfoDto.Request;
 import com.ctrls.auto_enter_view.dto.company.ReadCompanyInfoDto.Response;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
@@ -17,7 +18,6 @@ import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CompanyInfoRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
-import com.ctrls.auto_enter_view.component.KeyGenerator;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;

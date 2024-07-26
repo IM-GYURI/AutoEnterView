@@ -1,15 +1,19 @@
 package com.ctrls.auto_enter_view.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import com.ctrls.auto_enter_view.component.KeyGenerator;
 import com.ctrls.auto_enter_view.component.S3ImageUpload;
 import com.ctrls.auto_enter_view.dto.resume.ResumeDto;
 import com.ctrls.auto_enter_view.entity.ResumeEntity;
 import com.ctrls.auto_enter_view.entity.ResumeImageEntity;
 import com.ctrls.auto_enter_view.repository.ResumeImageRepository;
 import com.ctrls.auto_enter_view.repository.ResumeRepository;
-import com.ctrls.auto_enter_view.component.KeyGenerator;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,8 +21,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.Optional;
 
 class ResumeImageServiceTest {
 

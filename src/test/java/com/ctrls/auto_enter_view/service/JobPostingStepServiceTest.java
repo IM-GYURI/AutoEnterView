@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -518,6 +519,17 @@ class JobPostingStepServiceTest {
     when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(
         Optional.of(jobPostingEntity));
 
+    // 지원자 정보 설정
+    List<CandidateListEntity> candidateListEntities = candidateKeys.stream()
+        .map(candidateKey -> CandidateListEntity.builder()
+            .candidateKey(candidateKey)
+            .jobPostingKey(jobPostingKey)
+            .jobPostingStepId(currentStepId)
+            .build())
+        .collect(Collectors.toList());
+    when(candidateListRepository.findAllByCandidateKeyInAndJobPostingKey(candidateKeys, jobPostingKey))
+        .thenReturn(candidateListEntities);
+
     Long nextStepId = currentStepId + 1;
     when(jobPostingStepRepository.findByJobPostingKeyAndId(jobPostingKey, nextStepId)).thenReturn(
         Optional.empty());
@@ -567,18 +579,11 @@ class JobPostingStepServiceTest {
     when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(
         Optional.of(jobPostingEntity));
 
-    Long nextStepId = currentStepId + 1;
-    JobPostingStepEntity nextStepEntity = JobPostingStepEntity.builder()
-        .id(nextStepId)
-        .jobPostingKey(jobPostingKey)
-        .build();
-    when(jobPostingStepRepository.findByJobPostingKeyAndId(jobPostingKey, nextStepId)).thenReturn(
-        Optional.of(nextStepEntity));
-
     // 지원자를 찾을 수 없는 상황 설정
     List<CandidateListEntity> candidateListEntities = List.of(CandidateListEntity.builder()
         .candidateKey("candidateKey1")
         .jobPostingKey(jobPostingKey)
+        .jobPostingStepId(currentStepId)
         .build());
     when(candidateListRepository.findAllByCandidateKeyInAndJobPostingKey(candidateKeys,
         jobPostingKey))
@@ -599,7 +604,6 @@ class JobPostingStepServiceTest {
     assertEquals(ErrorCode.CANDIDATE_NOT_FOUND, exception.getErrorCode());
     verify(companyRepository).findByEmail(companyEmail);
     verify(jobPostingRepository).findByJobPostingKey(jobPostingKey);
-    verify(jobPostingStepRepository).findByJobPostingKeyAndId(jobPostingKey, nextStepId);
     verify(candidateListRepository).findAllByCandidateKeyInAndJobPostingKey(candidateKeys,
         jobPostingKey);
   }
