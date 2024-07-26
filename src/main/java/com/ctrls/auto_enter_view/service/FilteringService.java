@@ -8,6 +8,7 @@ import static com.ctrls.auto_enter_view.enums.ErrorCode.SCHEDULE_FAILED;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.UNSCHEDULE_FAILED;
 
 import com.ctrls.auto_enter_view.component.FilteringJob;
+import com.ctrls.auto_enter_view.component.KeyGenerator;
 import com.ctrls.auto_enter_view.component.ScoringJob;
 import com.ctrls.auto_enter_view.entity.ApplicantEntity;
 import com.ctrls.auto_enter_view.entity.AppliedJobPostingEntity;
@@ -22,11 +23,11 @@ import com.ctrls.auto_enter_view.repository.CandidateListRepository;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
-import com.ctrls.auto_enter_view.component.KeyGenerator;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -67,16 +68,17 @@ public class FilteringService {
    * @throws CustomException SCHEDULE_FAILED : 스케줄링이 실패한 경우
    */
   public void scheduleResumeScoringJob(String jobPostingKey, LocalDate endDate) {
-
+    log.info("스코어링 + 필터링 스케줄링");
     try {
-//      마감일 다음 날 자정으로 설정
       LocalDateTime filteringDateTime = LocalDateTime.of(endDate.plusDays(1), LocalTime.MIDNIGHT);
+      log.info("마감일 다음 날 자정으로 설정 : " + filteringDateTime.format(
+          DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 //       테스트용 3분 후 스케줄링
 //      LocalDateTime filteringDateTime = LocalDateTime.now().plusMinutes(3);
 
-      // 기존 작업이 있는지 확인하고 제거
       JobKey jobKeyA = JobKey.jobKey("resumeScoringJob", "group1");
       if (scheduler.checkExists(jobKeyA)) {
+        log.info("스코어링 관련 기존 작업이 있다면 삭제");
         scheduler.deleteJob(jobKeyA);
       }
 
@@ -97,10 +99,12 @@ public class FilteringService {
           .build();
 
       scheduler.scheduleJob(jobDetailA, triggerA);
+      log.info("스코어링 스케줄링 완료");
 
       // 필터링 스케줄링
       JobKey jobKeyB = JobKey.jobKey("filteringJob", "group1");
       if (scheduler.checkExists(jobKeyB)) {
+        log.info("필터링 관련 기존 작업이 있다면 삭제");
         scheduler.deleteJob(jobKeyB);
       }
 
@@ -112,7 +116,6 @@ public class FilteringService {
           .setJobData(jobDataMapB)
           .build();
 
-      // 스코어링 작업이 끝난 후 1분 후에 시작
       SimpleTrigger triggerB = TriggerBuilder.newTrigger()
           .withIdentity("filteringTrigger", "group1")
           .startAt(Date.from(
@@ -122,6 +125,7 @@ public class FilteringService {
           .build();
 
       scheduler.scheduleJob(jobDetailB, triggerB);
+      log.info("필터링 스케줄링 완료 - 스케줄링 작업 시작 1분 후 실행");
     } catch (SchedulerException e) {
       throw new CustomException(SCHEDULE_FAILED);
     }
@@ -134,7 +138,7 @@ public class FilteringService {
    * @throws CustomException UNSCHEDULE_FAILED : 스케줄링 취소에 실패한 경우
    */
   public void unscheduleResumeScoringJob(String jobPostingKey) {
-
+    log.info("스케줄링 취소");
     try {
       // 스코어링 작업과 필터링 작업의 트리거 취소
       TriggerKey scoringTriggerKey = TriggerKey.triggerKey("resumeScoringTrigger-" + jobPostingKey,
@@ -163,9 +167,12 @@ public class FilteringService {
    */
   @Transactional
   public void filterCandidates(String jobPostingKey) {
+    log.info(
+        "지원자를 접수가 높은 순서(같다면 지원한 시간이 빠른 순서)로 정렬하여 JobPostingEntity의 passingNumber만큼 candidateList에 저장");
 
     JobPostingEntity jobPosting = jobPostingRepository.findByJobPostingKey(jobPostingKey)
         .orElseThrow(() -> new CustomException(JOB_POSTING_NOT_FOUND));
+    log.info("passingNumber : " + jobPosting.getPassingNumber());
 
     List<ApplicantEntity> applicants = applicantRepository.findAllByJobPostingKey(jobPostingKey);
 
@@ -195,7 +202,7 @@ public class FilteringService {
 
       candidateListRepository.save(candidateListEntity);
 
-      // 지원자별로 AppliedJobPostingEntity의 stepName을 해당 채용 공고의 첫번째 단계명으로 업데이트해주기
+      log.info("지원자별로 AppliedJobPostingEntity의 stepName을 해당 채용 공고의 첫번째 단계명으로 업데이트해주기");
       String currentStepName = jobPostingStepEntity.getStep();
       AppliedJobPostingEntity appliedJobPostingEntity = appliedJobPostingRepository.findByCandidateKeyAndJobPostingKey(
               applicant.getCandidateKey(), applicant.getJobPostingKey())

@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.service;
 
+import com.ctrls.auto_enter_view.component.KeyGenerator;
 import com.ctrls.auto_enter_view.dto.resume.ResumeDto.Request;
 import com.ctrls.auto_enter_view.dto.resume.ResumeReadDto;
 import com.ctrls.auto_enter_view.entity.ApplicantEntity;
@@ -25,7 +26,6 @@ import com.ctrls.auto_enter_view.repository.ResumeExperienceRepository;
 import com.ctrls.auto_enter_view.repository.ResumeImageRepository;
 import com.ctrls.auto_enter_view.repository.ResumeRepository;
 import com.ctrls.auto_enter_view.repository.ResumeTechStackRepository;
-import com.ctrls.auto_enter_view.component.KeyGenerator;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -66,7 +66,7 @@ public class ResumeService {
    */
   @Transactional
   public String createResume(UserDetails userDetails, String candidateKey, Request request) {
-
+    log.info("이력서 생성 : " + candidateKey);
     // 지원자
     CandidateEntity candidateEntity = candidateRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new CustomException(
@@ -106,6 +106,7 @@ public class ResumeService {
    */
   @Transactional(readOnly = true)
   public ResumeReadDto.Response readResume(UserDetails userDetails, String candidateKey) {
+    log.info("이력서 조회 : " + candidateKey);
 
     // 사용자 권한
     Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
@@ -118,6 +119,7 @@ public class ResumeService {
 
       // 회사인 경우
       if (isCompany) {
+        log.info("회사가 이력서 조회");
         CompanyEntity companyEntity = companyRepository.findByEmail(userDetails.getUsername())
             .orElseThrow(() -> new CustomException(ErrorCode.COMPANY_NOT_FOUND));
 
@@ -144,6 +146,7 @@ public class ResumeService {
 
       // 지원자인 경우
       else if (isCandidate) {
+        log.info("지원자가 이력서 조회");
         CandidateEntity candidateEntity = candidateRepository.findByEmail(userDetails.getUsername())
             .orElseThrow(() -> new CustomException(
                 ErrorCode.CANDIDATE_NOT_FOUND));
@@ -178,6 +181,7 @@ public class ResumeService {
    */
   @Transactional
   public String updateResume(UserDetails userDetails, String candidateKey, Request request) {
+    log.info("이력서 수정 : " + candidateKey);
 
     CandidateEntity candidateEntity = candidateRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new CustomException(ErrorCode.CANDIDATE_NOT_FOUND));
@@ -208,6 +212,7 @@ public class ResumeService {
    */
   @Transactional
   public void deleteResume(UserDetails userDetails, String candidateKey) {
+    log.info("이력서 삭제 : " + candidateKey);
 
     CandidateEntity candidateEntity = candidateRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new CustomException(ErrorCode.CANDIDATE_NOT_FOUND));
@@ -227,6 +232,8 @@ public class ResumeService {
 
   // 이력서 추가 정보를 저장하는 메서드
   private void saveElse(String resumeKey, Request request) {
+    log.info("경험, 경력, 기술스택, 증명사진, 자격 저장");
+
     // 경력 저장
     if (request.getCareer() != null) {
       List<ResumeCareerEntity> list = request.getCareer().stream()
@@ -262,14 +269,14 @@ public class ResumeService {
 
   // 이력서 추가 정보를 수정하는 메서드
   private void updateElse(String resumeKey, Request request) {
-
+    log.info("이력서 추가 정보 수정");
     deleteElse(resumeKey);
     saveElse(resumeKey, request);
   }
 
   // 이력서 추가 정보를 삭제하는 메서드
   private void deleteElse(String resumeKey) {
-
+    log.info("이력서 추가 정보 삭제");
     resumeTechStackRepository.deleteAllByResumeKey(resumeKey);
     resumeCareerRepository.deleteAllByResumeKey(resumeKey);
     resumeExperienceRepository.deleteAllByResumeKey(resumeKey);

@@ -2,12 +2,12 @@ package com.ctrls.auto_enter_view.service;
 
 import static com.ctrls.auto_enter_view.enums.ErrorCode.EMAIL_DUPLICATION;
 
+import com.ctrls.auto_enter_view.component.KeyGenerator;
 import com.ctrls.auto_enter_view.dto.company.SignUpDto;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
-import com.ctrls.auto_enter_view.component.KeyGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,8 +21,6 @@ public class CompanyService {
   private final CompanyRepository companyRepository;
   private final PasswordEncoder passwordEncoder;
   private final KeyGenerator keyGenerator;
-
-  // 회원 가입
 
   /**
    * 회사 회원 가입
@@ -52,6 +50,7 @@ public class CompanyService {
 
     CompanyEntity saved = companyRepository.save(companyEntity);
 
+    log.info("회사 회원가입 : " + companyEntity.getCompanyName());
     return SignUpDto.Response.builder()
         .companyKey(saved.getCompanyKey())
         .email(saved.getEmail())

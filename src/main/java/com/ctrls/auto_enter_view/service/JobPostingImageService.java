@@ -25,6 +25,7 @@ public class JobPostingImageService {
    * @return 채용공고 DTO
    */
   public JobPostingDto.Response uploadImage(MultipartFile image, String jobPostingKey) {
+    log.info("채용공고 이미지 파일 업로드");
 
     JobPostingImageEntity jobPostingImage = jobPostingImageRepository.findByJobPostingKey(
             jobPostingKey)
@@ -32,8 +33,8 @@ public class JobPostingImageService {
             .jobPostingKey(jobPostingKey)
             .build());
 
-    // 기존 이미지가 있다면 삭제
     if (jobPostingImage.getCompanyImageUrl() != null) {
+      log.info("기존 이미지가 있다면 삭제");
       s3ImageUpload.deleteImage(jobPostingImage.getCompanyImageUrl());
     }
 
@@ -46,6 +47,7 @@ public class JobPostingImageService {
 
   // 이미지 파일 조회 -> Response 반환
   public JobPostingDto.Response getJobPostingImage(String jobPostingKey) {
+    log.info("채용공고 이미지 파일 조회");
 
     return jobPostingImageRepository.findByJobPostingKey(jobPostingKey)
         .map(image -> new JobPostingDto.Response(jobPostingKey, image.getCompanyImageUrl()))
@@ -54,6 +56,7 @@ public class JobPostingImageService {
 
   // 이미지 파일 삭제
   public void deleteImage(String jobPostingKey) {
+    log.info("채용공고 이미지 파일 삭제");
 
     jobPostingImageRepository.findByJobPostingKey(jobPostingKey)
         .ifPresent(image -> {
