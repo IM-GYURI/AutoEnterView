@@ -25,13 +25,13 @@ public class MailAlarmInfoEntity extends BaseEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private String interviewScheduleKey;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private Long jobPostingStepId;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private String jobPostingKey;
 
   @Column(columnDefinition = "TEXT")
