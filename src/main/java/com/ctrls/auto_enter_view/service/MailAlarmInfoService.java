@@ -107,6 +107,37 @@ public class MailAlarmInfoService {
   }
 
   /**
+   * 예약된 메일 조회
+   *
+   * @param companyKey    회사 KEY
+   * @param jobPostingKey 채용 공고 KEY
+   * @param stepId        채용 단계 ID
+   * @return MailAlarmInfoDto 메일 정보 Dto
+   * @throws CustomException INTERVIEW_SCHEDULE_NOT_FOUND 면접 일정 없음 일정이 없음
+   * @throws CustomException MAIL_ALARM_INFO_NOT_FOUND 메일 예약이 없음
+   */
+  public MailAlarmInfoDto getMailAlarmInfo(String companyKey, String jobPostingKey, Long stepId,
+      UserDetails userDetails) {
+    log.info("예약된 메일 조회");
+
+    CompanyEntity company = findCompanyByPrincipal(userDetails);
+
+    verifyCompanyOwnership(company, companyKey);
+
+    InterviewScheduleEntity interviewScheduleEntity = interviewScheduleRepository.findByJobPostingKeyAndJobPostingStepId(
+        jobPostingKey, stepId).orElseThrow(() -> new CustomException(INTERVIEW_SCHEDULE_NOT_FOUND));
+
+    MailAlarmInfoEntity mailAlarmInfoEntity = mailAlarmInfoRepository.findByInterviewScheduleKey(
+            interviewScheduleEntity.getInterviewScheduleKey())
+        .orElseThrow(() -> new CustomException(MAIL_ALARM_INFO_NOT_FOUND));
+
+    return MailAlarmInfoDto.builder()
+        .mailContent(mailAlarmInfoEntity.getMailContent())
+        .mailSendDateTime(mailAlarmInfoEntity.getMailSendDateTime())
+        .build();
+  }
+  
+  /**
    * 예약된 메일 수정
    *
    * @param companyKey       회사 KEY

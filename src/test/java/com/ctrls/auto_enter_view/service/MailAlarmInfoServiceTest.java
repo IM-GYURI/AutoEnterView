@@ -2,6 +2,7 @@ package com.ctrls.auto_enter_view.service;
 
 import static com.ctrls.auto_enter_view.enums.Education.BACHELOR;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.FAILED_MAIL_SCHEDULING;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.INTERVIEW_SCHEDULE_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.FAILED_MAIL_UNSCHEDULING;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.INTERVIEW_SCHEDULE_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_NOT_FOUND;
@@ -13,6 +14,7 @@ import static com.ctrls.auto_enter_view.enums.JobCategory.BACKEND;
 import static com.ctrls.auto_enter_view.enums.UserRole.ROLE_CANDIDATE;
 import static com.ctrls.auto_enter_view.enums.UserRole.ROLE_COMPANY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -288,6 +290,133 @@ class MailAlarmInfoServiceTest {
     });
 
     assertEquals(FAILED_MAIL_SCHEDULING, thrownException.getErrorCode());
+  }
+
+  @Test
+  @DisplayName("메일 예약 조회 : 성공")
+  void getMailAlarmInfo_Success() {
+    String companyKey = "companyKey";
+    String jobPostingKey = "jobPostingKey";
+    Long stepId = 1L;
+    String email = "test@example.com";
+
+    UserDetails userDetails = mock(UserDetails.class);
+    when(userDetails.getUsername()).thenReturn(email);
+
+    CompanyEntity companyEntity = CompanyEntity.builder()
+        .companyKey(companyKey)
+        .email(email)
+        .build();
+
+    InterviewScheduleEntity interviewScheduleEntity = InterviewScheduleEntity.builder()
+        .interviewScheduleKey("interviewScheduleKey")
+        .lastInterviewDate(LocalDate.of(2025, 5, 1))
+        .build();
+
+    MailAlarmInfoEntity mailAlarmInfoEntity = MailAlarmInfoEntity.builder()
+        .mailContent("메일 내용")
+        .mailSendDateTime(LocalDateTime.now().plusDays(1))
+        .build();
+
+    when(companyRepository.findByEmail(email))
+        .thenReturn(Optional.of(companyEntity));
+    when(interviewScheduleRepository.findByJobPostingKeyAndJobPostingStepId(jobPostingKey, stepId))
+        .thenReturn(Optional.of(interviewScheduleEntity));
+    when(mailAlarmInfoRepository.findByInterviewScheduleKey(
+        interviewScheduleEntity.getInterviewScheduleKey()))
+        .thenReturn(Optional.of(mailAlarmInfoEntity));
+
+    MailAlarmInfoDto result = mailAlarmInfoService.getMailAlarmInfo(companyKey, jobPostingKey,
+        stepId, userDetails);
+
+    assertNotNull(result);
+    assertEquals("메일 내용", result.getMailContent());
+    assertNotNull(result.getMailSendDateTime());
+  }
+
+  @Test
+  @DisplayName("메일 예약 조회 : 실패 - USER_NOT_FOUND")
+  void getMailAlarmInfo_CompanyNotFoundFailure() {
+    String companyKey = "companyKey";
+    String jobPostingKey = "jobPostingKey";
+    Long stepId = 1L;
+    String email = "test@example.com";
+
+    UserDetails userDetails = mock(UserDetails.class);
+    when(userDetails.getUsername()).thenReturn(email);
+
+    when(companyRepository.findByEmail(email))
+        .thenReturn(Optional.empty());
+
+    CustomException thrownException = assertThrows(CustomException.class, () ->
+        mailAlarmInfoService.getMailAlarmInfo(companyKey, jobPostingKey, stepId, userDetails)
+    );
+
+    assertEquals(USER_NOT_FOUND, thrownException.getErrorCode());
+  }
+
+  @Test
+  @DisplayName("메일 예약 조회 : 실패 - INTERVIEW_SCHEDULE_NOT_FOUND")
+  void getMailAlarmInfo_InterviewScheduleNotFoundFailure() {
+    String companyKey = "companyKey";
+    String jobPostingKey = "jobPostingKey";
+    Long stepId = 1L;
+    String email = "test@example.com";
+
+    UserDetails userDetails = mock(UserDetails.class);
+    when(userDetails.getUsername()).thenReturn(email);
+
+    CompanyEntity companyEntity = CompanyEntity.builder()
+        .companyKey(companyKey)
+        .email(email)
+        .build();
+
+    when(companyRepository.findByEmail(email))
+        .thenReturn(Optional.of(companyEntity));
+    when(interviewScheduleRepository.findByJobPostingKeyAndJobPostingStepId(jobPostingKey, stepId))
+        .thenReturn(Optional.empty());
+
+    CustomException thrownException = assertThrows(CustomException.class, () ->
+        mailAlarmInfoService.getMailAlarmInfo(companyKey, jobPostingKey, stepId, userDetails)
+    );
+
+    assertEquals(INTERVIEW_SCHEDULE_NOT_FOUND, thrownException.getErrorCode());
+  }
+
+  @Test
+  @DisplayName("메일 예약 조회 : 실패 - MAIL_ALARM_INFO_NOT_FOUND")
+  void getMailAlarmInfo_MailAlarmInfoNotFoundFailure() {
+    String companyKey = "companyKey";
+    String jobPostingKey = "jobPostingKey";
+    Long stepId = 1L;
+    String email = "test@example.com";
+
+    UserDetails userDetails = mock(UserDetails.class);
+    when(userDetails.getUsername()).thenReturn(email);
+
+    CompanyEntity companyEntity = CompanyEntity.builder()
+        .companyKey(companyKey)
+        .email(email)
+        .build();
+
+    InterviewScheduleEntity interviewScheduleEntity = InterviewScheduleEntity.builder()
+        .interviewScheduleKey("interviewScheduleKey")
+        .lastInterviewDate(LocalDate.of(2025, 5, 1))
+        .build();
+
+    when(companyRepository.findByEmail(email))
+        .thenReturn(Optional.of(companyEntity));
+    when(interviewScheduleRepository.findByJobPostingKeyAndJobPostingStepId(jobPostingKey, stepId))
+        .thenReturn(Optional.of(interviewScheduleEntity));
+    when(mailAlarmInfoRepository.findByInterviewScheduleKey(
+        interviewScheduleEntity.getInterviewScheduleKey()))
+        .thenReturn(Optional.empty());
+
+    CustomException thrownException = assertThrows(CustomException.class, () ->
+        mailAlarmInfoService.getMailAlarmInfo(companyKey, jobPostingKey, stepId, userDetails)
+    );
+
+    assertEquals(MAIL_ALARM_INFO_NOT_FOUND, thrownException.getErrorCode());
   }
 
   @Test
