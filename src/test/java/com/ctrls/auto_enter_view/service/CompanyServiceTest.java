@@ -8,6 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ctrls.auto_enter_view.component.KeyGenerator;
 import com.ctrls.auto_enter_view.dto.company.SignUpDto;
 import com.ctrls.auto_enter_view.dto.company.SignUpDto.Request;
 import com.ctrls.auto_enter_view.dto.company.SignUpDto.Response;
@@ -42,6 +43,9 @@ class CompanyServiceTest {
 
   @Mock
   private SecurityContext securityContext;
+
+  @Mock
+  private KeyGenerator keyGenerator;
 
   @InjectMocks
   private CompanyService companyService;
