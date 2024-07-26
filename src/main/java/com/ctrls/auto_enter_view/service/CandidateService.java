@@ -4,6 +4,7 @@ import static com.ctrls.auto_enter_view.enums.ErrorCode.EMAIL_DUPLICATION;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.EMAIL_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND_BY_NAME_AND_PHONE;
 
+import com.ctrls.auto_enter_view.component.KeyGenerator;
 import com.ctrls.auto_enter_view.dto.candidate.CandidateApplyDto;
 import com.ctrls.auto_enter_view.dto.candidate.CandidateApplyDto.ApplyInfo;
 import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto;
@@ -16,7 +17,6 @@ import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.AppliedJobPostingRepository;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.ResumeRepository;
-import com.ctrls.auto_enter_view.component.KeyGenerator;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +47,7 @@ public class CandidateService {
    * @throws CustomException EMAIL_DUPLICATION : 회원 이메일 중복된 경우
    */
   public SignUpDto.Response signUp(SignUpDto.Request request) {
-
+    log.info("이메일 중복 확인");
     if (candidateRepository.existsByEmail(request.getEmail())) {
       throw new CustomException(EMAIL_DUPLICATION);
     }
@@ -58,6 +58,7 @@ public class CandidateService {
 
     CandidateEntity candidate = request.toEntity(key, request, encoded);
 
+    log.info("지원자 회원 가입");
     candidateRepository.save(candidate);
 
     return SignUpDto.Response.builder()
@@ -75,6 +76,7 @@ public class CandidateService {
    * @throws CustomException USER_NOT_FOUND_BY_NAME_AND_PHONE : 이름과 전화번호가 일치하는 지원자가 없는 경우
    */
   public Response findEmail(FindEmailDto.Request request) {
+    log.info("이름과 전화번호로 지원자 이메일 찾기");
 
     CandidateEntity candidateEntity = candidateRepository.findByNameAndPhoneNumber(
             request.getName(), request.getPhoneNumber())
@@ -93,6 +95,7 @@ public class CandidateService {
    * @throws CustomException EMAIL_NOT_FOUND : 가입된 지원자 이메일이 없는 경우
    */
   public String findCandidateKeyByEmail(String candidateEmail) {
+    log.info("로그인한 지원자 email로 candidateKey 추출");
 
     return candidateRepository.findByEmail(candidateEmail)
         .map(CandidateEntity::getCandidateKey)
@@ -106,7 +109,7 @@ public class CandidateService {
    * @return boolean : 이력서가 존재하면 ture, 존재하지 않으면 false
    */
   public boolean hasResume(String candidateKey) {
-
+    log.info("이력서 존재 여부 확인");
     return resumeRepository.existsByCandidateKey(candidateKey);
   }
 
@@ -123,7 +126,6 @@ public class CandidateService {
    */
   public CandidateApplyDto.Response getApplyJobPostings(UserDetails userDetails,
       String candidateKey, int page, int size) {
-
     CandidateEntity candidateEntity = candidateRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new CustomException(ErrorCode.CANDIDATE_NOT_FOUND));
 

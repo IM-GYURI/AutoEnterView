@@ -82,7 +82,7 @@ public class ScoringService {
   // 점수 수정
   private void updateScore(JobPostingEntity jobPostingEntity, int careerPriority,
       int techStackPriority, int educationPriority) {
-
+    log.info("점수 저장");
     String jobPostingKey = jobPostingEntity.getJobPostingKey();
 
     // 채용 공고의 기술스택을 EnumSet 에 저장
@@ -99,6 +99,7 @@ public class ScoringService {
 
       // 이력서 없을 경우 0점
       if (optionalResumeEntity.isEmpty()) {
+        log.info("이력서 부재 - 0점 처리");
         continue;
       }
       int totalScore = 0;
@@ -128,7 +129,7 @@ public class ScoringService {
   // 기술스택 점수 계산
   private int calculateTechStackScore(EnumSet<TechStack> jobPostingTechStacks, String resumeKey,
       int techStackPriority) {
-
+    log.info("기술 스택 점수 계산");
     int techStackScore = 5;
 
     EnumSet<TechStack> resumeTechStacks = resumeTechStackRepository.findAllByResumeKey(resumeKey)
@@ -143,7 +144,7 @@ public class ScoringService {
 
   // 포트폴리오 점수 계산
   private int calculatePortfolioScore(ResumeEntity resumeEntity) {
-
+    log.info("포트폴리오 점수 계산");
     int portfolioScore = 3;
 
     String portfolio = resumeEntity.getPortfolio();
@@ -157,7 +158,7 @@ public class ScoringService {
 
   // 자격증 점수 계산
   private int calculateCertificateScore(String resumeKey) {
-
+    log.info("자격증 점수 계산");
     int certificateScore = 1;
 
     return resumeCertificateRepository.countAllByResumeKey(resumeKey) * certificateScore;
@@ -174,7 +175,7 @@ public class ScoringService {
   // 학력 점수 계산
   private int calculateEducationScore(JobPostingEntity jobPostingEntity,
       ResumeEntity resumeEntity, int educationPriority) {
-
+    log.info("학력 점수 계산");
     Education jobPostingEducation = jobPostingEntity.getEducation();
     Education resumeEducation = resumeEntity.getEducation();
 
@@ -190,7 +191,7 @@ public class ScoringService {
   // 경력 점수 계산
   private int calculateCareerScore(JobPostingEntity jobPostingEntity, String resumeKey,
       int careerPriority) {
-
+    log.info("경력 점수 계산");
     int careerScore = 5;
 
     JobCategory jobPostingJobCategory = jobPostingEntity.getJobCategory();

@@ -16,6 +16,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ctrls.auto_enter_view.component.FilteringJob;
+import com.ctrls.auto_enter_view.component.KeyGenerator;
 import com.ctrls.auto_enter_view.component.ScoringJob;
 import com.ctrls.auto_enter_view.entity.ApplicantEntity;
 import com.ctrls.auto_enter_view.entity.AppliedJobPostingEntity;
@@ -30,7 +31,6 @@ import com.ctrls.auto_enter_view.repository.CandidateListRepository;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
-import com.ctrls.auto_enter_view.component.KeyGenerator;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;

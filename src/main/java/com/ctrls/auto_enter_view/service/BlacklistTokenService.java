@@ -43,7 +43,7 @@ public class BlacklistTokenService {
   public boolean isTokenBlacklist(String token) {
 
     boolean isBlacklist = redisTemplate.opsForValue().get(token) != null;
-    log.info(String.valueOf(isBlacklist));
+    log.info("블랙 리스트에 토큰이 존재하는지 여부 : " + isBlacklist);
 
     return isBlacklist;
   }

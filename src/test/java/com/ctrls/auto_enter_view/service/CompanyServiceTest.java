@@ -43,6 +43,9 @@ class CompanyServiceTest {
   @Mock
   private KeyGenerator keyGenerator;
 
+  @Mock
+  private KeyGenerator keyGenerator;
+
   @InjectMocks
   private CompanyService companyService;
 
