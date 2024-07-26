@@ -27,7 +27,7 @@ public class JobPostingTechStackService {
    */
   public void createJobPostingTechStack(JobPostingEntity jobPostingEntity,
       JobPostingDto.Request request) {
-
+    log.info("채용 단계 생성 - 기술 스택 생성");
     List<TechStack> techStack = request.getTechStack();
 
     List<JobPostingTechStackEntity> entities = techStack.stream()
@@ -44,7 +44,7 @@ public class JobPostingTechStackService {
    * @param request       채용공고 수정 DTO
    */
   public void editJobPostingTechStack(String jobPostingKey, JobPostingDto.Request request) {
-
+    log.info("채용 공고 수정하기 - 기술 스택 삭제 후 새로 저장");
     List<JobPostingTechStackEntity> entities = jobPostingTechStackRepository.findAllByJobPostingKey(
         jobPostingKey);
 
@@ -61,7 +61,7 @@ public class JobPostingTechStackService {
 
   // 채용 공고 삭제하기
   public void deleteJobPostingTechStack(String jobPostingKey) {
-
+    log.info("채용 공고 삭제하기 - 기술 스택 전체 삭제");
     jobPostingTechStackRepository.deleteByJobPostingKey(jobPostingKey);
   }
 }
