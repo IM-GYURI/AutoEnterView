@@ -265,15 +265,6 @@ class FilteringServiceTest {
         .role(ROLE_CANDIDATE)
         .build();
 
-    CandidateEntity candidate2 = CandidateEntity.builder()
-        .candidateKey("candidateKey2")
-        .email("test2@example.com")
-        .name("candidate2")
-        .phoneNumber("010-1111-0000")
-        .password("Password000!")
-        .role(ROLE_CANDIDATE)
-        .build();
-
     CandidateEntity candidate3 = CandidateEntity.builder()
         .candidateKey("candidateKey3")
         .email("test3@example.com")
