@@ -301,6 +301,7 @@ class JobPostingStepServiceTest {
       CandidateListEntity candidateListEntity = CandidateListEntity.builder()
           .candidateKey(candidateKey)
           .jobPostingKey(jobPostingKey)
+          .jobPostingStepId(currentStepId)
           .build();
       candidateListEntities.add(candidateListEntity);
     }
@@ -319,6 +320,61 @@ class JobPostingStepServiceTest {
     for (CandidateListEntity candidate : candidateListEntities) {
       assertEquals(nextStepId, candidate.getJobPostingStepId());
     }
+  }
+
+  @Test
+  @DisplayName("채용 단계 올리기 테스트 - 실패 : 지원자의 현재 단계가 일치하지 않는 경우")
+  void editStepIdInvalidCurrentStepIdTest() {
+    // given
+    long currentStepId = 1L;
+    List<String> candidateKeys = List.of("candidateKey1", "candidateKey2");
+    String jobPostingKey = "jobPostingKey";
+    String companyEmail = "company@example.com";
+    String mockedCompanyKey = "companyKey";
+
+    // KeyGenerator mock 설정
+    when(keyGenerator.generateKey()).thenReturn(mockedCompanyKey);
+    String companyKey = keyGenerator.generateKey();
+
+    CompanyEntity companyEntity = CompanyEntity.builder()
+        .companyKey(companyKey)
+        .email(companyEmail)
+        .build();
+    when(companyRepository.findByEmail(companyEmail)).thenReturn(Optional.of(companyEntity));
+
+    JobPostingEntity jobPostingEntity = JobPostingEntity.builder()
+        .companyKey(companyKey)
+        .jobPostingKey(jobPostingKey)
+        .build();
+    when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(Optional.of(jobPostingEntity));
+
+    List<CandidateListEntity> candidateListEntities = new ArrayList<>();
+    for (String candidateKey : candidateKeys) {
+      CandidateListEntity candidateListEntity = CandidateListEntity.builder()
+          .candidateKey(candidateKey)
+          .jobPostingKey(jobPostingKey)
+          .jobPostingStepId(currentStepId + 1)
+          .build();
+      candidateListEntities.add(candidateListEntity);
+    }
+    when(candidateListRepository.findAllByCandidateKeyInAndJobPostingKey(candidateKeys, jobPostingKey)).thenReturn(candidateListEntities);
+
+    UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
+        .username(companyEmail)
+        .password("")
+        .roles("COMPANY")
+        .build();
+
+    // when
+    CustomException exception = assertThrows(CustomException.class, () ->
+        jobPostingStepService.editStepId(currentStepId, candidateKeys, jobPostingKey, userDetails)
+    );
+
+    // then
+    assertEquals(ErrorCode.INVALID_CURRENT_STEP_ID, exception.getErrorCode());
+    verify(companyRepository).findByEmail(companyEmail);
+    verify(jobPostingRepository).findByJobPostingKey(jobPostingKey);
+    verify(candidateListRepository).findAllByCandidateKeyInAndJobPostingKey(candidateKeys, jobPostingKey);
   }
 
   @Test

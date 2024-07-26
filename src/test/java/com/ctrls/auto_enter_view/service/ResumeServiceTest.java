@@ -8,6 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ctrls.auto_enter_view.component.KeyGenerator;
 import com.ctrls.auto_enter_view.dto.resume.CareerDto;
 import com.ctrls.auto_enter_view.dto.resume.CertificateDto;
 import com.ctrls.auto_enter_view.dto.resume.ExperienceDto;
@@ -33,10 +34,8 @@ import com.ctrls.auto_enter_view.repository.JobPostingRepository;
 import com.ctrls.auto_enter_view.repository.ResumeCareerRepository;
 import com.ctrls.auto_enter_view.repository.ResumeCertificateRepository;
 import com.ctrls.auto_enter_view.repository.ResumeExperienceRepository;
-import com.ctrls.auto_enter_view.repository.ResumeImageRepository;
 import com.ctrls.auto_enter_view.repository.ResumeRepository;
 import com.ctrls.auto_enter_view.repository.ResumeTechStackRepository;
-import com.ctrls.auto_enter_view.component.KeyGenerator;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -78,9 +77,6 @@ class ResumeServiceTest {
 
   @Mock
   private ResumeExperienceRepository resumeExperienceRepository;
-
-  @Mock
-  private ResumeImageRepository resumeImageRepository;
 
   @Mock
   private ResumeRepository resumeRepository;
