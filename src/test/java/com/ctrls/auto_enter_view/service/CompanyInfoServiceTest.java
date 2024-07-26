@@ -17,7 +17,7 @@ import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CompanyInfoRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
-import com.ctrls.auto_enter_view.util.KeyGenerator;
+import com.ctrls.auto_enter_view.component.KeyGenerator;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;

@@ -9,7 +9,7 @@ import com.ctrls.auto_enter_view.entity.ResumeEntity;
 import com.ctrls.auto_enter_view.entity.ResumeImageEntity;
 import com.ctrls.auto_enter_view.repository.ResumeImageRepository;
 import com.ctrls.auto_enter_view.repository.ResumeRepository;
-import com.ctrls.auto_enter_view.util.KeyGenerator;
+import com.ctrls.auto_enter_view.component.KeyGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
