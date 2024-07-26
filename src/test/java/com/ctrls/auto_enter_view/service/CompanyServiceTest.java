@@ -29,7 +29,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,7 +41,7 @@ class CompanyServiceTest {
   private PasswordEncoder passwordEncoder;
 
   @Mock
-  private SecurityContext securityContext;
+  private KeyGenerator keyGenerator;
 
   @Mock
   private KeyGenerator keyGenerator;
@@ -139,69 +138,4 @@ class CompanyServiceTest {
         && actualWrongFormats.containsAll(expectedWrongFormats));
     verify(companyRepository, times(0)).save(any());
   }
-
-//  @Test
-//  @DisplayName("회사 회원탈퇴_성공")
-//  void withdraw_Success() {
-//    // given
-//    String companyKey = "companyKey";
-//    String email = "company@naver.com";
-//    String password = "password";
-//
-//    CompanyEntity companyEntity = CompanyEntity.builder()
-//        .companyKey(companyKey)
-//        .email(email)
-//        .password(password)
-//        .build();
-//
-//    UserDetails userDetails = User.withUsername(email).password(password)
-//        .roles("COMPANY").build();
-//    SecurityContextHolder.setContext(securityContext);
-//
-//    // when
-//    when(securityContext.getAuthentication()).thenReturn(
-//        new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(),
-//            userDetails.getAuthorities()));
-//    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
-//        Optional.of(companyEntity));
-//
-//    // execute
-//    companyService.withdraw(companyKey);
-//
-//    // then
-//    verify(companyRepository, times(1)).delete(companyEntity);
-//  }
-//
-//  @Test
-//  @DisplayName("회사 회원탈퇴_실패_잘못된 비밀번호")
-//  void withdraw_Failure_WrongPassword() {
-//    // given
-//    String companyKey = "companyKey";
-//    String email = "company@naver.com";
-//    String password = "password";
-//
-//    CompanyEntity companyEntity = CompanyEntity.builder()
-//        .companyKey(companyKey)
-//        .email(email)
-//        .password(password)
-//        .build();
-//
-//    UserDetails userDetails = User.withUsername(email).password(password)
-//        .roles("COMPANY").build();
-//    SecurityContextHolder.setContext(securityContext);
-//
-//    when(securityContext.getAuthentication()).thenReturn(
-//        new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(),
-//            userDetails.getAuthorities()));
-//    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
-//        Optional.of(companyEntity));
-//
-//    // execute
-//    CustomException exception = assertThrows(CustomException.class,
-//        () -> companyService.withdraw(companyKey));
-//
-//    // then
-//    assertEquals(ErrorCode.PASSWORD_NOT_MATCH, exception.getErrorCode());
-//    verify(companyRepository, times(0)).delete(any());
-//  }
 }

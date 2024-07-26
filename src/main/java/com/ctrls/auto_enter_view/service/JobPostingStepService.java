@@ -373,6 +373,21 @@ public class JobPostingStepService {
       throw new CustomException(ErrorCode.NO_AUTHORITY);
     }
 
+    // 지원자 정보 조회
+    List<CandidateListEntity> candidateListEntities = candidateListRepository
+        .findAllByCandidateKeyInAndJobPostingKey(candidateKeys, jobPostingKey);
+
+    if (candidateListEntities.size() != candidateKeys.size()) {
+      throw new CustomException(ErrorCode.CANDIDATE_NOT_FOUND);
+    }
+
+    // 지원자의 현재 단계 ID 확인
+    for (CandidateListEntity candidate : candidateListEntities) {
+      if (!candidate.getJobPostingStepId().equals(currentStepId)) {
+        throw new CustomException(ErrorCode.INVALID_CURRENT_STEP_ID);
+      }
+    }
+
     // 다음 단계 ID 계산
     Long nextStepId = currentStepId + 1;
 
@@ -382,14 +397,6 @@ public class JobPostingStepService {
 
     if (nextStepOptional.isEmpty()) {
       throw new CustomException(ErrorCode.NEXT_STEP_NOT_FOUND);
-    }
-
-    // 지원자 정보 조회
-    List<CandidateListEntity> candidateListEntities = candidateListRepository
-        .findAllByCandidateKeyInAndJobPostingKey(candidateKeys, jobPostingKey);
-
-    if (candidateListEntities.size() != candidateKeys.size()) {
-      throw new CustomException(ErrorCode.CANDIDATE_NOT_FOUND);
     }
 
     // 지원자의 단계 ID 업데이트

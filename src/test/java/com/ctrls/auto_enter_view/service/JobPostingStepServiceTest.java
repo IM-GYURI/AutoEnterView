@@ -11,6 +11,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ctrls.auto_enter_view.component.KeyGenerator;
 import com.ctrls.auto_enter_view.dto.candidateList.CandidateTechStackInterviewInfoDto;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingEveryInfoDto;
 import com.ctrls.auto_enter_view.entity.CandidateListEntity;
@@ -31,7 +32,6 @@ import com.ctrls.auto_enter_view.repository.JobPostingRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
 import com.ctrls.auto_enter_view.repository.ResumeRepository;
 import com.ctrls.auto_enter_view.repository.ResumeTechStackRepository;
-import com.ctrls.auto_enter_view.component.KeyGenerator;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -199,7 +199,7 @@ class JobPostingStepServiceTest {
   }
 
   @Test
-  @DisplayName("채용 공고 단계별 지원자 리스트 조회 : JOB_POSTING_NOT_FOUND")
+  @DisplayName("채용 공고 단계별 지원자 리스트 조회 : 실패 - JOB_POSTING_NOT_FOUND")
   void getCandidatesListByStepId_JobPostingNotFoundFailure() {
     UserDetails userDetails = mock(UserDetails.class);
 
@@ -287,24 +287,28 @@ class JobPostingStepServiceTest {
         .companyKey(companyKey)
         .jobPostingKey(jobPostingKey)
         .build();
-    when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(Optional.of(jobPostingEntity));
+    when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(
+        Optional.of(jobPostingEntity));
 
     Long nextStepId = currentStepId + 1;
     JobPostingStepEntity nextStepEntity = JobPostingStepEntity.builder()
         .id(nextStepId)
         .jobPostingKey(jobPostingKey)
         .build();
-    when(jobPostingStepRepository.findByJobPostingKeyAndId(jobPostingKey, nextStepId)).thenReturn(Optional.of(nextStepEntity));
+    when(jobPostingStepRepository.findByJobPostingKeyAndId(jobPostingKey, nextStepId)).thenReturn(
+        Optional.of(nextStepEntity));
 
     List<CandidateListEntity> candidateListEntities = new ArrayList<>();
     for (String candidateKey : candidateKeys) {
       CandidateListEntity candidateListEntity = CandidateListEntity.builder()
           .candidateKey(candidateKey)
           .jobPostingKey(jobPostingKey)
+          .jobPostingStepId(currentStepId)
           .build();
       candidateListEntities.add(candidateListEntity);
     }
-    when(candidateListRepository.findAllByCandidateKeyInAndJobPostingKey(candidateKeys, jobPostingKey)).thenReturn(candidateListEntities);
+    when(candidateListRepository.findAllByCandidateKeyInAndJobPostingKey(candidateKeys,
+        jobPostingKey)).thenReturn(candidateListEntities);
 
     UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
         .username(companyEmail)
@@ -319,6 +323,61 @@ class JobPostingStepServiceTest {
     for (CandidateListEntity candidate : candidateListEntities) {
       assertEquals(nextStepId, candidate.getJobPostingStepId());
     }
+  }
+
+  @Test
+  @DisplayName("채용 단계 올리기 테스트 - 실패 : 지원자의 현재 단계가 일치하지 않는 경우")
+  void editStepIdInvalidCurrentStepIdTest() {
+    // given
+    long currentStepId = 1L;
+    List<String> candidateKeys = List.of("candidateKey1", "candidateKey2");
+    String jobPostingKey = "jobPostingKey";
+    String companyEmail = "company@example.com";
+    String mockedCompanyKey = "companyKey";
+
+    // KeyGenerator mock 설정
+    when(keyGenerator.generateKey()).thenReturn(mockedCompanyKey);
+    String companyKey = keyGenerator.generateKey();
+
+    CompanyEntity companyEntity = CompanyEntity.builder()
+        .companyKey(companyKey)
+        .email(companyEmail)
+        .build();
+    when(companyRepository.findByEmail(companyEmail)).thenReturn(Optional.of(companyEntity));
+
+    JobPostingEntity jobPostingEntity = JobPostingEntity.builder()
+        .companyKey(companyKey)
+        .jobPostingKey(jobPostingKey)
+        .build();
+    when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(Optional.of(jobPostingEntity));
+
+    List<CandidateListEntity> candidateListEntities = new ArrayList<>();
+    for (String candidateKey : candidateKeys) {
+      CandidateListEntity candidateListEntity = CandidateListEntity.builder()
+          .candidateKey(candidateKey)
+          .jobPostingKey(jobPostingKey)
+          .jobPostingStepId(currentStepId + 1)
+          .build();
+      candidateListEntities.add(candidateListEntity);
+    }
+    when(candidateListRepository.findAllByCandidateKeyInAndJobPostingKey(candidateKeys, jobPostingKey)).thenReturn(candidateListEntities);
+
+    UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
+        .username(companyEmail)
+        .password("")
+        .roles("COMPANY")
+        .build();
+
+    // when
+    CustomException exception = assertThrows(CustomException.class, () ->
+        jobPostingStepService.editStepId(currentStepId, candidateKeys, jobPostingKey, userDetails)
+    );
+
+    // then
+    assertEquals(ErrorCode.INVALID_CURRENT_STEP_ID, exception.getErrorCode());
+    verify(companyRepository).findByEmail(companyEmail);
+    verify(jobPostingRepository).findByJobPostingKey(jobPostingKey);
+    verify(candidateListRepository).findAllByCandidateKeyInAndJobPostingKey(candidateKeys, jobPostingKey);
   }
 
   @Test
@@ -412,7 +471,8 @@ class JobPostingStepServiceTest {
         .companyKey(differentCompanyKey)  // 다른 회사의 키
         .jobPostingKey(jobPostingKey)
         .build();
-    when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(Optional.of(jobPostingEntity));
+    when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(
+        Optional.of(jobPostingEntity));
 
     UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
         .username(companyEmail)
@@ -455,10 +515,12 @@ class JobPostingStepServiceTest {
         .companyKey(companyKey)
         .jobPostingKey(jobPostingKey)
         .build();
-    when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(Optional.of(jobPostingEntity));
+    when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(
+        Optional.of(jobPostingEntity));
 
     Long nextStepId = currentStepId + 1;
-    when(jobPostingStepRepository.findByJobPostingKeyAndId(jobPostingKey, nextStepId)).thenReturn(Optional.empty());
+    when(jobPostingStepRepository.findByJobPostingKeyAndId(jobPostingKey, nextStepId)).thenReturn(
+        Optional.empty());
 
     UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
         .username(companyEmail)
@@ -502,21 +564,24 @@ class JobPostingStepServiceTest {
         .companyKey(companyKey)
         .jobPostingKey(jobPostingKey)
         .build();
-    when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(Optional.of(jobPostingEntity));
+    when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(
+        Optional.of(jobPostingEntity));
 
     Long nextStepId = currentStepId + 1;
     JobPostingStepEntity nextStepEntity = JobPostingStepEntity.builder()
         .id(nextStepId)
         .jobPostingKey(jobPostingKey)
         .build();
-    when(jobPostingStepRepository.findByJobPostingKeyAndId(jobPostingKey, nextStepId)).thenReturn(Optional.of(nextStepEntity));
+    when(jobPostingStepRepository.findByJobPostingKeyAndId(jobPostingKey, nextStepId)).thenReturn(
+        Optional.of(nextStepEntity));
 
     // 지원자를 찾을 수 없는 상황 설정
     List<CandidateListEntity> candidateListEntities = List.of(CandidateListEntity.builder()
         .candidateKey("candidateKey1")
         .jobPostingKey(jobPostingKey)
         .build());
-    when(candidateListRepository.findAllByCandidateKeyInAndJobPostingKey(candidateKeys, jobPostingKey))
+    when(candidateListRepository.findAllByCandidateKeyInAndJobPostingKey(candidateKeys,
+        jobPostingKey))
         .thenReturn(candidateListEntities);
 
     UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
@@ -535,6 +600,7 @@ class JobPostingStepServiceTest {
     verify(companyRepository).findByEmail(companyEmail);
     verify(jobPostingRepository).findByJobPostingKey(jobPostingKey);
     verify(jobPostingStepRepository).findByJobPostingKeyAndId(jobPostingKey, nextStepId);
-    verify(candidateListRepository).findAllByCandidateKeyInAndJobPostingKey(candidateKeys, jobPostingKey);
+    verify(candidateListRepository).findAllByCandidateKeyInAndJobPostingKey(candidateKeys,
+        jobPostingKey);
   }
 }

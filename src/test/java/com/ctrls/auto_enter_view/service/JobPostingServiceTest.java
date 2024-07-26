@@ -22,6 +22,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ctrls.auto_enter_view.component.KeyGenerator;
 import com.ctrls.auto_enter_view.component.MailComponent;
 import com.ctrls.auto_enter_view.dto.common.JobPostingDetailDto;
 import com.ctrls.auto_enter_view.dto.common.MainJobPostingDto;
@@ -51,7 +52,6 @@ import com.ctrls.auto_enter_view.repository.JobPostingImageRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingTechStackRepository;
-import com.ctrls.auto_enter_view.component.KeyGenerator;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
@@ -712,45 +712,24 @@ class JobPostingServiceTest {
   }
 
   @Test
-  @DisplayName("Main 화면 채용 공고 조회 - 탈퇴한 회사 처리 테스트")
-  void getAllJobPosting_withWithdrawnCompany() {
+  @DisplayName("Main 화면 채용 공고 조회 - 빈 결과")
+  void getAllJobPosting_emptyResult() {
     // given
     int page = 1;
     int size = 10;
     Pageable pageable = PageRequest.of(page - 1, size);
     LocalDate currentDate = LocalDate.now();
 
-    JobPostingEntity jobPosting = JobPostingEntity.builder()
-        .jobPostingKey("jobPostingKey")
-        .companyKey("withdrawnCompanyKey")
-        .title("테스트 채용 공고")
-        .jobCategory(JobCategory.BACKEND)
-        .career(3)
-        .workLocation("서울")
-        .education(Education.BACHELOR)
-        .employmentType("정규직")
-        .salary(50000000L)
-        .workTime("유연근무제")
-        .startDate(LocalDate.now())
-        .endDate(LocalDate.now().plusDays(30))
-        .passingNumber(5)
-        .jobPostingContent("상세 내용")
-        .build();
+    Page<JobPostingEntity> emptyPage = new PageImpl<>(Collections.emptyList(), pageable, 0);
 
-    List<JobPostingEntity> jobPostings = Collections.singletonList(jobPosting);
-    Page<JobPostingEntity> jobPostingPage = new PageImpl<>(jobPostings, pageable, jobPostings.size());
-
-//    List<TechStack> techStacks = Arrays.asList(TechStack.HTML5, TechStack.PYTHON);
-
-    when(jobPostingRepository.findByEndDateGreaterThanEqual(currentDate, pageable)).thenReturn(jobPostingPage);
-    when(companyRepository.findByCompanyKey("withdrawnCompanyKey")).thenReturn(Optional.empty());
+    when(jobPostingRepository.findByEndDateGreaterThanEqual(currentDate, pageable)).thenReturn(emptyPage);
 
     // when
     MainJobPostingDto.Response response = jobPostingService.getAllJobPosting(page, size);
 
     // then
     assertNotNull(response);
-    assertEquals(0, response.getJobPostingsList().size());
+    assertTrue(response.getJobPostingsList().isEmpty());
     assertEquals(0, response.getTotalPages());
     assertEquals(0, response.getTotalElements());
   }

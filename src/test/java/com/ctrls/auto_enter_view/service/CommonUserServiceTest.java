@@ -1,6 +1,8 @@
 package com.ctrls.auto_enter_view.service;
 
 import static com.ctrls.auto_enter_view.enums.ErrorCode.EMAIL_SEND_FAILURE;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.INVALID_VERIFICATION_CODE;
+import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.UserRole.ROLE_CANDIDATE;
 import static com.ctrls.auto_enter_view.enums.UserRole.ROLE_COMPANY;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -18,6 +20,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ctrls.auto_enter_view.component.KeyGenerator;
 import com.ctrls.auto_enter_view.component.MailComponent;
 import com.ctrls.auto_enter_view.dto.common.SignInDto;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
@@ -101,11 +104,11 @@ class CommonUserServiceTest {
 
     when(companyRepository.existsByEmail(testEmail)).thenReturn(true);
 
-    CustomException exception = assertThrows(CustomException.class, () -> {
+    CustomException thrownException = assertThrows(CustomException.class, () -> {
       commonUserService.checkDuplicateEmail(testEmail);
     });
 
-    assertEquals("이메일이 중복됩니다.", exception.getMessage());
+    assertEquals("이메일이 중복됩니다.", thrownException.getMessage());
   }
 
   @Test
@@ -146,9 +149,11 @@ class CommonUserServiceTest {
     doThrow(new RuntimeException("Mail send failure")).when(mailComponent)
         .sendVerificationCode(email, verificationCode);
 
-    assertThrows(CustomException.class, () -> {
+    CustomException thrownException = assertThrows(CustomException.class, () -> {
       commonUserService.sendVerificationCode(email);
     });
+
+    assertEquals(EMAIL_SEND_FAILURE, thrownException.getErrorCode());
   }
 
   @Test
@@ -161,13 +166,15 @@ class CommonUserServiceTest {
     doThrow(new RuntimeException("Redis failure")).when(valueOperations)
         .set(email, verificationCode, 5, TimeUnit.MINUTES);
 
-    assertThrows(CustomException.class, () -> {
+    CustomException thrownException = assertThrows(CustomException.class, () -> {
       commonUserService.sendVerificationCode(email);
     });
+
+    assertEquals(EMAIL_SEND_FAILURE, thrownException.getErrorCode());
   }
 
   @Test
-  @DisplayName("인증 코드 확인 : 성공 - 유효한 코드")
+  @DisplayName("인증 코드 확인 : 성공")
   public void testVerifyEmailVerificationCode_Success() {
 
     String testEmail = "test@example.com";
@@ -191,10 +198,10 @@ class CommonUserServiceTest {
     when(redisTemplate.opsForValue()).thenReturn(valueOperations);
     when(valueOperations.get(testEmail)).thenReturn(correctVerificationCode);
 
-    CustomException exception = assertThrows(CustomException.class,
+    CustomException thrownException = assertThrows(CustomException.class,
         () -> commonUserService.verifyEmailVerificationCode(testEmail, incorrectVerificationCode));
 
-    assertEquals("유효하지 않은 인증 코드입니다.", exception.getMessage());
+    assertEquals(INVALID_VERIFICATION_CODE, thrownException.getErrorCode());
   }
 
   @Test
@@ -207,10 +214,10 @@ class CommonUserServiceTest {
     when(redisTemplate.opsForValue()).thenReturn(valueOperations);
     when(valueOperations.get(testEmail)).thenReturn(null);
 
-    CustomException exception = assertThrows(CustomException.class,
+    CustomException thrownException = assertThrows(CustomException.class,
         () -> commonUserService.verifyEmailVerificationCode(testEmail, correctVerificationCode));
 
-    assertEquals("유효하지 않은 인증 코드입니다.", exception.getMessage());
+    assertEquals(INVALID_VERIFICATION_CODE, thrownException.getErrorCode());
   }
 
   @Test
@@ -278,7 +285,7 @@ class CommonUserServiceTest {
   }
 
   @Test
-  @DisplayName("임시 비밀번호 전송 : 실패 - 회사 계정을 찾을 수 없음")
+  @DisplayName("임시 비밀번호 전송 : 실패 - 회사 USER_NOT_FOUND")
   public void testSendTemporaryPassword_CompanyNotFound() {
     String testEmail = "test@company.com";
     String testCompanyName = "TestCompany";
@@ -286,25 +293,29 @@ class CommonUserServiceTest {
     when(companyRepository.existsByEmail(testEmail)).thenReturn(true);
     when(companyRepository.findByEmail(testEmail)).thenReturn(Optional.empty());
 
-    assertThrows(CustomException.class, () ->
+    CustomException thrownException = assertThrows(CustomException.class, () ->
         commonUserService.sendTemporaryPassword(testEmail, testCompanyName));
+
+    assertEquals(USER_NOT_FOUND, thrownException.getErrorCode());
   }
 
   @Test
-  @DisplayName("임시 비밀번호 전송 : 실패 - 지원자 계정을 찾을 수 없음")
+  @DisplayName("임시 비밀번호 전송 : 실패 - 지원자 USER_NOT_FOUND")
   public void testSendTemporaryPassword_CandidateNotFound() {
     String testEmail = "test@company.com";
-    String testCompanyName = "TestCompany";
+    String testCandidateName = "testCandidate";
 
-    when(companyRepository.existsByEmail(testEmail)).thenReturn(true);
-    when(companyRepository.findByEmail(testEmail)).thenReturn(Optional.empty());
+    when(candidateRepository.existsByEmail(testEmail)).thenReturn(true);
+    when(candidateRepository.findByEmail(testEmail)).thenReturn(Optional.empty());
 
-    assertThrows(CustomException.class, () ->
-        commonUserService.sendTemporaryPassword(testEmail, testCompanyName));
+    CustomException thrownException = assertThrows(CustomException.class, () ->
+        commonUserService.sendTemporaryPassword(testEmail, testCandidateName));
+
+    assertEquals(USER_NOT_FOUND, thrownException.getErrorCode());
   }
 
   @Test
-  @DisplayName("임시 비밀번호 전송 : 실패 - 이메일 전송 실패")
+  @DisplayName("임시 비밀번호 전송 : 실패 - EMAIL_SEND_FAILURE")
   public void testSendTemporaryPassword_EmailSendFailure() {
     String testEmail = "test@company.com";
     String testCompanyName = "TestCompany";
@@ -329,8 +340,10 @@ class CommonUserServiceTest {
     CommonUserService spyService = spy(commonUserService);
     doReturn(temporaryPassword).when(spyService).generateTemporaryPassword();
 
-    assertThrows(CustomException.class, () ->
+    CustomException thrownException = assertThrows(CustomException.class, () ->
         spyService.sendTemporaryPassword(testEmail, testCompanyName));
+
+    assertEquals(EMAIL_SEND_FAILURE, thrownException.getErrorCode());
   }
 
   @Test
