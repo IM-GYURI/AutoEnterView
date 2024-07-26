@@ -279,7 +279,7 @@ public class CommonUserService {
    * 회원 탈퇴
    *
    * @param userDetails 로그인 된 사용자 정보
-   * @param key CompanyKey 또는 CandidateKey
+   * @param key         CompanyKey 또는 CandidateKey
    * @throws CustomException USER_NOT_FOUND : 사용자를 찾을 수 없는 경우
    * @throws CustomException KEY_NOT_MATCH : 키가 일치하지 않는 경우
    */
@@ -292,7 +292,7 @@ public class CommonUserService {
 
       if (role.equals(ROLE_CANDIDATE.name())) {
 
-        CandidateEntity candidateEntity = candidateRepository.findByCandidateKey(key)
+        CandidateEntity candidateEntity = candidateRepository.findByEmail(userDetails.getUsername())
             .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
         // 응시자 정보의 응시자키와 URL 응시자키 일치 확인
@@ -307,7 +307,7 @@ public class CommonUserService {
         candidateRepository.delete(candidateEntity);
       } else {
 
-        CompanyEntity companyEntity = companyRepository.findByCompanyKey(key)
+        CompanyEntity companyEntity = companyRepository.findByEmail(userDetails.getUsername())
             .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
         // 회사 정보의 회사키와 URL 회사키 일치 확인
