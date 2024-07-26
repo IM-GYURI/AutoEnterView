@@ -516,7 +516,7 @@ class CommonUserServiceTest {
 
   @Test
   @DisplayName("회원 탈퇴 실패 테스트 (지원자) -> KEY_NOT_MATCH")
-  void candidateWithdrawFailTest() {
+  void candidateWithdrawFailTestKeyNotMatch() {
     //given
     String email = "email";
     String password = "password";
@@ -539,6 +539,30 @@ class CommonUserServiceTest {
     //then
     verify(candidateRepository, times(1)).findByEmail(userDetails.getUsername());
     assertEquals(ErrorCode.KEY_NOT_MATCH, customException.getErrorCode());
+
+  }
+
+  @Test
+  @DisplayName("회원 탈퇴 실패 테스트 (지원자) -> USER_NOT_FOUND")
+  void candidateWithdrawFailTestUserNotFound() {
+    //given
+    String email = "email";
+    String password = "password";
+    String key = "key";
+
+    UserDetails userDetails = User.withUsername(email).password(password)
+        .roles("CANDIDATE").build();
+    
+    when(candidateRepository.findByEmail(userDetails.getUsername())).thenReturn(
+        Optional.empty());
+
+    // when
+    CustomException customException = assertThrows(CustomException.class,
+        () -> commonUserService.withdraw(userDetails, key));
+
+    //then
+    verify(candidateRepository, times(1)).findByEmail(userDetails.getUsername());
+    assertEquals(ErrorCode.USER_NOT_FOUND, customException.getErrorCode());
 
   }
 
