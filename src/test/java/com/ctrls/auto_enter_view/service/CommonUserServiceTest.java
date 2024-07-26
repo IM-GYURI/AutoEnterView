@@ -12,6 +12,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -21,11 +22,14 @@ import com.ctrls.auto_enter_view.component.MailComponent;
 import com.ctrls.auto_enter_view.dto.common.SignInDto;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
+import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.enums.UserRole;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
+import com.ctrls.auto_enter_view.repository.CompanyInfoRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.component.KeyGenerator;
+import com.ctrls.auto_enter_view.repository.ResumeRepository;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
@@ -37,10 +41,18 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 class CommonUserServiceTest {
+
+  @Mock
+  private CompanyInfoRepository companyInfoRepository;
+
+  @Mock
+  private ResumeRepository resumeRepository;
 
   @Mock
   private CompanyRepository companyRepository;
@@ -447,4 +459,87 @@ class CommonUserServiceTest {
     // then
     verify(blacklistTokenService, times(1)).addToBlacklist(token);
   }
+
+  @Test
+  @DisplayName("회원 탈퇴 성공 테스트 (지원자)")
+  void candidateWithdrawTest() {
+    //given
+    String email = "email";
+    String password = "password";
+    String key = "key";
+
+    UserDetails userDetails = User.withUsername(email).password(password)
+        .roles("CANDIDATE").build();
+
+    CandidateEntity candidateEntity = CandidateEntity.builder()
+        .candidateKey(key)
+        .build();
+
+    when(candidateRepository.findByCandidateKey(key)).thenReturn(Optional.of(candidateEntity));
+
+    // when
+    commonUserService.withdraw(userDetails, key);
+
+    //then
+    verify(candidateRepository, times(1)).delete(candidateEntity);
+    verify(resumeRepository, times(1)).deleteByCandidateKey(key);
+
+  }
+
+
+  @Test
+  @DisplayName("회원 탈퇴 성공 테스트 (회사)")
+  void companyWithdrawTest() {
+    //given
+    String email = "email";
+    String password = "password";
+    String key = "key";
+
+    UserDetails userDetails = User.withUsername(email).password(password)
+        .roles("COMPANY").build();
+
+    CompanyEntity companyEntity = CompanyEntity.builder()
+        .companyKey(key)
+        .build();
+
+    when(companyRepository.findByCompanyKey(key)).thenReturn(Optional.of(companyEntity));
+
+    // when
+    commonUserService.withdraw(userDetails, key);
+
+    //then
+    verify(companyRepository, times(1)).delete(companyEntity);
+    verify(companyInfoRepository, times(1)).deleteByCompanyKey(key);
+
+  }
+
+
+  @Test
+  @DisplayName("회원 탈퇴 실패 테스트 (지원자) -> KEY_NOT_MATCH")
+  void candidateWithdrawFailTest() {
+    //given
+    String email = "email";
+    String password = "password";
+    String key = "key";
+
+    UserDetails userDetails = User.withUsername(email).password(password)
+        .roles("CANDIDATE").build();
+
+    CandidateEntity candidateEntity = CandidateEntity.builder()
+        .candidateKey("key2")
+        .build();
+
+    when(candidateRepository.findByEmail(userDetails.getUsername())).thenReturn(
+        Optional.of(candidateEntity));
+
+    // when
+    CustomException customException = assertThrows(CustomException.class,
+        () -> commonUserService.withdraw(userDetails, key));
+
+    //then
+    verify(candidateRepository, times(1)).findByEmail(userDetails.getUsername());
+    assertEquals(ErrorCode.KEY_NOT_MATCH, customException.getErrorCode());
+
+  }
+
 }
