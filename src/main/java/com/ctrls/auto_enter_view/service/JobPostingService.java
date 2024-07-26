@@ -7,6 +7,7 @@ import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_STEP_NOT_FOU
 import static com.ctrls.auto_enter_view.enums.ErrorCode.NO_AUTHORITY;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 
+import com.ctrls.auto_enter_view.component.KeyGenerator;
 import com.ctrls.auto_enter_view.component.MailComponent;
 import com.ctrls.auto_enter_view.dto.common.JobPostingDetailDto;
 import com.ctrls.auto_enter_view.dto.common.MainJobPostingDto;
@@ -33,7 +34,6 @@ import com.ctrls.auto_enter_view.repository.JobPostingImageRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingStepRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingTechStackRepository;
-import com.ctrls.auto_enter_view.component.KeyGenerator;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;

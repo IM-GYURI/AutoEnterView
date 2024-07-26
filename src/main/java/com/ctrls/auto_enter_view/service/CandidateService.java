@@ -4,6 +4,7 @@ import static com.ctrls.auto_enter_view.enums.ErrorCode.EMAIL_DUPLICATION;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.EMAIL_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND_BY_NAME_AND_PHONE;
 
+import com.ctrls.auto_enter_view.component.KeyGenerator;
 import com.ctrls.auto_enter_view.dto.candidate.CandidateApplyDto;
 import com.ctrls.auto_enter_view.dto.candidate.CandidateApplyDto.ApplyInfo;
 import com.ctrls.auto_enter_view.dto.candidate.FindEmailDto;
@@ -16,7 +17,6 @@ import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.AppliedJobPostingRepository;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.ResumeRepository;
-import com.ctrls.auto_enter_view.component.KeyGenerator;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
