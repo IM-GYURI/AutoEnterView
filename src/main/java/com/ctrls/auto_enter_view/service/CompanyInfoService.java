@@ -3,6 +3,7 @@ package com.ctrls.auto_enter_view.service;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.EMAIL_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.NO_AUTHORITY;
 
+import com.ctrls.auto_enter_view.component.KeyGenerator;
 import com.ctrls.auto_enter_view.dto.company.CreateCompanyInfoDto.Request;
 import com.ctrls.auto_enter_view.dto.company.ReadCompanyInfoDto.Response;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
@@ -11,7 +12,6 @@ import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CompanyInfoRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
-import com.ctrls.auto_enter_view.component.KeyGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -37,7 +37,6 @@ public class CompanyInfoService {
    */
   @Transactional
   public void createInfo(UserDetails userDetails, String companyKey, Request request) {
-
     String companyName = authCheck(userDetails, companyKey);
 
     if (companyInfoRepository.existsByCompanyKey(companyKey)) {
@@ -48,6 +47,7 @@ public class CompanyInfoService {
 
     CompanyInfoEntity companyInfoEntity = request.toEntity(key, companyKey, companyName);
 
+    log.info("회사 정보 생성 : " + companyName);
     companyInfoRepository.save(companyInfoEntity);
   }
 
@@ -59,10 +59,10 @@ public class CompanyInfoService {
    */
   @Transactional(readOnly = true)
   public Response readInfo(String companyKey) {
-
     CompanyInfoEntity companyInfoEntity = companyInfoRepository.findByCompanyKey(companyKey)
         .orElseGet(CompanyInfoEntity::new);
 
+    log.info("회사 정보 조회 : " + companyInfoEntity.getCompanyName());
     return Response.toDto(companyInfoEntity);
   }
 
@@ -76,13 +76,13 @@ public class CompanyInfoService {
    */
   @Transactional
   public void updateInfo(UserDetails userDetails, String companyKey, Request request) {
-
     authCheck(userDetails, companyKey);
 
     CompanyInfoEntity companyInfoEntity = companyInfoRepository.findByCompanyKey(companyKey)
         .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND));
 
     companyInfoEntity.updateEntity(request);
+    log.info("회사 정보 수정  : " + companyInfoEntity.getCompanyName());
 
     companyInfoRepository.save(companyInfoEntity);
   }
@@ -98,6 +98,7 @@ public class CompanyInfoService {
 
     authCheck(userDetails, companyKey);
 
+    log.info("회사 정보 삭제");
     companyInfoRepository.deleteByCompanyKey(companyKey);
   }
 
@@ -119,6 +120,7 @@ public class CompanyInfoService {
       throw new CustomException(NO_AUTHORITY);
     }
 
+    log.info("회사 본인 확인");
     return companyEntity.getCompanyName();
   }
 }

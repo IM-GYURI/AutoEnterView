@@ -55,6 +55,7 @@ public class CommonUserService {
    * @throws CustomException EMAIL_DUPLICATION : 이메일이 중복된 경우
    */
   public String checkDuplicateEmail(String email) {
+    log.info("이메일 중복 확인");
     if (!validateCompanyExistsByEmail(email) && !validateCandidateExistsByEmail(email)) {
       return USABLE_EMAIL.getMessage();
     } else {
@@ -69,6 +70,7 @@ public class CommonUserService {
    * @return boolean : 이메일이 존재하면 true, 존재하지 않으면 false
    */
   private boolean validateCompanyExistsByEmail(String email) {
+    log.info("email로 회사 계정 존재 여부 확인");
     return companyRepository.existsByEmail(email);
   }
 
@@ -79,6 +81,7 @@ public class CommonUserService {
    * @return boolean : 이메일이 존재하면 true, 존재하지 않으면 false
    */
   private boolean validateCandidateExistsByEmail(String email) {
+    log.info("email로 지원자 계정 존재 여부 확인");
     return candidateRepository.existsByEmail(email);
   }
 
@@ -88,6 +91,7 @@ public class CommonUserService {
    * @return 랜덤 로직으로 생성된 인증 코드
    */
   private String generateVerificationCode() {
+    log.info("인증 코드 생성");
     return RandomGenerator.generateRandomCode();
   }
 
@@ -100,8 +104,12 @@ public class CommonUserService {
   public void sendVerificationCode(String email) {
     try {
       String verificationCode = generateVerificationCode();
-      // Redis 유효 시간 5분으로 설정
+      log.info("인증 코드 : " + verificationCode);
+
       redisTemplate.opsForValue().set(email, verificationCode, 5, TimeUnit.MINUTES);
+      log.info("Redis DB에 저장 : 유효시간 5분");
+
+      log.info("이메일 인증 코드 전송 : " + email + " - " + verificationCode);
       mailComponent.sendVerificationCode(email, verificationCode);
     } catch (Exception e) {
       throw new CustomException(EMAIL_SEND_FAILURE);
@@ -116,7 +124,11 @@ public class CommonUserService {
    * @throws CustomException INVALID_VERIFICATION_CODE : 전송한 인증 코드가 없거나(시간초과) 불일치하는 경우
    */
   public void verifyEmailVerificationCode(String email, String verificationCode) {
+    log.info("이메일 인증 코드 확인");
+
     String sentVerificationCode = redisTemplate.opsForValue().get(email);
+    log.info("입력 받은 인증 코드 : " + verificationCode + "\nRedis DB에 저장되어 있는 인증 코드 : "
+        + sentVerificationCode);
 
     if (sentVerificationCode == null) {
       throw new CustomException(INVALID_VERIFICATION_CODE);
@@ -145,8 +157,8 @@ public class CommonUserService {
    * @throws CustomException EMAIL_SEND_FAILURE 이메일 전송에 실패한 경우
    */
   public void sendTemporaryPassword(String email, String name) {
-    // 회사 계정일 경우
     if (validateCompanyExistsByEmail(email)) {
+      log.info("회사 계정일 경우");
       CompanyEntity company = companyRepository.findByEmail(email)
           .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
@@ -156,18 +168,20 @@ public class CommonUserService {
 
       try {
         String temporaryPassword = generateTemporaryPassword();
+        log.info("임시 비밀번호 : " + temporaryPassword);
 
         company.setPassword(passwordEncoder.encode(temporaryPassword));
         companyRepository.save(company);
 
+        log.info("이메일로 임시 비밀번호 전송");
         mailComponent.sendTemporaryPassword(email, temporaryPassword);
       } catch (Exception e) {
         throw new CustomException(EMAIL_SEND_FAILURE);
       }
     }
 
-    // 지원자 계정일 경우
     if (validateCandidateExistsByEmail(email)) {
+      log.info("지원자 계정일 경우");
       CandidateEntity candidate = candidateRepository.findByEmail(email)
           .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
@@ -177,10 +191,12 @@ public class CommonUserService {
 
       try {
         String temporaryPassword = generateTemporaryPassword();
+        log.info("임시 비밀번호 : " + temporaryPassword);
 
         candidate.setPassword(passwordEncoder.encode(temporaryPassword));
         candidateRepository.save(candidate);
 
+        log.info("이메일로 임시 비밀번호 전송");
         mailComponent.sendTemporaryPassword(email, temporaryPassword);
       } catch (Exception e) {
         throw new CustomException(EMAIL_SEND_FAILURE);
@@ -227,6 +243,7 @@ public class CommonUserService {
    * @param token 토큰 정보
    */
   public void logoutUser(String token) {
+    log.info("로그 아웃");
     blacklistTokenService.addToBlacklist(token);
   }
 
@@ -240,11 +257,11 @@ public class CommonUserService {
    */
   public void changePassword(UserDetails userDetails, String key, Request request) {
     Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
-
     for (GrantedAuthority authority : authorities) {
       String role = authority.getAuthority();
 
       if (role.equals(ROLE_CANDIDATE.name())) {
+        log.info("지원자 계정일 경우");
 
         CandidateEntity candidateEntity = candidateRepository.findByCandidateKey(key)
             .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
@@ -254,11 +271,13 @@ public class CommonUserService {
           throw new CustomException(PASSWORD_NOT_MATCH);
         }
 
+        log.info("비밀번호 수정");
         candidateEntity.setPassword(passwordEncoder.encode(request.getNewPassword()));
 
         candidateRepository.save(candidateEntity);
 
       } else {
+        log.info("회사 계정일 경우");
 
         CompanyEntity companyEntity = companyRepository.findByCompanyKey(key)
             .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
@@ -268,6 +287,7 @@ public class CommonUserService {
           throw new CustomException(PASSWORD_NOT_MATCH);
         }
 
+        log.info("비밀번호 수정");
         companyEntity.setPassword(passwordEncoder.encode(request.getNewPassword()));
 
         companyRepository.save(companyEntity);
@@ -291,6 +311,7 @@ public class CommonUserService {
       String role = authority.getAuthority();
 
       if (role.equals(ROLE_CANDIDATE.name())) {
+        log.info("지원자 계정일 경우");
 
         CandidateEntity candidateEntity = candidateRepository.findByEmail(userDetails.getUsername())
             .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
@@ -300,12 +321,13 @@ public class CommonUserService {
           throw new CustomException(ErrorCode.KEY_NOT_MATCH);
         }
 
-        // 지원자가 작성한 이력서 삭제
+        log.info("이력서 삭제");
         resumeRepository.deleteByCandidateKey(candidateEntity.getCandidateKey());
 
-        // 지원자 삭제
+        log.info("지원자 삭제");
         candidateRepository.delete(candidateEntity);
       } else {
+        log.info("회사 계정일 경우");
 
         CompanyEntity companyEntity = companyRepository.findByEmail(userDetails.getUsername())
             .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
@@ -315,10 +337,10 @@ public class CommonUserService {
           throw new CustomException(ErrorCode.KEY_NOT_MATCH);
         }
 
-        // 회사 정보 삭제
+        log.info("회사 정보 삭제");
         companyInfoRepository.deleteByCompanyKey(companyEntity.getCompanyKey());
 
-        // 회사 삭제
+        log.info("회사 삭제");
         companyRepository.delete(companyEntity);
       }
     }

@@ -30,7 +30,7 @@ public class ResumeImageService {
    * @return 이력서 생성 DTO
    */
   public ResumeDto.Response uploadImage(MultipartFile image, String resumeKey) {
-
+    log.info("이력서 이미지 파일 업로드");
     ResumeImageEntity resumeImage = resumeImageRepository.findByResumeKey(resumeKey)
         .orElseGet(() -> ResumeImageEntity.builder()
             .resumeKey(resumeKey)
@@ -55,7 +55,7 @@ public class ResumeImageService {
    * @return 이력서 생성 DTO
    */
   public ResumeDto.Response getExistingResumeImage(String resumeKey) {
-
+    log.info("이력서 이미지 파일 조회");
     Optional<ResumeImageEntity> resumeImageOpt = resumeImageRepository.findByResumeKey(resumeKey);
 
     if (resumeImageOpt.isPresent()) {
@@ -68,7 +68,7 @@ public class ResumeImageService {
 
   // 이미지 파일 삭제
   public void deleteImage(String candidateKey) {
-
+    log.info("이력서 이미지 파일 삭제");
     resumeRepository.findByCandidateKey(candidateKey)
         .ifPresent(resume -> {
           String resumeKey = resume.getResumeKey();

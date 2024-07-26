@@ -64,6 +64,8 @@ public class InterviewScheduleParticipantsService {
     List<String> candidateKeyList = candidateListRepository.findCandidateKeyByJobPostingKeyAndJobPostingStepId(
         jobPostingKey, stepId);
 
+    log.info("개인 면접 일정 생성 - 해당 지원자 수 : " + candidateKeyList.size());
+
     List<CandidateListDto> candidateListDtoList = candidateKeyList.stream()
         .map(e -> CandidateListDto.builder()
             .candidateKey(e)
@@ -110,6 +112,7 @@ public class InterviewScheduleParticipantsService {
       UserDetails userDetails) {
     checkOwner(userDetails, jobPostingKey);
 
+    log.info("개인 면접 일정 전체 조회");
     List<InterviewScheduleParticipantsEntity> entities = interviewScheduleParticipantsRepository.findAllByJobPostingKeyAndJobPostingStepId(
         jobPostingKey,
         stepId);
@@ -133,6 +136,8 @@ public class InterviewScheduleParticipantsService {
   public void updatePersonalInterviewSchedule(String interviewScheduleKey, String candidateKey,
       InterviewScheduleParticipantsDto.Request request, UserDetails userDetails) {
     checkOwnerByInterviewScheduleKey(userDetails, interviewScheduleKey);
+
+    log.info("개인 면접 일정 수정 : " + interviewScheduleKey);
 
     InterviewScheduleEntity interviewScheduleEntity = interviewScheduleRepository.findByInterviewScheduleKey(
             interviewScheduleKey)
@@ -173,6 +178,8 @@ public class InterviewScheduleParticipantsService {
 
     checkOwner(userDetails, jobPostingKey);
 
+    log.info("개인 면접 일정 전체 삭제 : " + jobPostingKey + " - " + stepId);
+
     InterviewScheduleEntity interviewScheduleEntity = interviewScheduleRepository.findByJobPostingKeyAndJobPostingStepId(
             jobPostingKey, stepId)
         .orElseThrow(() -> new CustomException(ErrorCode.INTERVIEW_SCHEDULE_NOT_FOUND));
@@ -184,12 +191,12 @@ public class InterviewScheduleParticipantsService {
             interviewScheduleEntity.getInterviewScheduleKey())
         .orElseThrow(() -> new CustomException(ErrorCode.MAIL_ALARM_INFO_NOT_FOUND));
 
-    // 예약된 메일의 시간이 현재 시간보다 이전이면 이미 발송된 것으로 간주하고 취소 메일 발송
     if (mailAlarmInfoEntity.getMailSendDateTime().isBefore(LocalDateTime.now())) {
+      log.info("예약된 메일의 시간이 현재 시간보다 이전이면 이미 발송된 것으로 간주하고 취소 메일 발송");
       mailAlarmInfoService.sendCancellationMailToParticipants(interviewScheduleEntity,
           participants);
     } else {
-      // 예약된 메일 시간이 현재 시간 이후이면 예약 취소
+      log.info("예약된 메일 시간이 현재 시간 이후이면 예약 취소");
       mailAlarmInfoService.unscheduleMailJob(mailAlarmInfoEntity);
     }
     mailAlarmInfoRepository.delete(mailAlarmInfoEntity);
@@ -234,6 +241,7 @@ public class InterviewScheduleParticipantsService {
    * @throws CustomException NO_AUTHORITY : 로그인한 사용자의 회사키와 매개변수의 회사키가 일치하지 않는 경우
    */
   private void checkOwner(UserDetails userDetails, String jobPostingKey) {
+    log.info("회사 본인 확인");
     CompanyEntity companyEntity = companyRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new CustomException(
             ErrorCode.COMPANY_NOT_FOUND));
@@ -257,6 +265,8 @@ public class InterviewScheduleParticipantsService {
    */
   private void checkOwnerByInterviewScheduleKey(UserDetails userDetails,
       String interviewScheduleKey) {
+    log.info("회사 본인 확인");
+
     CompanyEntity companyEntity = companyRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new CustomException(
             ErrorCode.COMPANY_NOT_FOUND));

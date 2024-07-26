@@ -1,5 +1,6 @@
 package com.ctrls.auto_enter_view.service;
 
+import com.ctrls.auto_enter_view.component.KeyGenerator;
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto.Request;
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto.Response;
 import com.ctrls.auto_enter_view.dto.interviewschedule.InterviewScheduleDto.TaskRequest;
@@ -11,7 +12,6 @@ import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.repository.InterviewScheduleRepository;
 import com.ctrls.auto_enter_view.repository.JobPostingRepository;
-import com.ctrls.auto_enter_view.component.KeyGenerator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +48,8 @@ public class InterviewScheduleService {
     InterviewScheduleEntity saved = interviewScheduleRepository.save(
         Request.toEntity(key, jobPostingKey, stepId, request));
 
+    log.info("면접 일정 생성 : " + jobPostingKey + " - " + stepId);
+
     return Response.builder()
         .interviewScheduleKey(saved.getInterviewScheduleKey())
         .build();
@@ -73,6 +75,8 @@ public class InterviewScheduleService {
     InterviewScheduleEntity saved = interviewScheduleRepository.save(
         TaskRequest.toEntity(key, jobPostingKey, stepId, taskRequest));
 
+    log.info("과제 일정 생성 : " + jobPostingKey + " - " + stepId);
+
     return Response.builder()
         .interviewScheduleKey(saved.getInterviewScheduleKey())
         .build();
@@ -88,6 +92,7 @@ public class InterviewScheduleService {
    * @throws CustomException NO_AUTHORITY : 로그인한 사용자의 회사키와 매개변수의 회사키가 일치하지 않는 경우
    */
   private void checkOwner(UserDetails userDetails, String jobPostingKey) {
+    log.info("회사 본인 확인");
 
     CompanyEntity companyEntity = companyRepository.findByEmail(userDetails.getUsername())
         .orElseThrow(() -> new CustomException(
