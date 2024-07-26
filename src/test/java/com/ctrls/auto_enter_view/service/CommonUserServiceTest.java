@@ -475,7 +475,8 @@ class CommonUserServiceTest {
         .candidateKey(key)
         .build();
 
-    when(candidateRepository.findByCandidateKey(key)).thenReturn(Optional.of(candidateEntity));
+    when(candidateRepository.findByEmail(userDetails.getUsername())).thenReturn(
+        Optional.of(candidateEntity));
 
     // when
     commonUserService.withdraw(userDetails, key);
@@ -502,7 +503,8 @@ class CommonUserServiceTest {
         .companyKey(key)
         .build();
 
-    when(companyRepository.findByCompanyKey(key)).thenReturn(Optional.of(companyEntity));
+    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
+        Optional.of(companyEntity));
 
     // when
     commonUserService.withdraw(userDetails, key);
@@ -591,6 +593,31 @@ class CommonUserServiceTest {
     //then
     verify(companyRepository, times(1)).findByEmail(userDetails.getUsername());
     assertEquals(ErrorCode.KEY_NOT_MATCH, customException.getErrorCode());
+
+  }
+
+
+  @Test
+  @DisplayName("회원 탈퇴 실패 테스트 (회사) -> USER_NOT_FOUND")
+  void companyWithdrawFailTestUserNotFound() {
+    //given
+    String email = "email";
+    String password = "password";
+    String key = "key";
+
+    UserDetails userDetails = User.withUsername(email).password(password)
+        .roles("COMPANY").build();
+
+    when(companyRepository.findByEmail(userDetails.getUsername())).thenReturn(
+        Optional.empty());
+
+    // when
+    CustomException customException = assertThrows(CustomException.class,
+        () -> commonUserService.withdraw(userDetails, key));
+
+    //then
+    verify(companyRepository, times(1)).findByEmail(userDetails.getUsername());
+    assertEquals(ErrorCode.USER_NOT_FOUND, customException.getErrorCode());
 
   }
 
