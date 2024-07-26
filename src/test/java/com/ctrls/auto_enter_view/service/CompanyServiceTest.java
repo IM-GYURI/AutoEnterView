@@ -75,9 +75,9 @@ class CompanyServiceTest {
 
     // when
     when(passwordEncoder.encode(password)).thenReturn(encodedPassword);
-    when(
-        companyRepository.save(argThat(e -> e.getPassword().equals(encodedPassword)))).thenReturn(
+    when(companyRepository.save(argThat(e -> e.getPassword().equals(encodedPassword)))).thenReturn(
         saved);
+    when(keyGenerator.generateKey()).thenReturn("testKey");
 
     // execute
     Response response = companyService.signUp(request);
@@ -91,6 +91,7 @@ class CompanyServiceTest {
     assertEquals(encodedPassword, captured.getPassword());
     assertEquals(request.getCompanyName(), captured.getCompanyName());
     assertEquals(request.getCompanyNumber(), captured.getCompanyNumber());
+    assertEquals("testKey", captured.getCompanyKey());
 
     // assert response
     assertEquals(saved.getEmail(), response.getEmail());
