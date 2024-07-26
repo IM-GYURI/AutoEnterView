@@ -14,8 +14,9 @@ public interface InterviewScheduleRepository extends
 
   Optional<InterviewScheduleEntity> findByInterviewScheduleKey(String interviewScheduleKey);
 
-  @Query("SELECT i.interviewScheduleKey FROM InterviewScheduleEntity i WHERE i.jobPostingKey = :jobPostingKey")
-  Optional<String> findInterviewScheduleKeyByJobPostingKey(String jobPostingKey);
+  @Query("SELECT i.interviewScheduleKey FROM InterviewScheduleEntity i WHERE i.jobPostingKey = :jobPostingKey AND i.jobPostingStepId = :stepId")
+  Optional<String> findInterviewScheduleKeyByJobPostingKeyAndStepId(String jobPostingKey,
+      Long stepId);
 
   Optional<InterviewScheduleEntity> findByJobPostingKeyAndJobPostingStepId(String jobPostingKey,
       Long stepId);
