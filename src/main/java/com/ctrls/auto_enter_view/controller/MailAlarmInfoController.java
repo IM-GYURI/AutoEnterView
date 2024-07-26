@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -27,9 +28,9 @@ public class MailAlarmInfoController {
   /**
    * 메일 예약 생성하기
    *
-   * @param companyKey 회사 PK
-   * @param jobPostingKey 채용 공고 PK
-   * @param stepId 채용 단계 PK
+   * @param companyKey       회사 PK
+   * @param jobPostingKey    채용 공고 PK
+   * @param stepId           채용 단계 PK
    * @param mailAlarmInfoDto MailAlarmInfoDto.Request
    * @return ResponseMessage
    */
@@ -41,17 +42,32 @@ public class MailAlarmInfoController {
     mailAlarmInfoService.createMailAlarmInfo(companyKey, jobPostingKey, stepId,
         mailAlarmInfoDto, userDetails);
 
-
     return ResponseEntity.ok(SUCCESS_CREATE_MAIL_ALARM.getMessage());
+  }
+
+  /**
+   * 예약된 메일 조회
+   *
+   * @param companyKey    회사 PK
+   * @param jobPostingKey 채용 공고 PK
+   * @param stepId        채용 단계 PK
+   * @return MailAlarmInfoDto
+   */
+  @GetMapping
+  public ResponseEntity<MailAlarmInfoDto> getMailAlarmInfo(@PathVariable String companyKey,
+      @PathVariable String jobPostingKey, @PathVariable Long stepId,
+      @AuthenticationPrincipal UserDetails userDetails) {
+    return ResponseEntity.ok(mailAlarmInfoService.getMailAlarmInfo(companyKey,
+        jobPostingKey, stepId, userDetails));
   }
 
   /**
    * 예약된 메일 수정하기
    *
-   * @param companyKey 회사 PK
-   * @param jobPostingKey 채용 공고 PK
-   * @param stepId 채용 단계 PK
-   * @param request MailAlarmInfoDto.Request
+   * @param companyKey       회사 PK
+   * @param jobPostingKey    채용 공고 PK
+   * @param stepId           채용 단계 PK
+   * @param mailAlarmInfoDto MailAlarmInfoDto
    * @return ResponseMessage
    */
   @PutMapping
