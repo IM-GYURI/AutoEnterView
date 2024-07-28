@@ -45,7 +45,7 @@ public class CommonUserService {
   private final ResumeRepository resumeRepository;
   private final MailComponent mailComponent;
   private final PasswordEncoder passwordEncoder;
-  private final RedisTemplate<String, String> redisTemplate;
+  private final RedisTemplate<String, String> redisStringTemplate;
 
   /**
    * 이메일 중복 확인
@@ -106,7 +106,7 @@ public class CommonUserService {
       String verificationCode = generateVerificationCode();
       log.info("인증 코드 : " + verificationCode);
 
-      redisTemplate.opsForValue().set(email, verificationCode, 5, TimeUnit.MINUTES);
+      redisStringTemplate.opsForValue().set(email, verificationCode, 5, TimeUnit.MINUTES);
       log.info("Redis DB에 저장 : 유효시간 5분");
 
       log.info("이메일 인증 코드 전송 : " + email + " - " + verificationCode);
@@ -126,7 +126,7 @@ public class CommonUserService {
   public void verifyEmailVerificationCode(String email, String verificationCode) {
     log.info("이메일 인증 코드 확인");
 
-    String sentVerificationCode = redisTemplate.opsForValue().get(email);
+    String sentVerificationCode = redisStringTemplate.opsForValue().get(email);
     log.info("입력 받은 인증 코드 : " + verificationCode + "\nRedis DB에 저장되어 있는 인증 코드 : "
         + sentVerificationCode);
 

@@ -27,7 +27,7 @@ import org.springframework.data.redis.core.ValueOperations;
 class BlacklistTokenServiceTest {
 
   @Mock
-  private RedisTemplate<String, String> redisTemplate;
+  private RedisTemplate<String, String> redisStringTemplate;
 
   @Mock
   private ValueOperations<String, String> valueOperations;
@@ -37,7 +37,7 @@ class BlacklistTokenServiceTest {
 
   @BeforeEach
   void setUp() {
-    when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+    when(redisStringTemplate.opsForValue()).thenReturn(valueOperations);
   }
 
   @Test
