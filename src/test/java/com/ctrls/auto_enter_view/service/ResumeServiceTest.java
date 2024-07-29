@@ -88,8 +88,6 @@ class ResumeServiceTest {
   @Mock
   private ResumeTechStackRepository resumeTechStackRepository;
 
-  @Mock private ResumeImageRepository resumeImageRepository;
-
   @Captor
   ArgumentCaptor<ResumeEntity> resumeCaptor;
 
