@@ -83,6 +83,9 @@ class ResumeServiceTest {
   private ResumeRepository resumeRepository;
 
   @Mock
+  private ResumeImageRepository resumeImageRepository;
+
+  @Mock
   private ResumeTechStackRepository resumeTechStackRepository;
 
   @Mock private ResumeImageRepository resumeImageRepository;
