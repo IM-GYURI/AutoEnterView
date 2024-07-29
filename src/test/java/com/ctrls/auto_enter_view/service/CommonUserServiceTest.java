@@ -14,7 +14,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -31,7 +30,6 @@ import com.ctrls.auto_enter_view.exception.CustomException;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyInfoRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
-import com.ctrls.auto_enter_view.component.KeyGenerator;
 import com.ctrls.auto_enter_view.repository.ResumeRepository;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -70,7 +68,7 @@ class CommonUserServiceTest {
   private PasswordEncoder passwordEncoder;
 
   @Mock
-  private RedisTemplate<String, String> redisTemplate;
+  private RedisTemplate<String, String> redisStringTemplate;
 
   @Mock
   private ValueOperations<String, String> valueOperations;
@@ -118,7 +116,7 @@ class CommonUserServiceTest {
     long expirationTime = 5L;
     TimeUnit expirationUnit = TimeUnit.MINUTES;
 
-    when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+    when(redisStringTemplate.opsForValue()).thenReturn(valueOperations);
 
     ArgumentCaptor<String> codeCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -126,7 +124,7 @@ class CommonUserServiceTest {
       commonUserService.sendVerificationCode(testEmail);
     });
 
-    verify(redisTemplate, times(1)).opsForValue();
+    verify(redisStringTemplate, times(1)).opsForValue();
     verify(valueOperations, times(1)).set(eq(testEmail), codeCaptor.capture(),
         eq(expirationTime), eq(expirationUnit));
     verify(mailComponent, times(1)).sendVerificationCode(eq(testEmail), codeCaptor.capture());
@@ -145,7 +143,7 @@ class CommonUserServiceTest {
     String email = "test@example.com";
     String verificationCode = "123456";
 
-    when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+    when(redisStringTemplate.opsForValue()).thenReturn(valueOperations);
     doThrow(new RuntimeException("Mail send failure")).when(mailComponent)
         .sendVerificationCode(email, verificationCode);
 
@@ -162,7 +160,7 @@ class CommonUserServiceTest {
     String email = "test@example.com";
     String verificationCode = "123456";
 
-    when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+    when(redisStringTemplate.opsForValue()).thenReturn(valueOperations);
     doThrow(new RuntimeException("Redis failure")).when(valueOperations)
         .set(email, verificationCode, 5, TimeUnit.MINUTES);
 
@@ -180,7 +178,7 @@ class CommonUserServiceTest {
     String testEmail = "test@example.com";
     String correctVerificationCode = "123456";
 
-    when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+    when(redisStringTemplate.opsForValue()).thenReturn(valueOperations);
     when(valueOperations.get(testEmail)).thenReturn(correctVerificationCode);
 
     assertDoesNotThrow(
@@ -195,7 +193,7 @@ class CommonUserServiceTest {
     String correctVerificationCode = "123456";
     String incorrectVerificationCode = "654321";
 
-    when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+    when(redisStringTemplate.opsForValue()).thenReturn(valueOperations);
     when(valueOperations.get(testEmail)).thenReturn(correctVerificationCode);
 
     CustomException thrownException = assertThrows(CustomException.class,
@@ -211,7 +209,7 @@ class CommonUserServiceTest {
     String testEmail = "test@example.com";
     String correctVerificationCode = "123456";
 
-    when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+    when(redisStringTemplate.opsForValue()).thenReturn(valueOperations);
     when(valueOperations.get(testEmail)).thenReturn(null);
 
     CustomException thrownException = assertThrows(CustomException.class,

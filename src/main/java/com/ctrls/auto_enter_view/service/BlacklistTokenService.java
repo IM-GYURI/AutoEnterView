@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class BlacklistTokenService {
 
-  private final RedisTemplate<String, String> redisTemplate;
+  private final RedisTemplate<String, String> redisStringTemplate;
 
   /**
    * 블랙 리스트에 토큰 추가하기
@@ -28,7 +28,7 @@ public class BlacklistTokenService {
     }
     log.info("add blacklist token : {}", token);
     try {
-      redisTemplate.opsForValue().set(token, "logout", 60, TimeUnit.MINUTES);
+      redisStringTemplate.opsForValue().set(token, "logout", 60, TimeUnit.MINUTES);
     } catch (Exception e) {
       throw new CustomException(ErrorCode.BLACKLIST_TOKEN_ADD_FAILED);
     }
@@ -42,7 +42,7 @@ public class BlacklistTokenService {
    */
   public boolean isTokenBlacklist(String token) {
 
-    boolean isBlacklist = redisTemplate.opsForValue().get(token) != null;
+    boolean isBlacklist = redisStringTemplate.opsForValue().get(token) != null;
     log.info("블랙 리스트에 토큰이 존재하는지 여부 : " + isBlacklist);
 
     return isBlacklist;

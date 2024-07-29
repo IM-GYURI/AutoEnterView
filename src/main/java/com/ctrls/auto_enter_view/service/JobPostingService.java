@@ -38,12 +38,15 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,6 +68,7 @@ public class JobPostingService {
   private final FilteringService filteringService;
   private final MailComponent mailComponent;
   private final KeyGenerator keyGenerator;
+  private final RedisTemplate<String, Object> redisObjectTemplate;
 
   /**
    * 채용 공고 생성하기
@@ -96,7 +100,19 @@ public class JobPostingService {
     // 스케줄링 코드
     filteringService.scheduleResumeScoringJob(entity.getJobPostingKey(), entity.getEndDate());
 
-    return jobPostingRepository.save(entity);
+    JobPostingEntity jobPostingEntity = jobPostingRepository.save(entity);
+
+    // 캐시 무효화 로직 추가
+    String cacheKeyPattern = "mainJobPostings:*";
+    Set<String> cacheKeys = redisObjectTemplate.keys(cacheKeyPattern);
+
+    if (cacheKeys != null && !cacheKeys.isEmpty()) {
+      redisObjectTemplate.delete(cacheKeys);
+      log.info("채용 공고 생성으로 인해 캐시 무효화");
+    }
+
+    return jobPostingEntity;
+
   }
 
   /**
@@ -147,6 +163,18 @@ public class JobPostingService {
       appliedJobPostingRepository.updateEndDateByJobPostingKey(
           jobPostingEntity.getEndDate(), jobPostingKey);
     }
+
+    // 수정된 채용 공고가 속한 페이지의 캐시 키 패턴 생성
+    String cacheKeyPattern = "mainJobPostings:*";
+
+    // 해당 패턴에 매칭되는 모든 캐시 키 가져오기
+    Set<String> cacheKeys = redisObjectTemplate.keys(cacheKeyPattern);
+
+    if (cacheKeys != null && !cacheKeys.isEmpty()) {
+      // 매칭되는 캐시 키가 있으면 해당 캐시 삭제
+      redisObjectTemplate.delete(cacheKeys);
+      log.info("채용 공고 수정으로 인해 캐시 무효화");
+    }
   }
 
   /**
@@ -178,6 +206,15 @@ public class JobPostingService {
     }
 
     jobPostingRepository.deleteByJobPostingKey(jobPostingKey);
+
+    // 캐시 무효화 로직 추가
+    String cacheKeyPattern = "mainJobPostings:*";
+    Set<String> cacheKeys = redisObjectTemplate.keys(cacheKeyPattern);
+
+    if (cacheKeys != null && !cacheKeys.isEmpty()) {
+      redisObjectTemplate.delete(cacheKeys);
+      log.info("채용 공고 삭제로 인해 캐시 무효화");
+    }
   }
 
   /**
@@ -213,6 +250,15 @@ public class JobPostingService {
   // TODO : 회사가 탈퇴했을 때, 발생하는 문제점 해결하기 - 탈퇴한 회사 이름을 가져오지 못해 에러 발생 상황이 있었음
   @Transactional(readOnly = true)
   public MainJobPostingDto.Response getAllJobPosting(int page, int size) {
+    String cacheKey = "mainJobPostings:" + page + "-" + size;
+
+    // Redis : 캐시된 데이터 확인
+    MainJobPostingDto.Response cachedResponse = (MainJobPostingDto.Response) redisObjectTemplate.opsForValue().get(cacheKey);
+    if (cachedResponse != null) {
+      log.info("Redis에서 캐시된 데이터 조회");
+      return cachedResponse;
+    }
+
     Pageable pageable = PageRequest.of(page - 1, size);
     LocalDate currentDate = LocalDate.now();
     Page<JobPostingEntity> jobPostingPage = jobPostingRepository.findByEndDateGreaterThanEqual(
@@ -226,13 +272,18 @@ public class JobPostingService {
         .map(this::createJobPostingMainInfo)
         .collect(Collectors.toList());
 
-    log.info("총 {}개의 채용 공고 조회 완료", totalElements);
-
-    return MainJobPostingDto.Response.builder()
+    MainJobPostingDto.Response response = MainJobPostingDto.Response.builder()
         .jobPostingsList(jobPostingMainInfoList)
         .totalPages(totalPages)
         .totalElements(totalElements)
         .build();
+
+    // 조회한 데이터를 Redis 캐싱
+    redisObjectTemplate.opsForValue().set(cacheKey, response, 30, TimeUnit.MINUTES);
+
+    log.info("총 {}개의 채용 공고 조회 완료", totalElements);
+
+    return response;
   }
 
   /**

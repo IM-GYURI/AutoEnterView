@@ -55,8 +55,11 @@ import com.ctrls.auto_enter_view.repository.JobPostingTechStackRepository;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -68,6 +71,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -111,6 +116,9 @@ class JobPostingServiceTest {
   @Mock
   private KeyGenerator keyGenerator;
 
+  @Mock
+  private RedisTemplate<String, Object> redisObjectTemplate;
+
   @InjectMocks
   private JobPostingService jobPostingService;
 
@@ -147,6 +155,11 @@ class JobPostingServiceTest {
     when(companyRepository.findByCompanyKey(companyKey)).thenReturn(
         Optional.of(companyEntity));
 
+    // Redis 관련 mock 설정
+    Set<String> mockCacheKeys = new HashSet<>();
+    mockCacheKeys.add("mainJobPostings:1");
+    when(redisObjectTemplate.keys(anyString())).thenReturn(mockCacheKeys);
+
     ArgumentCaptor<JobPostingEntity> captor = ArgumentCaptor.forClass(JobPostingEntity.class);
 
     //when
@@ -169,6 +182,10 @@ class JobPostingServiceTest {
     assertEquals(request.getEndDate(), captorValue.getEndDate());
     assertEquals(request.getJobPostingContent(), captorValue.getJobPostingContent());
     assertEquals(request.getPassingNumber(), captorValue.getPassingNumber());
+
+    // 캐시 무효화 검증
+    verify(redisObjectTemplate, times(1)).keys("mainJobPostings:*");
+    verify(redisObjectTemplate, times(1)).delete(mockCacheKeys);
   }
 
   @Test
@@ -286,6 +303,11 @@ class JobPostingServiceTest {
     doNothing().when(mailComponent)
         .sendHtmlMail(anyString(), anyString(), anyString(), anyBoolean());
 
+    // Redis 캐시 관련 설정 추가
+    Set<String> mockCacheKeys = new HashSet<>();
+    mockCacheKeys.add("mainJobPostings:1");
+    when(redisObjectTemplate.keys(anyString())).thenReturn(mockCacheKeys);
+
     jobPostingService.editJobPosting(userDetails, jobPostingKey, request);
 
     verify(jobPostingRepository, times(1)).findByJobPostingKey(jobPostingKey);
@@ -301,6 +323,11 @@ class JobPostingServiceTest {
         contains("지원해주신 <strong>[" + jobPostingEntity.getTitle() + "]</strong>의 공고 내용이 수정되었습니다."),
         eq(true)
     );
+
+    // Redis 캐시 무효화 검증 추가
+    verify(redisObjectTemplate, times(1)).keys("mainJobPostings:*");
+    verify(redisObjectTemplate, times(1)).delete(mockCacheKeys);
+
   }
 
   @Test
@@ -430,12 +457,21 @@ class JobPostingServiceTest {
     when(jobPostingStepRepository.findFirstByJobPostingKeyOrderByIdAsc(jobPostingKey)).thenReturn(
         Optional.of(jobPostingStepEntity));
 
+    // Redis 캐시 관련 설정 추가
+    Set<String> mockCacheKeys = new HashSet<>();
+    mockCacheKeys.add("mainJobPostings:1");
+    when(redisObjectTemplate.keys(anyString())).thenReturn(mockCacheKeys);
+
     //when
     jobPostingService.deleteJobPosting(userDetails, jobPostingKey);
 
     //then
     verify(jobPostingRepository, times(1)).deleteByJobPostingKey(jobPostingKey);
     assertEquals(companyEntity.getCompanyKey(), jobPostingEntity.getCompanyKey());
+
+    // Redis 캐시 무효화 검증 추가
+    verify(redisObjectTemplate, times(1)).keys("mainJobPostings:*");
+    verify(redisObjectTemplate, times(1)).delete(mockCacheKeys);
 
   }
 
@@ -640,7 +676,7 @@ class JobPostingServiceTest {
   }
   
   @Test
-  @DisplayName("Main 화면 채용 공고 조회 - 성공")
+  @DisplayName("Main 화면 채용 공고 조회 - 성공 : 캐시 데이터가 없는 경우")
   void getAllJobPosting_success() {
     // given
     int page = 1;
@@ -692,6 +728,10 @@ class JobPostingServiceTest {
     when(companyRepository.findByCompanyKey("companyKey")).thenReturn(Optional.of(company));
     when(jobPostingTechStackRepository.findAllByJobPostingKey("jobPostingKey")).thenReturn(techStacks);
 
+    ValueOperations<String, Object> valueOperations = mock(ValueOperations.class);
+    when(redisObjectTemplate.opsForValue()).thenReturn(valueOperations);
+    when(valueOperations.get(anyString())).thenReturn(null);
+
     // when
     MainJobPostingDto.Response response = jobPostingService.getAllJobPosting(page, size);
 
@@ -709,10 +749,22 @@ class JobPostingServiceTest {
     assertEquals(2, firstJobPosting.getTechStack().size());
     assertTrue(firstJobPosting.getTechStack().contains(TechStack.HTML5));
     assertTrue(firstJobPosting.getTechStack().contains(TechStack.PYTHON));
+
+    // Redis 캐시 저장 확인
+    ArgumentCaptor<MainJobPostingDto.Response> responseCaptor = ArgumentCaptor.forClass(MainJobPostingDto.Response.class);
+    verify(redisObjectTemplate.opsForValue()).set(
+        eq("mainJobPostings:1-10"),
+        responseCaptor.capture(),
+        eq(30L),
+        eq(TimeUnit.MINUTES)
+    );
+
+    MainJobPostingDto.Response capturedResponse = responseCaptor.getValue();
+    assertEquals(response, capturedResponse);
   }
 
   @Test
-  @DisplayName("Main 화면 채용 공고 조회 - 빈 결과")
+  @DisplayName("Main 화면 채용 공고 조회 - 빈 결과 : 캐시 데이터가 없는 경우")
   void getAllJobPosting_emptyResult() {
     // given
     int page = 1;
@@ -724,6 +776,11 @@ class JobPostingServiceTest {
 
     when(jobPostingRepository.findByEndDateGreaterThanEqual(currentDate, pageable)).thenReturn(emptyPage);
 
+    // Redis 관련 모의 객체 설정
+    ValueOperations<String, Object> valueOperations = mock(ValueOperations.class);
+    when(redisObjectTemplate.opsForValue()).thenReturn(valueOperations);
+    when(valueOperations.get(anyString())).thenReturn(null);
+
     // when
     MainJobPostingDto.Response response = jobPostingService.getAllJobPosting(page, size);
 
@@ -732,6 +789,87 @@ class JobPostingServiceTest {
     assertTrue(response.getJobPostingsList().isEmpty());
     assertEquals(0, response.getTotalPages());
     assertEquals(0, response.getTotalElements());
+
+    // Redis 캐시 저장 확인
+    ArgumentCaptor<MainJobPostingDto.Response> responseCaptor = ArgumentCaptor.forClass(MainJobPostingDto.Response.class);
+    verify(valueOperations).set(
+        eq("mainJobPostings:1-10"),
+        responseCaptor.capture(),
+        eq(30L),
+        eq(TimeUnit.MINUTES)
+    );
+
+    MainJobPostingDto.Response capturedResponse = responseCaptor.getValue();
+    assertEquals(response, capturedResponse);
+
+  }
+
+  @Test
+  @DisplayName("Main 화면 채용 공고 조회 - 성공 : 캐시 데이터가 있는 경우")
+  void getAllJobPosting_success_cachedData() {
+    // given
+    int page = 1;
+    int size = 10;
+    String cacheKey = "mainJobPostings:1-10";
+
+    MainJobPostingDto.JobPostingMainInfo cachedJobPosting = MainJobPostingDto.JobPostingMainInfo.builder()
+        .jobPostingKey("cachedJobPostingKey")
+        .companyName("캐시된 회사")
+        .title("캐시된 채용 공고")
+        .endDate(LocalDate.now().plusDays(30))
+        .techStack(Arrays.asList(TechStack.JAVA, TechStack.HTML5))
+        .build();
+
+    MainJobPostingDto.Response cachedResponse = MainJobPostingDto.Response.builder()
+        .jobPostingsList(Collections.singletonList(cachedJobPosting))
+        .totalPages(1)
+        .totalElements(1)
+        .build();
+
+    ValueOperations<String, Object> valueOperations = mock(ValueOperations.class);
+    when(redisObjectTemplate.opsForValue()).thenReturn(valueOperations);
+    when(valueOperations.get(cacheKey)).thenReturn(cachedResponse);
+
+    // when
+    MainJobPostingDto.Response response = jobPostingService.getAllJobPosting(page, size);
+
+    // then
+    assertNotNull(response);
+    assertEquals(cachedResponse, response);
+
+
+    verify(valueOperations).get(cacheKey);
+    verify(valueOperations, never()).set(eq(cacheKey), eq(cachedResponse), eq(30L), eq(TimeUnit.MINUTES));
+  }
+
+  @Test
+  @DisplayName("Main 화면 채용 공고 조회 - 빈 결과 : 캐시 데이터가 있는 경우")
+  void getAllJobPosting_emptyResult_cachedData() {
+    // given
+    int page = 1;
+    int size = 10;
+    String cacheKey = "mainJobPostings:1-10";
+
+    MainJobPostingDto.Response cachedEmptyResponse = MainJobPostingDto.Response.builder()
+        .jobPostingsList(Collections.emptyList())
+        .totalPages(0)
+        .totalElements(0)
+        .build();
+
+    ValueOperations<String, Object> valueOperations = mock(ValueOperations.class);
+    when(redisObjectTemplate.opsForValue()).thenReturn(valueOperations);
+    when(valueOperations.get(cacheKey)).thenReturn(cachedEmptyResponse);
+
+    // when
+    MainJobPostingDto.Response response = jobPostingService.getAllJobPosting(page, size);
+
+    // then
+    assertNotNull(response);
+    assertEquals(cachedEmptyResponse, response);
+
+    verify(valueOperations).get(cacheKey);
+
+    verify(valueOperations, never()).set(eq(cacheKey), eq(cachedEmptyResponse), eq(30L), eq(TimeUnit.MINUTES));
   }
 
   @Test
