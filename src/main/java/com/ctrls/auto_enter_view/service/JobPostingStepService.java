@@ -8,6 +8,7 @@ import com.ctrls.auto_enter_view.dto.candidateList.CandidateTechStackInterviewIn
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingDto.Request;
 import com.ctrls.auto_enter_view.dto.jobPosting.JobPostingEveryInfoDto;
+import com.ctrls.auto_enter_view.entity.AppliedJobPostingEntity;
 import com.ctrls.auto_enter_view.entity.CandidateListEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.entity.InterviewScheduleEntity;
@@ -19,6 +20,7 @@ import com.ctrls.auto_enter_view.entity.ResumeTechStackEntity;
 import com.ctrls.auto_enter_view.enums.ErrorCode;
 import com.ctrls.auto_enter_view.enums.TechStack;
 import com.ctrls.auto_enter_view.exception.CustomException;
+import com.ctrls.auto_enter_view.repository.AppliedJobPostingRepository;
 import com.ctrls.auto_enter_view.repository.CandidateListRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.repository.InterviewScheduleParticipantsRepository;
@@ -52,7 +54,7 @@ public class JobPostingStepService {
   private final ResumeTechStackRepository resumeTechStackRepository;
   private final InterviewScheduleRepository interviewScheduleRepository;
   private final InterviewScheduleParticipantsRepository interviewScheduleParticipantsRepository;
-
+  private final AppliedJobPostingRepository appliedJobPostingRepository;
   /**
    * 채용 공고 단계 생성하기
    *
@@ -408,9 +410,21 @@ public class JobPostingStepService {
       throw new CustomException(ErrorCode.NEXT_STEP_NOT_FOUND);
     }
 
-    // 지원자의 단계 ID 업데이트
+    JobPostingStepEntity nextStep = nextStepOptional.get();
+    String nextStepName = nextStep.getStep();
+
+    // 지원자의 단계 ID 업데이트 및 AppliedJobPostingEntity의 stepName 업데이트
     for (CandidateListEntity candidate : candidateListEntities) {
       candidate.updateJobPostingStepId(nextStepId);
+
+      Optional<AppliedJobPostingEntity> appliedJobPostingOptional = appliedJobPostingRepository
+          .findByCandidateKeyAndJobPostingKey(candidate.getCandidateKey(), jobPostingKey);
+
+      if (appliedJobPostingOptional.isPresent()) {
+        AppliedJobPostingEntity appliedJobPosting = appliedJobPostingOptional.get();
+        appliedJobPosting.updateStepName(nextStepName);
+      }
     }
+
   }
 }
