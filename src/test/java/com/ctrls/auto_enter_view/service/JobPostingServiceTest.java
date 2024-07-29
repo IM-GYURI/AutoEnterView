@@ -71,6 +71,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.core.userdetails.User;
@@ -674,20 +675,20 @@ class JobPostingServiceTest {
 
     assertEquals(NO_AUTHORITY, customException.getErrorCode());
   }
-  
+
   @Test
   @DisplayName("Main 화면 채용 공고 조회 - 성공 : 캐시 데이터가 없는 경우")
   void getAllJobPosting_success() {
     // given
     int page = 1;
     int size = 10;
-    Pageable pageable = PageRequest.of(page - 1, size);
+    Pageable pageable = PageRequest.of(page - 1, size, Sort.by("endDate").ascending());
     LocalDate currentDate = LocalDate.now();
 
-    JobPostingEntity jobPosting = JobPostingEntity.builder()
-        .jobPostingKey("jobPostingKey")
-        .companyKey("companyKey")
-        .title("테스트 채용 공고")
+    JobPostingEntity jobPosting1 = JobPostingEntity.builder()
+        .jobPostingKey("jobPostingKey1")
+        .companyKey("companyKey1")
+        .title("테스트 채용 공고 1")
         .jobCategory(JobCategory.BACKEND)
         .career(3)
         .workLocation("서울")
@@ -698,35 +699,74 @@ class JobPostingServiceTest {
         .startDate(LocalDate.now())
         .endDate(LocalDate.now().plusDays(30))
         .passingNumber(5)
-        .jobPostingContent("상세 내용")
+        .jobPostingContent("상세 내용 1")
         .build();
 
-    List<JobPostingEntity> jobPostings = Collections.singletonList(jobPosting);
+    JobPostingEntity jobPosting2 = JobPostingEntity.builder()
+        .jobPostingKey("jobPostingKey2")
+        .companyKey("companyKey2")
+        .title("테스트 채용 공고 2")
+        .jobCategory(JobCategory.FRONTEND)
+        .career(2)
+        .workLocation("서울")
+        .education(Education.BACHELOR)
+        .employmentType("정규직")
+        .salary(45000000L)
+        .workTime("유연근무제")
+        .startDate(LocalDate.now())
+        .endDate(LocalDate.now().plusDays(20))
+        .passingNumber(3)
+        .jobPostingContent("상세 내용 2")
+        .build();
+
+    List<JobPostingEntity> jobPostings = Arrays.asList(jobPosting1, jobPosting2);
     Page<JobPostingEntity> jobPostingPage = new PageImpl<>(jobPostings, pageable, jobPostings.size());
 
-    CompanyEntity company = CompanyEntity.builder()
-        .companyKey("companyKey")
-        .email("test@company.com")
-        .password("password")
-        .companyName("테스트 회사")
+    CompanyEntity company1 = CompanyEntity.builder()
+        .companyKey("companyKey1")
+        .email("test1@company.com")
+        .password("password1")
+        .companyName("테스트 회사 1")
         .companyNumber("123-456-7890")
         .role(UserRole.ROLE_COMPANY)
         .build();
 
-    List<JobPostingTechStackEntity> techStacks = Arrays.asList(
+    CompanyEntity company2 = CompanyEntity.builder()
+        .companyKey("companyKey2")
+        .email("test2@company.com")
+        .password("password2")
+        .companyName("테스트 회사 2")
+        .companyNumber("987-654-3210")
+        .role(UserRole.ROLE_COMPANY)
+        .build();
+
+    List<JobPostingTechStackEntity> techStacks1 = Arrays.asList(
         JobPostingTechStackEntity.builder()
-            .jobPostingKey("jobPostingKey")
+            .jobPostingKey("jobPostingKey1")
             .techName(TechStack.HTML5)
             .build(),
         JobPostingTechStackEntity.builder()
-            .jobPostingKey("jobPostingKey")
+            .jobPostingKey("jobPostingKey1")
             .techName(TechStack.PYTHON)
             .build()
     );
 
+    List<JobPostingTechStackEntity> techStacks2 = Arrays.asList(
+        JobPostingTechStackEntity.builder()
+            .jobPostingKey("jobPostingKey2")
+            .techName(TechStack.REACT)
+            .build(),
+        JobPostingTechStackEntity.builder()
+            .jobPostingKey("jobPostingKey2")
+            .techName(TechStack.CPP)
+            .build()
+    );
+
     when(jobPostingRepository.findByEndDateGreaterThanEqual(currentDate, pageable)).thenReturn(jobPostingPage);
-    when(companyRepository.findByCompanyKey("companyKey")).thenReturn(Optional.of(company));
-    when(jobPostingTechStackRepository.findAllByJobPostingKey("jobPostingKey")).thenReturn(techStacks);
+    when(companyRepository.findByCompanyKey("companyKey1")).thenReturn(Optional.of(company1));
+    when(companyRepository.findByCompanyKey("companyKey2")).thenReturn(Optional.of(company2));
+    when(jobPostingTechStackRepository.findAllByJobPostingKey("jobPostingKey1")).thenReturn(techStacks1);
+    when(jobPostingTechStackRepository.findAllByJobPostingKey("jobPostingKey2")).thenReturn(techStacks2);
 
     ValueOperations<String, Object> valueOperations = mock(ValueOperations.class);
     when(redisObjectTemplate.opsForValue()).thenReturn(valueOperations);
@@ -737,18 +777,27 @@ class JobPostingServiceTest {
 
     // then
     assertNotNull(response);
-    assertEquals(1, response.getJobPostingsList().size());
+    assertEquals(2, response.getJobPostingsList().size());
     assertEquals(1, response.getTotalPages());
-    assertEquals(1, response.getTotalElements());
+    assertEquals(2, response.getTotalElements());
 
     MainJobPostingDto.JobPostingMainInfo firstJobPosting = response.getJobPostingsList().get(0);
-    assertEquals("jobPostingKey", firstJobPosting.getJobPostingKey());
-    assertEquals("테스트 회사", firstJobPosting.getCompanyName());
-    assertEquals("테스트 채용 공고", firstJobPosting.getTitle());
+    assertEquals("jobPostingKey1", firstJobPosting.getJobPostingKey());
+    assertEquals("테스트 회사 1", firstJobPosting.getCompanyName());
+    assertEquals("테스트 채용 공고 1", firstJobPosting.getTitle());
     assertEquals(LocalDate.now().plusDays(30), firstJobPosting.getEndDate());
     assertEquals(2, firstJobPosting.getTechStack().size());
     assertTrue(firstJobPosting.getTechStack().contains(TechStack.HTML5));
     assertTrue(firstJobPosting.getTechStack().contains(TechStack.PYTHON));
+
+    MainJobPostingDto.JobPostingMainInfo secondJobPosting = response.getJobPostingsList().get(1);
+    assertEquals("jobPostingKey2", secondJobPosting.getJobPostingKey());
+    assertEquals("테스트 회사 2", secondJobPosting.getCompanyName());
+    assertEquals("테스트 채용 공고 2", secondJobPosting.getTitle());
+    assertEquals(LocalDate.now().plusDays(20), secondJobPosting.getEndDate());
+    assertEquals(2, secondJobPosting.getTechStack().size());
+    assertTrue(secondJobPosting.getTechStack().contains(TechStack.REACT));
+    assertTrue(secondJobPosting.getTechStack().contains(TechStack.CPP));
 
     // Redis 캐시 저장 확인
     ArgumentCaptor<MainJobPostingDto.Response> responseCaptor = ArgumentCaptor.forClass(MainJobPostingDto.Response.class);
@@ -769,7 +818,7 @@ class JobPostingServiceTest {
     // given
     int page = 1;
     int size = 10;
-    Pageable pageable = PageRequest.of(page - 1, size);
+    Pageable pageable = PageRequest.of(page - 1, size, Sort.by("endDate").ascending());
     LocalDate currentDate = LocalDate.now();
 
     Page<JobPostingEntity> emptyPage = new PageImpl<>(Collections.emptyList(), pageable, 0);
