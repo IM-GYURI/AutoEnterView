@@ -76,7 +76,7 @@ public class JobPostingStepService {
    *
    * @param jobPostingKey 채용공고 KEY
    * @return 채용 단계의 모든 정보 리스트
-   * @throws CustomException USER_NOT_FOUND, JOB_POSTING_NOT_FOUND, RESUME_NOT_FOUND
+   * @throws CustomException USER_NOT_FOUND, JOB_POSTING_NOT_FOUND
    */
   @Transactional(readOnly = true)
   public List<JobPostingEveryInfoDto> getCandidatesListByStepId(UserDetails userDetails,
@@ -236,7 +236,6 @@ public class JobPostingStepService {
    *
    * @param candidateKey 지원자 PK
    * @return ResumeEntity
-   * @throws CustomException RESUME_NOT_FOUND : 이력서를 찾을 수 없는 경우
    */
   private ResumeEntity findResumeEntityByCandidateKey(String candidateKey) {
     return resumeRepository.findByCandidateKey(candidateKey)
