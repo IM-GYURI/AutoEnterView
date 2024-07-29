@@ -46,6 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -259,7 +260,7 @@ public class JobPostingService {
       return cachedResponse;
     }
 
-    Pageable pageable = PageRequest.of(page - 1, size);
+    Pageable pageable = PageRequest.of(page - 1, size, Sort.by("endDate").ascending());
     LocalDate currentDate = LocalDate.now();
     Page<JobPostingEntity> jobPostingPage = jobPostingRepository.findByEndDateGreaterThanEqual(
         currentDate, pageable);
