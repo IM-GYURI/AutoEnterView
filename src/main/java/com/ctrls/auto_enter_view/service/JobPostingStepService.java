@@ -1,7 +1,6 @@
 package com.ctrls.auto_enter_view.service;
 
 import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_NOT_FOUND;
-import static com.ctrls.auto_enter_view.enums.ErrorCode.RESUME_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 
 import com.ctrls.auto_enter_view.dto.candidateList.CandidateTechStackInterviewInfoDto;
@@ -241,7 +240,7 @@ public class JobPostingStepService {
    */
   private ResumeEntity findResumeEntityByCandidateKey(String candidateKey) {
     return resumeRepository.findByCandidateKey(candidateKey)
-        .orElseThrow(() -> new CustomException(RESUME_NOT_FOUND));
+        .orElseGet(() -> ResumeEntity.builder().build());
   }
 
   /**
