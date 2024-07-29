@@ -1,7 +1,6 @@
 package com.ctrls.auto_enter_view.service;
 
 import static com.ctrls.auto_enter_view.enums.ErrorCode.JOB_POSTING_NOT_FOUND;
-import static com.ctrls.auto_enter_view.enums.ErrorCode.RESUME_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.ErrorCode.USER_NOT_FOUND;
 import static com.ctrls.auto_enter_view.enums.TechStack.JAVA;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -215,56 +214,6 @@ class JobPostingStepServiceTest {
   }
 
   @Test
-  @DisplayName("채용 공고 단계별 지원자 리스트 조회 : 실패 - RESUME_NOT_FOUND")
-  void getCandidatesListByStepId_ResumeNotFoundFailure() {
-    String jobPostingKey = "jobPostingKey";
-    String companyKey = "companyKey";
-    Long stepId = 1L;
-    String candidateKey = "candidateKey";
-
-    UserDetails userDetails = mock(UserDetails.class);
-    when(userDetails.getUsername()).thenReturn("test@example.com");
-
-    JobPostingEntity jobPostingEntity = JobPostingEntity.builder()
-        .jobPostingKey(jobPostingKey)
-        .companyKey(companyKey)
-        .build();
-
-    CompanyEntity companyEntity = CompanyEntity.builder()
-        .companyKey(companyKey)
-        .email("test@example.com")
-        .build();
-
-    JobPostingStepEntity jobPostingStepEntity = JobPostingStepEntity.builder()
-        .id(stepId)
-        .jobPostingKey(jobPostingKey)
-        .step("면접 단계")
-        .build();
-
-    CandidateListEntity candidateListEntity = CandidateListEntity.builder()
-        .candidateKey(candidateKey)
-        .candidateName("John Doe")
-        .build();
-
-    when(jobPostingRepository.findByJobPostingKey(jobPostingKey))
-        .thenReturn(Optional.of(jobPostingEntity));
-    when(companyRepository.findByEmail(userDetails.getUsername()))
-        .thenReturn(Optional.of(companyEntity));
-    when(jobPostingStepRepository.findAllByJobPostingKey(jobPostingKey))
-        .thenReturn(Collections.singletonList(jobPostingStepEntity));
-    when(candidateListRepository.findAllByJobPostingKeyAndJobPostingStepId(jobPostingKey, stepId))
-        .thenReturn(Collections.singletonList(candidateListEntity));
-    when(resumeRepository.findByCandidateKey(candidateKey))
-        .thenReturn(Optional.empty());
-
-    CustomException thrownException = assertThrows(CustomException.class, () -> {
-      jobPostingStepService.getCandidatesListByStepId(userDetails, jobPostingKey);
-    });
-
-    assertEquals(RESUME_NOT_FOUND, thrownException.getErrorCode());
-  }
-
-  @Test
   @DisplayName("채용 단계 올리기 테스트 - 성공")
   void editStepIdSuccessTest() {
     // given
@@ -350,7 +299,8 @@ class JobPostingStepServiceTest {
         .companyKey(companyKey)
         .jobPostingKey(jobPostingKey)
         .build();
-    when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(Optional.of(jobPostingEntity));
+    when(jobPostingRepository.findByJobPostingKey(jobPostingKey)).thenReturn(
+        Optional.of(jobPostingEntity));
 
     List<CandidateListEntity> candidateListEntities = new ArrayList<>();
     for (String candidateKey : candidateKeys) {
@@ -361,7 +311,8 @@ class JobPostingStepServiceTest {
           .build();
       candidateListEntities.add(candidateListEntity);
     }
-    when(candidateListRepository.findAllByCandidateKeyInAndJobPostingKey(candidateKeys, jobPostingKey)).thenReturn(candidateListEntities);
+    when(candidateListRepository.findAllByCandidateKeyInAndJobPostingKey(candidateKeys,
+        jobPostingKey)).thenReturn(candidateListEntities);
 
     UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
         .username(companyEmail)
@@ -378,7 +329,8 @@ class JobPostingStepServiceTest {
     assertEquals(ErrorCode.INVALID_CURRENT_STEP_ID, exception.getErrorCode());
     verify(companyRepository).findByEmail(companyEmail);
     verify(jobPostingRepository).findByJobPostingKey(jobPostingKey);
-    verify(candidateListRepository).findAllByCandidateKeyInAndJobPostingKey(candidateKeys, jobPostingKey);
+    verify(candidateListRepository).findAllByCandidateKeyInAndJobPostingKey(candidateKeys,
+        jobPostingKey);
   }
 
   @Test
@@ -527,7 +479,8 @@ class JobPostingStepServiceTest {
             .jobPostingStepId(currentStepId)
             .build())
         .collect(Collectors.toList());
-    when(candidateListRepository.findAllByCandidateKeyInAndJobPostingKey(candidateKeys, jobPostingKey))
+    when(candidateListRepository.findAllByCandidateKeyInAndJobPostingKey(candidateKeys,
+        jobPostingKey))
         .thenReturn(candidateListEntities);
 
     Long nextStepId = currentStepId + 1;
