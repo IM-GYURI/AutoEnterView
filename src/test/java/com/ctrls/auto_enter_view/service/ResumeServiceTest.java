@@ -34,6 +34,7 @@ import com.ctrls.auto_enter_view.repository.JobPostingRepository;
 import com.ctrls.auto_enter_view.repository.ResumeCareerRepository;
 import com.ctrls.auto_enter_view.repository.ResumeCertificateRepository;
 import com.ctrls.auto_enter_view.repository.ResumeExperienceRepository;
+import com.ctrls.auto_enter_view.repository.ResumeImageRepository;
 import com.ctrls.auto_enter_view.repository.ResumeRepository;
 import com.ctrls.auto_enter_view.repository.ResumeTechStackRepository;
 import java.time.LocalDate;
@@ -80,6 +81,9 @@ class ResumeServiceTest {
 
   @Mock
   private ResumeRepository resumeRepository;
+
+  @Mock
+  private ResumeImageRepository resumeImageRepository;
 
   @Mock
   private ResumeTechStackRepository resumeTechStackRepository;
