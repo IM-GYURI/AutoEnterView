@@ -136,7 +136,7 @@ public class MailAlarmInfoService {
         .mailSendDateTime(mailAlarmInfoEntity.getMailSendDateTime())
         .build();
   }
-  
+
   /**
    * 예약된 메일 수정
    *
@@ -338,8 +338,8 @@ public class MailAlarmInfoService {
             interviewScheduleEntity.getJobPostingKey())
         .orElseThrow(() -> new CustomException(JOB_POSTING_NOT_FOUND));
 
-    JobPostingStepEntity jobPostingStep = jobPostingStepRepository.findById(
-            participants.get(0).getJobPostingStepId())
+    JobPostingStepEntity jobPostingStepEntity = jobPostingStepRepository.findById(
+            interviewScheduleEntity.getJobPostingStepId())
         .orElseThrow(() -> new CustomException(JOB_POSTING_STEP_NOT_FOUND));
 
     if (isTask) {
@@ -350,7 +350,7 @@ public class MailAlarmInfoService {
 
         String subject = "과제 취소 안내 : " + jobPostingEntity.getTitle();
         String text = "과제 일정이 <strong>취소</strong>되었음을 안내드립니다.<br><br>"
-            + "취소된 과제 정보<br>" + jobPostingEntity.getTitle() + " - " + jobPostingStep.getStep()
+            + "취소된 과제 정보<br>" + jobPostingEntity.getTitle() + " - " + jobPostingStepEntity.getStep()
             + "<br> 취소된 과제 마감 일시 : " + participant.getInterviewEndDatetime()
             .format(DateTimeFormatter.ofPattern("yyyy-MM-dd EEEE HH:mm"))
             + "<br><br>";
@@ -365,7 +365,7 @@ public class MailAlarmInfoService {
 
         String subject = "면접 일정 취소 안내 : " + jobPostingEntity.getTitle();
         String text = "예정되었던 면접 일정이 <strong>취소</strong>되었음을 안내드립니다.<br><br>"
-            + "취소된 면접 정보<br>" + jobPostingEntity.getTitle() + " - " + jobPostingStep.getStep()
+            + "취소된 면접 정보<br>" + jobPostingEntity.getTitle() + " - " + jobPostingStepEntity.getStep()
             + "<br> 취소된 면접 일시 : " + participant.getInterviewStartDatetime()
             .format(DateTimeFormatter.ofPattern("yyyy-MM-dd EEEE HH:mm"));
 
