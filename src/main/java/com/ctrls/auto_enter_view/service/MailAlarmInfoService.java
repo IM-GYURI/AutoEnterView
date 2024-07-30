@@ -20,6 +20,7 @@ import com.ctrls.auto_enter_view.entity.JobPostingEntity;
 import com.ctrls.auto_enter_view.entity.JobPostingStepEntity;
 import com.ctrls.auto_enter_view.entity.MailAlarmInfoEntity;
 import com.ctrls.auto_enter_view.exception.CustomException;
+import com.ctrls.auto_enter_view.repository.CandidateListRepository;
 import com.ctrls.auto_enter_view.repository.CandidateRepository;
 import com.ctrls.auto_enter_view.repository.CompanyRepository;
 import com.ctrls.auto_enter_view.repository.InterviewScheduleRepository;
@@ -58,6 +59,7 @@ public class MailAlarmInfoService {
   private final JobPostingRepository jobPostingRepository;
   private final JobPostingStepRepository jobPostingStepRepository;
   private final CandidateRepository candidateRepository;
+  private final CandidateListRepository candidateListRepository;
   private final MailComponent mailComponent;
   private final Scheduler scheduler;
 
@@ -136,7 +138,7 @@ public class MailAlarmInfoService {
         .mailSendDateTime(mailAlarmInfoEntity.getMailSendDateTime())
         .build();
   }
-  
+
   /**
    * 예약된 메일 수정
    *
@@ -338,34 +340,41 @@ public class MailAlarmInfoService {
             interviewScheduleEntity.getJobPostingKey())
         .orElseThrow(() -> new CustomException(JOB_POSTING_NOT_FOUND));
 
-    JobPostingStepEntity jobPostingStep = jobPostingStepRepository.findById(
-            participants.get(0).getJobPostingStepId())
+    JobPostingStepEntity jobPostingStepEntity = jobPostingStepRepository.findById(
+            interviewScheduleEntity.getJobPostingStepId())
         .orElseThrow(() -> new CustomException(JOB_POSTING_STEP_NOT_FOUND));
 
     if (isTask) {
       log.info("과제일 경우 과제 취소 메일 발송");
-      for (InterviewScheduleParticipantsEntity participant : participants) {
-        String to = candidateRepository.findByCandidateKey(participant.getCandidateKey())
+
+      List<CandidateListEntity> candidateListEntities = candidateListRepository.findAllByJobPostingKeyAndJobPostingStepId(
+          interviewScheduleEntity.getJobPostingKey(),
+          interviewScheduleEntity.getJobPostingStepId());
+
+      for (CandidateListEntity candidate : candidateListEntities) {
+        String to = candidateRepository.findByCandidateKey(candidate.getCandidateKey())
             .orElseThrow(() -> new CustomException(USER_NOT_FOUND)).getEmail();
+
+        LocalDateTime scheduleDateTime = LocalDateTime.of(
+            interviewScheduleEntity.getLastInterviewDate(), LocalTime.of(23, 59, 59));
 
         String subject = "과제 취소 안내 : " + jobPostingEntity.getTitle();
         String text = "과제 일정이 <strong>취소</strong>되었음을 안내드립니다.<br><br>"
-            + "취소된 과제 정보<br>" + jobPostingEntity.getTitle() + " - " + jobPostingStep.getStep()
-            + "<br> 취소된 과제 마감 일시 : " + participant.getInterviewEndDatetime()
-            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd EEEE HH:mm"))
-            + "<br><br>";
+            + "취소된 과제 정보<br>" + jobPostingEntity.getTitle() + " - " + jobPostingStepEntity.getStep()
+            + "<br> 취소된 과제 마감 일시 : " + scheduleDateTime.format(
+            DateTimeFormatter.ofPattern("yyyy-MM-dd EEEE HH:mm")) + "<br><br>";
 
         mailComponent.sendHtmlMail(to, subject, text, true);
       }
     } else {
-      log.info("과제일 경우 면접 취소 메일 발송");
+      log.info("면접일 경우 면접 취소 메일 발송");
       for (InterviewScheduleParticipantsEntity participant : participants) {
         String to = candidateRepository.findByCandidateKey(participant.getCandidateKey())
             .orElseThrow(() -> new CustomException(USER_NOT_FOUND)).getEmail();
 
         String subject = "면접 일정 취소 안내 : " + jobPostingEntity.getTitle();
         String text = "예정되었던 면접 일정이 <strong>취소</strong>되었음을 안내드립니다.<br><br>"
-            + "취소된 면접 정보<br>" + jobPostingEntity.getTitle() + " - " + jobPostingStep.getStep()
+            + "취소된 면접 정보<br>" + jobPostingEntity.getTitle() + " - " + jobPostingStepEntity.getStep()
             + "<br> 취소된 면접 일시 : " + participant.getInterviewStartDatetime()
             .format(DateTimeFormatter.ofPattern("yyyy-MM-dd EEEE HH:mm"));
 

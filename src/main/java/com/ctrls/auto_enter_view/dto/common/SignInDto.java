@@ -3,6 +3,7 @@ package com.ctrls.auto_enter_view.dto.common;
 import com.ctrls.auto_enter_view.entity.CandidateEntity;
 import com.ctrls.auto_enter_view.entity.CompanyEntity;
 import com.ctrls.auto_enter_view.enums.UserRole;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,7 @@ public class SignInDto {
   public static class Request {
 
     @NotBlank
-    @Pattern(regexp = "^(?:\\w+\\.?)*\\w+@(?:\\w+\\.)+\\w+$", message = "이메일 형식이 올바르지 않습니다.")
+    @Email(message = "이메일 형식에 맞지 않습니다.")
     private String email;
 
     @NotBlank
