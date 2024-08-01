@@ -21,10 +21,10 @@
 
 <br>
 
-## 🔗 Project Links 
+## 🔗 Project Links
 
 
-#### 🚀 [Auto Enter View](https://auto-enterview-fe.vercel.app/) : 서비스 배포 
+#### 🚀 [Auto Enter View](https://auto-enterview-fe.vercel.app/) : 서비스 배포
 
 #### 🧾 [Auto Enter View](https://gray-heather-95a.notion.site/AutoEnterView-bad9c322c8104fc8bd86f4f86c6c7291) : Notion
 
@@ -42,7 +42,7 @@
   <tr>
     <td>
       <a href="https://github.com/Goldbar97">
-        <img src="doc/image/logo.png" width="120px" height="120px" alt="성준"/>
+        <img src="doc/image/Logo.png" width="120px" height="120px" alt="성준"/>
       </a>  
     </td>
     <td>
@@ -226,16 +226,22 @@
 |              회원가입/로그인/로그아웃               |               이메일 찾기/비밀번호 변경/회원 탈퇴               |                   메인 페이지/상세 페이지                    |                    회사 - 마이페이지/채용공고CRUD                    |  
 |:----------------------------------------:|:------------------------------------------------:|:--------------------------------------------------:|:---------------------------------------------------------:|
 |  ![회원가입/로그인/로그아웃](doc/video/signup.gif)  | ![이메일 찾기/비밀번호 변경/회원 탈퇴](doc/video/findEmail.gif) |        ![메인/상세 페이지](doc/video/mainPage.gif)        |       ![회사 - 마이페이지/채용공고](doc/video/jobPosting.gif)        |
-|           응시자 - 마이페이지/이력서CRUD            |                     채용단계 관리                      |                   일정 관리/메일 발송 예약                   |                   (Flow Chart) 이력서 필터링                    |
-| ![응시자 - 마이페이지/이력서](doc/video/resume.gif) |     ![채용단계 관리](doc/video/jobPostingStep.gif)     | ![일정 관리/메일 발송 예약](doc/video/interviewSchedule.gif) | <img src="doc/image/logo.png" alt="이력서 필터링" width="60%"/> |
-
+|           응시자 - 마이페이지/이력서CRUD            |                     채용단계 관리                      |                   일정 관리/메일 발송 예약                   |                                                           |
+| ![응시자 - 마이페이지/이력서](doc/video/resume.gif) |     ![채용단계 관리](doc/video/jobPostingStep.gif)     | ![일정 관리/메일 발송 예약](doc/video/interviewSchedule.gif) |                                                           |
 
 <br>
 <br>
 
 ## ♾️ Flow
+
+### 1. 일정 생성
+
 <img width="90%" src="doc/image/interviewScheduleFlow.png" alt="interviewScheduleFlow">
+
+### 2. 이력서 필터링
+
 <img width="90%" src="doc/image/filteringFlow.png" alt="filteringFlow">
+<br>
 <img width="90%" src="doc/image/filteringImage.png" alt="filteringImage">
 
 <br>
@@ -244,7 +250,13 @@
 ## 🎯 Trouble Shooting
 **➡ [Go To Trouble Shooting](https://www.notion.so/b68b7782cb62448d93bbbb9225a45292)**
 
+<br>
+<br>
+
 ##  ✏️ ️개선 사항
+
+<br>
+<br>
 
 ## 🚩 프로젝트 후 느낀점
 - 성준
@@ -252,3 +264,8 @@
 - 은선
 - 영광
 
+<br>
+<br>
+
+## 🙌 전체 시연 영상
+[![전체 시연 영상](doc/image/thumbnail.png)](https://drive.google.com/file/d/1EYCoW52AOYpITab21-rw6Xamw4sf8qhk/view?usp=sharing)
