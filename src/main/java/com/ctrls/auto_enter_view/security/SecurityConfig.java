@@ -1,6 +1,8 @@
 package com.ctrls.auto_enter_view.security;
 
+import com.ctrls.auto_enter_view.component.NaverOAuth2AuthenticationSuccessHandler;
 import com.ctrls.auto_enter_view.enums.UserRole;
+import com.ctrls.auto_enter_view.service.NaverOAuth2Service;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -11,8 +13,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -26,12 +26,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-
-    return new BCryptPasswordEncoder();
-  }
+  private final NaverOAuth2Service naverOAuth2Service;
+  private final NaverOAuth2AuthenticationSuccessHandler naverOAuth2AuthenticationSuccessHandler;
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -50,10 +46,16 @@ public class SecurityConfig {
         .sessionManagement(sessionManagement ->
             sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
+
+        .oauth2Login(oauth2customizer -> oauth2customizer
+            .userInfoEndpoint(userInfoEndpointConfig ->
+                userInfoEndpointConfig.userService(naverOAuth2Service))
+            .successHandler(naverOAuth2AuthenticationSuccessHandler))
+        
         .authorizeHttpRequests(authHttpRequest -> authHttpRequest
 
             // 권한 없이 접근 가능
-            .requestMatchers("/api-test/**").permitAll()
+            .requestMatchers("/login/**", "/oauth2/**", "/api-test/**").permitAll()
             .requestMatchers("/companies/signup", "/candidates/signup").permitAll()
             .requestMatchers("/candidates/find-email").permitAll()
             .requestMatchers("/common/**").permitAll()
