@@ -5,6 +5,8 @@ import com.ctrls.auto_enter_view.enums.Education;
 import com.ctrls.auto_enter_view.enums.JobCategory;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
@@ -31,6 +33,7 @@ public class JobPostingEntity extends BaseEntity {
   private String title;
 
   @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
   private JobCategory jobCategory;
 
   private Integer career;
@@ -39,6 +42,7 @@ public class JobPostingEntity extends BaseEntity {
   private String workLocation;
 
   @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
   private Education education;
 
   @Column(nullable = false)
