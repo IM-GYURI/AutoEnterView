@@ -20,9 +20,15 @@ public class SearchService {
       String employmentType,
       Integer minCareer,
       Integer maxCareer,
-      Education education) {
+      Education education,
+      Long minSalary,
+      Long maxSalary) {
 
     return jobPostingRepositoryCustom.searchJobPostings(jobCategory, techStacks, employmentType,
-        minCareer, maxCareer, education);
+        minCareer, maxCareer, education, minSalary, maxSalary);
+  }
+
+  public List<String> searchJobPostingsByKeyword(String keyword) {
+    return jobPostingRepositoryCustom.searchJobPostingsByKeyword(keyword);
   }
 }
