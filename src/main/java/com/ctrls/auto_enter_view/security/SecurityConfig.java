@@ -53,7 +53,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(authHttpRequest -> authHttpRequest
 
             // 권한 없이 접근 가능
-            .requestMatchers("/api/search").permitAll()
+            .requestMatchers("/job-postings/search", "/job-postings/filter").permitAll()
             .requestMatchers("/api-test/**").permitAll()
             .requestMatchers("/companies/signup", "/candidates/signup").permitAll()
             .requestMatchers("/candidates/find-email").permitAll()
