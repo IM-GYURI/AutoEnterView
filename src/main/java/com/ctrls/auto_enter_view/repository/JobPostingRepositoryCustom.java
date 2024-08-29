@@ -24,5 +24,9 @@ public interface JobPostingRepositoryCustom {
       String employmentType,
       Integer minCareer,
       Integer maxCareer,
-      Education education);
+      Education education,
+      Long minSalary,
+      Long maxSalary);
+
+  List<String> searchJobPostingsByKeyword(String keyword);
 }
